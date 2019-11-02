@@ -579,7 +579,7 @@ data:extend(
 
     vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
 
-    
+    collision_mask = { "doodad-layer" } -- IDK
   }, true),
 
   ------------------------------------------------------------------------------------------------

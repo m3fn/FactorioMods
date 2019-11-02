@@ -171,6 +171,13 @@ local function serializeArithmeticDeciderCommon(params)
 	return str
 end
 
+local function substituteVerySpecialSignal(signalName)
+	if signalName == 'signal-each' then signalName = "signal-composite-combinators-base-each" end
+	if signalName == 'signal-everything' then signalName = "signal-composite-combinators-base-everything" end
+	if signalName == 'signal-anything' then signalName = "signal-composite-combinators-base-anything" end
+	return signalName
+end
+
 local function convertArithmeticDeciderCommon(str, slots)
 	local nextSlot = 1
 	
@@ -194,10 +201,10 @@ local function convertArithmeticDeciderCommon(str, slots)
 			slots[nextSlot] = { signal = { type = baseConst.specialSignal.type, name = baseConst.specialSignal.name }, count = signalCount, index = nextSlot }
 			nextSlot = nextSlot + 1
 		else
-			signalName = spl[index]
+			signalName = substituteVerySpecialSignal(spl[index])
 			index = index + 1
 			
-			slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = signalCount, index = nextSlot }
+			slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = 0, index = nextSlot }
 			nextSlot = nextSlot + 1
 		end
 	
@@ -211,15 +218,15 @@ local function convertArithmeticDeciderCommon(str, slots)
 		signalType = baseConst.specialSignal.type
 		signalName = baseConst.specialSignal.name
 	else
-		signalName = spl[index]
+		signalName = substituteVerySpecialSignal(spl[index])
 		index = index + 1
 	end
 	signalCount = spl[index]
 	index = index + 1
-	
+
 	slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = signalCount, index = nextSlot }
 	nextSlot = nextSlot + 1
-
+	
 	return nextSlot
 end
 

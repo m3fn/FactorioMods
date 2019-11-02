@@ -45,6 +45,8 @@ function OnTick(e)
 		return
 	end
 	
+	-- even simple task.age = task.age + 1 in this function is taking anacceptable amount of time, IMHO
+	
 	for name, task in pairs(global.state.tickTasks) do
 		if name == "MaintainUI" then
 			local player = game.players[task.playerIndex]
@@ -58,6 +60,46 @@ function OnTick(e)
 				if task.age > 2 and not player.selected then
 					removeTickTask("MaintainUI")
 				end
+			end
+		end
+		if name == "UCDoCC" then
+			local del = true
+			
+			for _, subTask in pairs(task) do
+				if (subTask.state == 1 or subTask.state == 2) and subTask.age > 60 then
+					error("Something is wrong with blueprint creation. No 'combinator-data' pair built within 60 seconds.")
+				end
+				if subTask.state == 3 then 
+					
+					local dataSlots = { }
+					local iii = 1
+					for _,signals in pairs(subTask.constructionData.get_control_behavior().parameters) do
+						for _,signal in pairs(signals) do
+							if signal.signal.name then
+								--if iii < 10 then
+								--	msg(1, iii..'ii'..inspect(signal))
+								--end
+								--iii = iii + 1
+								table.insert(dataSlots, signal)
+							end
+						end
+					end
+					table.insert(global.state.waitingForUnghosting, { 
+						dataSlots = dataSlots,
+						combinatorGhost = subTask.combinator,
+						ghostLocation = subTask.combinator.position
+					})
+					subTask.constructionData.destroy()
+					task[_] = nil -- No need for sub task at this point, waiting for ghost materialization
+				end
+
+				subTask.age = subTask.age + 1
+				del = false
+			end
+		
+			if del then
+				msg(1, 'indeed')
+				removeTickTask("UCDoCC")
 			end
 		end
 	end
@@ -301,6 +343,16 @@ end
 -- Main
 
 function OnCombinatorBuilt(entity, combinatorDataDesc)
+	for _,item in pairs(global.state.waitingForUnghosting) do
+		if not item.combinatorGhost.valid then -- Ghost should not exist at this point
+			if entity.position.x == item.ghostLocation.x and entity.position.y == item.ghostLocation.y then
+				SpawnCompositeCombinatorComponentsBySlots(entity, item.dataSlots) -- hell yeah
+				global.state.waitingForUnghosting[_] = nil 
+				return
+			end
+		end
+	end
+	
 	local strIndex = remote.call(combinatorDataDesc.callbacksRemote, "PickBuildString", entity)
 
 	SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
@@ -313,8 +365,65 @@ function OnEntityBuiltSimple(entity)
 	end
 end
 
+--[[
+
+Blueprinting flow is:
+
+Whichever ghost built first (combinator or construction data) - addTickTask("Unbound construction data or composite combinator")
+Second ghost - modify tick task pinpoiting by location
+Then on tick remove construction data ghost, save data of combinator ghost in global
+Then when built by robot - usual OnBuilt, except we use data from cosntructionData, not via PickBuildString str
+
+]]--
+
 function OnPlayerBuiltEntity(e)
-	OnEntityBuiltSimple(e.created_entity)
+	local entity = e.created_entity
+	if entity.name == "entity-ghost" then
+		local ghostName = entity.ghost_name
+		local combinatorDataDesc = global.modCfg.combinatorPrototypes[ghostName]
+		
+		if ghostName == "composite-combinator-construction-data" or combinatorDataDesc ~= nil then
+			local unboundEntsTask = global.state.tickTasks["UCDoCC"]
+			local addTask = false
+			local entityPos = entity.position
+			if unboundEntsTask == nil then
+				addTask = true
+				unboundEntsTask = { }
+			end
+			local addSubTask = true
+				
+			if ghostName == "composite-combinator-construction-data" then
+				for _, subTask in pairs(unboundEntsTask) do
+					if subTask.constructionData == nil and subTask.combinator ~= nil and subTask.combinator.position.x == entityPos.x and subTask.combinator.position.y == entityPos.y then
+						subTask.constructionData = entity
+						subTask.state = 3
+						addSubTask = false
+						break
+					end
+				end
+				if addSubTask then
+					table.insert(unboundEntsTask, { constructionData = entity, combinator = nil, isReady = false, state = 1, age = 1 })
+				end
+			elseif combinatorDataDesc ~= nil then
+				for _, subTask in pairs(unboundEntsTask) do
+					if subTask.constructionData ~= nil and subTask.combinator == nil and subTask.constructionData.position.x == entityPos.x and subTask.constructionData.position.y == entityPos.y then
+						subTask.combinator = entity
+						subTask.state = 3
+						addSubTask = false
+						break
+					end
+				end
+				if addSubTask then
+					table.insert(unboundEntsTask, { constructionData = nil, combinator = entity, isReady = false, state = 2, age = 1 })
+				end
+			end
+			
+			if addTask then
+				addTickTask("UCDoCC", unboundEntsTask)
+			end
+		end
+	end
+	OnEntityBuiltSimple(entity)
 end
 
 function OnEntityMinedSimple(entity)
@@ -430,7 +539,6 @@ local de = defines.events
 
 if settings.startup['composite-combinators-dev-mode'].value then
 
-script.on_event(de.on_tick, OnTick)
 script.on_event(de.on_player_selected_area, OnPlayerSelectedArea)
 script.on_event(de.on_player_alt_selected_area, OnPlayerAltSelectedArea)
 script.on_event(de.on_gui_click, OnGuiClick)
@@ -440,6 +548,8 @@ script.on_event(de.on_selected_entity_changed, OnSelectedEntityChanged)
 script.on_event(de.on_gui_closed, OnGuiClosed)
 
 end
+
+script.on_event(de.on_tick, OnTick)
 
 script.on_event(de.on_player_joined_game, OnPlayerJoinedGame)
 script.on_event(de.on_player_left_game, OnPlayerLeftGame)

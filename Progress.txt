@@ -4,22 +4,17 @@ Progress:
 
    ------
    - Build and remove by hand and with robots
-   - Blueprinting
-   - Copy settings
-   - What is on_area_cloned, ctr+c, ctrl+v, ctrl+x
+   - Blueprinting: polish
    - Reconsider dataSlots removal.
    - Complete Distinct wire constant combinator design & GUIs - fucking on_tick workarounds
    ------
 
-
-
    -------
    - Test build performance a bit to know limitations
    - Slots checksum
-   - Pass any damage to the composite combinator, test biters
-   - On died, remove destroy messages on reconfigure and death, also that icons
    - Restrict composite combinator flags (e.g. "building-direction-8-way")
    - Restrict component flags
+   - getCompositeCombinatorPrototype
    --------
 
    ------
@@ -38,13 +33,23 @@ Progress:
    ------- 
    
    ------
-   - Ask for looks more
+   - 0.1.2
+   - Ask for looks
    ------
   
    ------
    - Str builder APIs
    - Index Filter with shit GUIs an graphics
    - Simple memory with shit GUIs an graphics
+   ------
+   
+   ------
+   - Copy settings
+   - What is on_area_cloned, ctr+c, ctrl+v, ctrl+x
+   - Controllinator compatibility
+   - Pass any damage to the composite combinator, test biters
+   - On died, change component icons - can be checked with .destroy()
+   - on_player_*
    ------
    
    ------
@@ -61,9 +66,12 @@ Progress:
 
    ------
 	
-TODO:
-- Controllinator compatibility
+
+
+
+Some time later:
 - ? Specify component index
+
 - Selection tools and icons graphics
 - Do not store spawned entities in dict, on blueprinting get all position info from entities themselves
 - Draw small leds on components
@@ -72,7 +80,7 @@ TODO:
 - Add components substrings to dict
 - Check out unsanctioned components settings change?
 - Inteference from other mod, like with script_raised_destroy, script_raised_revive, script_raised_built, on_trigger_created_entity, look for other undesired way of disrupting setup
-- on_player_*
+- Check Corpses
 - Cross-surface configuring, compatibility with any rts-style mods out there (are there?) -- both at least for distinct constant combinator gui
 
   .......

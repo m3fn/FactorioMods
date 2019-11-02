@@ -37,6 +37,7 @@ function OnInit()
 		ioEntStates = { },
 		players = { },
 		combinatorEntities = { },
+		waitingForUnghosting = { },
 		tickTasks = { },
 		tasksCount = 0
 	}
@@ -199,7 +200,7 @@ remote.add_interface("Composite-Combinators-Base", {
 		local num = tonumber(str)
 		
 		local nextSlot = 1
-		slots[nextSlot] = { signal = { type = item, name = 'composite-combinator-io-marker' }, count = num, index = nextSlot }
+		slots[nextSlot] = { signal = { type = 'item', name = 'composite-combinator-io-marker' }, count = num, index = nextSlot }
 	end,
 	
 	ioMarkerSpawn = function (entity, slots, nextSlot)

@@ -106,64 +106,6 @@ function split3 (str, d) -- this is the one that works, O M G !
 end
 
 
-
--- by gist.github.com/hazpotts/
-function SpiralCoordinates(id)
-	local x
-	local y
-    if id == 1 then
-        x = 0
-        y = 0
-    else
-        local idSqrt = math.sqrt(id); -- find the square root of the id
-        local lowSqrt = math.floor(idSqrt) -- round the square root down
-        local highSqrt = math.ceil(idSqrt) -- round the square root up
-        if lowSqrt == highSqrt then -- if they are the same it's the last position
-            lowSqrt = lowSqrt - 2; -- to calculate previous odd square root
-        end
-        if lowSqrt % 2 == 0 then -- if in the second half of the ring the low root is even, need to find the previous odd because centered rings are odd number sided squares
-            lowSqrt = lowSqrt - 1;
-        end
-        if highSqrt % 2 == 0 then -- same but for first half and high root
-            highSqrt = highSqrt + 1;
-        end
-
-        local previousRingEnd = math.pow(lowSqrt, 2); -- square root rounded down and then squared finds the number at the end of the previous ring
-        local ringEnd = math.pow(highSqrt, 2); -- the same but for the end of the current ring
-        local ringPosition = id - previousRingEnd; -- (15-9 = 6) taking the previous ring from the id finds the position around the current ring
-        local ringTotal = ringEnd - previousRingEnd; -- (25-9 = 16) taking the previous ring from the current finds the total count around the current ring
-        local sideLengthMinusOne = ringTotal / 4; -- 16/4 = 4
-        local halfSideLengthMO = sideLengthMinusOne / 2; -- 4/2 = 2
-        local side = ringPosition / ringTotal;
-        
-        --[[
-         * This calculates what side it's on
-         * and it's position along that side.
-         * Corner positions count as being the last on the side
-         * hence the minus 1 on side length, because the first
-         * corner of each side counted for the previous side.
-         * Corners could be calculated from either side that they
-         * are a part of.
-        ]]--
-
-        if side <= 0.25 then -- right hand side
-            x = halfSideLengthMO;
-            y = halfSideLengthMO - ringPosition;
-        elseif side <= 0.5 then -- bottom
-            x = halfSideLengthMO - (ringPosition - sideLengthMinusOne);
-            y = -halfSideLengthMO;
-        elseif side <= 0.75 then -- left hand side
-            x = -halfSideLengthMO;
-            y = -halfSideLengthMO + (ringPosition - (sideLengthMinusOne*2));
-        elseif side > 0.75 then -- top
-            x = -halfSideLengthMO + (ringPosition - (sideLengthMinusOne*3));
-            y = halfSideLengthMO;
-        end
-    end
-
-    return { x = x, y = y }
-end
-
 function HasValue (tab, val)
     for index, value in ipairs(tab) do
         if value == val then
@@ -184,25 +126,27 @@ function GetValue (tab, key)
     return nil
 end
 
+function RecreateAllSignals()
+	allItemSignals = { }
+	-- 'item'!, 'fluid', 'virtual'
+	for _,itemPrototype in pairs(game.item_prototypes) do
+		local type = itemPrototype.type
+		if type == 'item-with-tags' then
+			type = 'item'
+		end
+		allItemSignals[itemPrototype.name] = { type = itemPrototype.type, name = itemPrototype.name }
+	end
+end
 
 local allItemSignals = nil
 
 function EntityNameToSignal(name)
     if allItemSignals == nil then
-        allItemSignals = { }
-        -- 'item'!, 'fluid', 'virtual'
-        for _,itemPrototype in pairs(game.item_prototypes) do
-            allItemSignals[itemPrototype.name] = { type = itemPrototype.type, name = itemPrototype.name }
-        end
+        RecreateAllSignals()
     end
-    local VALUE = allItemSignals[name]
-	if not VALUE then
-		allItemSignals = { }
-        -- 'item'!, 'fluid', 'virtual'
-        for _,itemPrototype in pairs(game.item_prototypes) do
-			game.players[1].print(itemPrototype.name)
-            allItemSignals[itemPrototype.name] = { type = itemPrototype.type, name = itemPrototype.name }
-        end
+    local val = allItemSignals[name]
+	if not val then
+		RecreateAllSignals()
 	end
 	return allItemSignals[name]
 end
@@ -214,6 +158,9 @@ end
 local allEntityPrototypes = nil
 
 function SignalToEntityPrototype(signalType, signalName)
+  if signalName == 'composite-combinator-io-marker' then
+	msg(1, inspect(allEntityPrototypes))
+  end
   if signalType ~= 'item' and signalType ~= 'item-with-tags' then
     return nil
   end
@@ -226,26 +173,6 @@ function SignalToEntityPrototype(signalType, signalName)
   return allEntityPrototypes[signalName]
 end
 
-
 function msg(playerIndex, msgg)
     game.players[playerIndex].print(msgg)
-end
-
--- outrageously stolen from MagmaMcFry / Factorissimo2
-function FindBlueprint(player, state)
-  local inventories = {player.get_inventory(defines.inventory.player_quickbar), player.get_inventory(defines.inventory.player_main)}
-  for _, inv in pairs(inventories) do
-    for i=1,#inv do
-      local itemStack = inv[i]
-      if itemStack.valid_for_read and itemStack.name == "blueprint2" then
-        local setup = itemStack.is_blueprint_setup()
-        if (state == "empty" and not setup) or
-          (state == "setup" and setup) or
-          (state == "whatever")
-        then
-          return itemStack
-        end
-      end
-    end
-  end
 end
