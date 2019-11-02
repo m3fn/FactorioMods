@@ -156,8 +156,12 @@ remote.add_interface("Composite-Combinators-Core", {
 	
 	-- Live editing: get combinator component to do something with programmatically
 	
-	getComponent = function(entityId, componentId)
-		return GetComponent(entityId, componentId)
+	getComponentEntityId = function(entityId, componentId)
+		return GetComponent(entityId, componentId).componentEntity.unit_number
+	end,
+	
+	getComponentPrototype = function(name)
+		return global.modCfg.componentsDataDesc[name] or global.modCfg.componentsDataDescByComponentName[name]
 	end
 })
 

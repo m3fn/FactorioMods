@@ -7,15 +7,12 @@ Progress:
    - Blueprinting
    - Copy settings
    - What is on_area_cloned, ctr+c, ctrl+v, ctrl+x
-   - Reconsider dataSlots removal
+   - Reconsider dataSlots removal.
+   - Complete Distinct wire constant combinator design & GUIs - fucking on_tick workarounds
    ------
 
-   -------
-   - Distinct Constants GUI
-   - Complete Dev GUI
-   - Complete Distinct wire constant combinator design & GUIs - fucking on_tick workarounds
-   -------
-   
+
+
    -------
    - Test build performance a bit to know limitations
    - Slots checksum
@@ -26,8 +23,6 @@ Progress:
    --------
 
    ------
-   - License
-   - Localization
    - Sanitize tabs/spaces
    - Write mod description (reasonable, for a couple of days, for devs and not)
    - Test check component's bounds
@@ -78,5 +73,6 @@ TODO:
 - Check out unsanctioned components settings change?
 - Inteference from other mod, like with script_raised_destroy, script_raised_revive, script_raised_built, on_trigger_created_entity, look for other undesired way of disrupting setup
 - on_player_*
+- Cross-surface configuring, compatibility with any rts-style mods out there (are there?) -- both at least for distinct constant combinator gui
 
   .......

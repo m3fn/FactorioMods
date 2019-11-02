@@ -566,7 +566,7 @@ data:extend(
     name = "composite-combinator-construction-data",
     icon = "__CompositeCombinatorsCore__/graphics/icons/construction-data.png",
     icon_size = 32,
-    flags = { "not-deconstructable", "placeable-neutral", "placeable-off-grid", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hide-alt-info", "not-upgradable" },
+    flags = { "not-deconstructable", "placeable-neutral", "player-creation", "placeable-off-grid", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hide-alt-info", "not-upgradable" },
     max_health = 120,
     corpse = "small-remnants",
 

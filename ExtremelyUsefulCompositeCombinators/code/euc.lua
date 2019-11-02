@@ -36,7 +36,8 @@ function OnInit()
 		tickTasks = { },
 		tasksCount = 0,
 		players = { },
-		delayCombinators = { }
+		delayCombinators = { },
+		constantCombinators = { }
 	}
     
 	global.hasTasks = false
@@ -105,11 +106,13 @@ function OnTick(e)
 	for name, task in pairs(global.state.tickTasks) do
 		if name == "MaintainUI" then
 			local player = game.players[task.playerIndex]
-			msg(1, "ggg")
 			if player and player.connected and player.opened and player.opened_gui_type and player.opened_gui_type == defines.gui_type.entity then
 				local openedEntityName = player.opened.name
-				if HasValue(const.managedEnts, openedEntityName) then
-					ShowIoCombinatorMenu(player.opened, task.playerIndex)
+				if openedEntityName == "euc-simple-delay-combinator" then
+					ShowDelayCombinatorMenu(player.opened, task.playerIndex)
+				end
+				if openedEntityName == "euc-distinct-constant-combinator" then
+					ShowDistinctConstantCombinatorMenu(player.opened, task.playerIndex)
 				end
 			else
 				task.age = task.age + 1
@@ -121,17 +124,20 @@ function OnTick(e)
 	end
 end
 
-
-function ShowIoCombinatorMenu(entity, playerIndex)
-	local player = game.players[playerIndex]
-	
+function ShowCombinatorMenuCommon(entity, playerIndex, name)
 	local playerDesc = global.state.players[playerIndex]
 	CloseMenus(playerIndex)
 	playerDesc.centralUIElement = {
-		name = "DelayCombinator",
+		name = name,
 		selectedEntity = entity
 	}
 	global.state.players[playerIndex] = playerDesc
+end
+
+function ShowDistinctConstantCombinatorMenu(entity, playerIndex)
+	ShowCombinatorMenuCommon(entity, playerIndex, "DistinctConstantCombinator")
+
+	local player = game.players[playerIndex]
 	
 	local frame = player.gui.screen.add{
         type = "frame",
@@ -145,40 +151,97 @@ function ShowIoCombinatorMenu(entity, playerIndex)
 		name = "flow",
         direction = "vertical"
     }
+	flow.add {
+		type = "label",
+		name = "label",
+		style = "subheader_caption_label",
+		caption =  { "misc.DistinctConstantCombinator_SelectWire" }
+	}
+	local buttonsFlow = frame.add {
+        type = "flow",
+		name = "flow2",
+        direction = "horizontal"
+    }
+	buttonsFlow.add {
+		type = "sprite-button",
+		name = "button_pickwire_red",
+		style = "euc_iconbutton",
+		sprite = "item/red-wire"
+	}
+	buttonsFlow.add {
+		type = "sprite-button",
+		name = "button_pickwire_green",
+		style = "euc_iconbutton",
+		sprite = "item/green-wire"
+	}
+	player.opened = frame
+	frame.force_auto_center()
+end
+
+function ShowDelayCombinatorMenu(entity, playerIndex)
+	ShowCombinatorMenuCommon(entity, playerIndex, "DelayCombinator")
+	
+	local player = game.players[playerIndex]
+	
+	local frame = player.gui.screen.add{
+        type = "frame",
+        name = "euc_delay_combinator",
+        caption = { "misc.DelaySettings" },
+        direction = "vertical",
+    }
+	local flow = frame.add {
+        type = "flow",
+		name = "flow",
+        direction = "vertical"
+    }
 	local indicatorFlow = flow.add {
 		type = "flow",
 		name = "flow1",
 		direction = "horizontal"
+	}
+
+	indicatorFlow.add {
+		type = "label",
+		name = "label",
+		style = "subheader_caption_label",
+		caption =  { "misc.DelaySettings_Indicator" }
+	}
+	indicatorFlow.add {
+		type = "label",
+		name = "label2",
+		style = "subheader_caption_label",
+		caption = ''..const.simpleDelayCombinator.thresholds[global.state.delayCombinators[entity.unit_number].currentDelayId]
 	}
 	local buttonsFlow = flow.add {
 		type = "flow",
 		name = "flow2",
 		direction = "horizontal"
 	}
-	indicatorFlow.add {
+	buttonsFlow.add {
 		type = "label",
-		name = "label",
-		style = "composite_combinators_settings_label",
-		caption =  { "misc.DelaySettings_Indicator" }
+		name = "label3",
+		style = "subheader_caption_label",
+		caption = { "misc.DelaySettings_SetDelay" }
 	}
-	indicatorFlow.add {
-		type = "label",
-		name = "label2",
-		style = "composite_combinators_settings_label",
-		caption =  { ''..global.state.delayCombinators[entity.unit_number].currentDelayId }
+	buttonsFlow = flow.add {
+		type = "flow",
+		name = "flowA", 
+		style = "euc_spaceflow",
+		direction = "horizontal"
 	}
 	local numId = 1
 	for _,num in pairs(const.simpleDelayCombinator.thresholds) do
 		buttonsFlow.add {
 			type = "button",
 			name = "button_setdelay_"..numId,
-			style = "composite_combinators_settings_button",
+			style = "euc_button",
 			caption = ''..num
 		}
 		if numId % 3 == 0 then
 			buttonsFlow = flow.add {
 				type = "flow",
 				name = "flow"..(numId), 
+				style = "euc_spaceflow",
 				direction = "horizontal"
 			}
 		end
@@ -194,22 +257,57 @@ function OnGuiClick(e)
 	local playerDesc = global.state.players[playerIndex]
 	
 	if playerDesc.centralUIElement then
+		local elementName = e.element.name
+		local entity = playerDesc.centralUIElement.selectedEntity
+		local player = game.get_player(playerIndex)
 		if playerDesc.centralUIElement.name == "DelayCombinator" then
-			local elementName = e.element.name
 			local tnum = 1
 			for num in ipairs(const.simpleDelayCombinator.thresholds) do -- I hate lua too much to do this in a civil way
-				if tnum ~= 0 then
-					msg(1, elementName..' or '.."button_setdelay_"..tnum)
-					if elementName == "button_setdelay_"..tnum then 
-						local entity = playerDesc.centralUIElement.selectedEntity
-						remote.call("Composite-Combinators-Core", "changeLayout", entity.unit_number, tnum)
-						SetDelayCombinatorDisplay(entity, tnum)
-						global.state.delayCombinators[entity.unit_number].currentDelayId = tnum
-						msg(1, "Changed delay to "..const.simpleDelayCombinator.thresholds[tnum])
-						tnum = 0
-					end
-					tnum = tnum + 1
+				if elementName == "button_setdelay_"..tnum then 
+					remote.call("Composite-Combinators-Core", "changeLayout", entity.unit_number, tnum)
+					SetDelayCombinatorDisplay(entity, tnum)
+					global.state.delayCombinators[entity.unit_number].currentDelayId = tnum
+					CloseMenus(playerIndex)
+					return
 				end
+				tnum = tnum + 1
+			end
+		end
+		if playerDesc.centralUIElement.name == "DistinctConstantCombinator" then	
+			if elementName == "button_pickwire_red" then 
+				CloseMenus(playerIndex)
+				local combinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", entity.unit_number, 1)
+				msg(1, 'cid: '..combinatorId)
+				local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
+					position = player.position,
+					radius = 1024,
+					name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
+				})
+				for _,entity in pairs(pf) do
+									msg(1, 'bod: '..entity.unit_number)
+					if entity.unit_number == combinatorId then
+									msg(1, 'te: ')
+						player.opened = entity
+						return
+					end
+				end
+				return
+			end
+			if elementName == "button_pickwire_green" then 
+				CloseMenus(playerIndex)
+				local combinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", entity.unit_number, 2)
+				local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
+					position = player.position,
+					radius = 1024,
+					name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
+				})
+				for _,entity in pairs(pf) do
+					if entity.unit_number == combinatorId then
+						player.opened = entity
+						return
+					end
+				end
+				return
 			end
 		end
 	end
@@ -221,7 +319,6 @@ function OnSelectedEntityChanged(e)
 	
 	if player.selected then
 		if HasValue(const.managedEnts, player.selected.name) then
-			msg(1, "yo")
 			addTickTask("MaintainUI", { playerIndex = playerIndex, age = 1 })
 		end
 	end
@@ -235,7 +332,12 @@ end
 
 
 function OnCombinatorBuilt(entity)
-	global.state.delayCombinators[entity.unit_number] = { currentDelayId = const.simpleDelayCombinator.defaultDelayId }
+	if entity.name == "euc-distinct-constant-combinator" then
+		global.state.constantCombinators[entity.unit_number] = { entity = entity }
+	end
+	if entity.name == "euc-simple-delay-combinator" then
+		global.state.delayCombinators[entity.unit_number] = { entity = entity, currentDelayId = const.simpleDelayCombinator.defaultDelayId }
+	end
 end
 
 function OnPlayerBuiltEntity(e)

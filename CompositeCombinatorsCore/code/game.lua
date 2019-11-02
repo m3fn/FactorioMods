@@ -181,7 +181,7 @@ function ShowIoCombinatorMenu(entity, playerIndex)
 	local frame = player.gui.screen.add{
         type = "frame",
         name = "composite_combinators_io_settings",
-        style = "composite_combinators_settings_container",
+        style = "composite_combinators_settings_container_small",
         caption = { "misc.IOSettings" },
         direction = "vertical",
     }

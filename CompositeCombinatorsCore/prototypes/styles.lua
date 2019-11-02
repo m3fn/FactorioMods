@@ -1,5 +1,5 @@
 
--- if settings.global['composite-combinators-dev-mode'] then
+if settings.startup['composite-combinators-dev-mode'].value then
 
 local minWidth = 380
 local minHeight = 400
@@ -18,14 +18,6 @@ data.raw["gui-style"]["default"]["composite_combinators_settings_label"] = {
     parent = "label",
 	type = "label_style"
 }
-data.raw["gui-style"]["default"]["composite_combinators_settings_fieldset"] = {
-    minimal_width = minWidth,
-    maximal_width = minWidth,
-	minimal_height = minHeight,
-	maximal_height = minHeight,
-    parent = "frame",
-	type = "frame_style"
-}
 data.raw["gui-style"]["default"]["composite_combinators_settings_container"] = {
     minimal_width = minWidth,
     maximal_width = minWidth,
@@ -34,9 +26,19 @@ data.raw["gui-style"]["default"]["composite_combinators_settings_container"] = {
     parent = "frame",
 	type = "frame_style"
 }
+data.raw["gui-style"]["default"]["composite_combinators_settings_container_small"] = {
+    minimal_width = minWidth,
+    maximal_width = minWidth,
+	minimal_height = 120,
+	maximal_height = 120,
+    parent = "frame",
+	type = "frame_style"
+}
 data.raw["gui-style"]["default"]["composite_combinators_settings_button"] = {
     parent = "button",
 	type = "button_style"
 }
 
--- end
+end
+
+

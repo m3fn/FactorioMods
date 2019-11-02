@@ -495,8 +495,6 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 		end
 	end
 	
-	game.players[1].print("DIM: "..srcX.." - "..srcY)
-	
 	baseCoordinate = {
 		x = combinator.position.x + srcX,
 		y = combinator.position.y + srcY
@@ -560,8 +558,6 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 				srcX = srcY
 				srcY = t
 			end
-			
-			game.players[1].print(nextEntId .. "POSS: "..srcX.." - "..srcY)
 			
 			if not dbg and combinatorDataDesc.combinatorWidth < srcX or srcX < 0 then
 				error("Component is out of bounds (X)")
@@ -745,7 +741,13 @@ end
 
 function GetComponent(entityId, componentId)
 	local combinatorEntityState = global.state.combinatorEntities[entityId]
-	return combinatorEntityState.components[componentId]
+	local i = 1
+	for _,component in pairs(combinatorEntityState.components) do
+		if i == componentId then
+			return component
+		end
+		i = i + 1
+	end
 end
  
 --- #endregion
