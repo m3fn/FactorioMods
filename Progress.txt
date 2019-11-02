@@ -1,0 +1,82 @@
+
+Progress:
+
+
+   ------
+   - Build and remove by hand and with robots
+   - Blueprinting
+   - Copy settings
+   - What is on_area_cloned, ctr+c, ctrl+v, ctrl+x
+   - Reconsider dataSlots removal
+   ------
+
+   -------
+   - Distinct Constants GUI
+   - Complete Dev GUI
+   - Complete Distinct wire constant combinator design & GUIs - fucking on_tick workarounds
+   -------
+   
+   -------
+   - Test build performance a bit to know limitations
+   - Slots checksum
+   - Pass any damage to the composite combinator, test biters
+   - On died, remove destroy messages on reconfigure and death, also that icons
+   - Restrict composite combinator flags (e.g. "building-direction-8-way")
+   - Restrict component flags
+   --------
+
+   ------
+   - License
+   - Localization
+   - Sanitize tabs/spaces
+   - Write mod description (reasonable, for a couple of days, for devs and not)
+   - Test check component's bounds
+   - Add errors
+   - Align namings and code style
+   - Comments for devs
+   - Cleanup
+   - Polish eveything with grumpy look
+   ------
+   
+   -------
+   - Fix bugs, edge cases
+   ------- 
+   
+   ------
+   - Publish github and Pre-alpha 0.1.2, ask for looks
+   ------
+  
+   ------
+   - Str builder APIs
+   - Index Filter with shit GUIs an graphics
+   - Simple memory with shit GUIs an graphics
+   ------
+   
+   ------
+   - Other unexpected work
+   ------
+  
+   ------
+   - Publish Pre-alpha 0.2 (mod portal) ?
+   ------
+   
+   ------
+   - Other unexpected work
+   - Wait and get feedback from community
+
+   ------
+	
+TODO:
+- Controllinator compatibility
+- ? Specify component index
+- Selection tools and icons graphics
+- Do not store spawned entities in dict, on blueprinting get all position info from entities themselves
+- Draw small leds on components
+- Good graphics
+- Complex Distinct combinator GUI
+- Add components substrings to dict
+- Check out unsanctioned components settings change?
+- Inteference from other mod, like with script_raised_destroy, script_raised_revive, script_raised_built, on_trigger_created_entity, look for other undesired way of disrupting setup
+- on_player_*
+
+  .......

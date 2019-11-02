@@ -1,0 +1,7 @@
+require("prototypes.entity")
+require("prototypes.tools")
+require("prototypes.item")
+require("prototypes.tools")
+require("prototypes.signal")
+require("prototypes.styles")
+require("prototypes.recipe")
