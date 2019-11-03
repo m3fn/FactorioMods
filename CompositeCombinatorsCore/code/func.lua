@@ -440,16 +440,6 @@ function SpawnCompositeCombinatorComponentsBySlots(entity, dataSlots)
 		dataSlots = dataSlots,
 		nextSlot = -1
 	}
-	msg(1, '1'..inspect(dataSlots[1]))
-	msg(1, '2'..inspect(dataSlots[2]))
-	msg(1, '3'..inspect(dataSlots[3]))
-	msg(1, '4'..inspect(dataSlots[4]))
-	--[[msg(1, '5'..inspect(dataSlots[5]))
-	msg(1, '6'..inspect(dataSlots[6]))
-	msg(1, '7'..inspect(dataSlots[7]))
-	msg(1, '8'..inspect(dataSlots[8]))
-	msg(1, '9'..inspect(dataSlots[9]))
-	msg(1, '0'..inspect(dataSlots[10]))]]--
 	SpawnCompositeCombinatorComponents_Int(entity, dataSlots2)
 end
 
@@ -547,7 +537,6 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 		dataSlot = dataSlots[nextSlot]
 		nextSlot = nextSlot + 1
 
-		msg(1, (nextSlot-1)..'nep: '..dataSlot.signal.type..dataSlot.signal.name)
 		local entityDataDesc = global.modCfg.componentsDataDesc[nextEntityPrototype.name]
 
 		if nextEntityPrototype.name == 'composite-combinator-io-marker' then
@@ -694,25 +683,18 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	beh.enabled = true
 	
 	nextSlot = 1
-	
-	local i = 1
 
 	local params = { }
 	while true do 
 		if not dataSlots[nextSlot] then
 			break
 		end
+		dataSlots[nextSlot].index = nextSlot -- we didn't care about index up to this point; has to be in sequence
 		table.insert(params, dataSlots[nextSlot])
-		-- msg(1, dataSlots[nextSlot].count)
 		nextSlot = nextSlot + 1
 	end
 	beh.parameters = {parameters = params} 
-	
-	msg(1, '1'..inspect(params[1]))
-	msg(1, '2'..inspect(params[2]))
-	msg(1, '3'..inspect(params[3]))
-	msg(1, '4'..inspect(params[4]))
-	
+
 	global.state.combinatorEntities[combinator.unit_number] = combinatorEntityState
 
 	-- Done!

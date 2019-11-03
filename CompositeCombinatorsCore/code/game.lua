@@ -70,16 +70,10 @@ function OnTick(e)
 					error("Something is wrong with blueprint creation. No 'combinator-data' pair built within 60 seconds.")
 				end
 				if subTask.state == 3 then 
-					
 					local dataSlots = { }
-					local iii = 1
-					for _,signals in pairs(subTask.constructionData.get_control_behavior().parameters) do
+					for _,signals in pairs(subTask.constructionData.get_control_behavior().parameters) do -- Good thing with forks for ghosts
 						for _,signal in pairs(signals) do
 							if signal.signal.name then
-								--if iii < 10 then
-								--	msg(1, iii..'ii'..inspect(signal))
-								--end
-								--iii = iii + 1
 								table.insert(dataSlots, signal)
 							end
 						end
@@ -98,7 +92,6 @@ function OnTick(e)
 			end
 		
 			if del then
-				msg(1, 'indeed')
 				removeTickTask("UCDoCC")
 			end
 		end
@@ -514,7 +507,6 @@ end
 
 
 function OnRobotBuiltEntity(e)
-	msg(1, 'bui')
 	OnEntityBuiltSimple(e.created_entity)
 end
 

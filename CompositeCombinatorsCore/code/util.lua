@@ -158,9 +158,6 @@ end
 local allEntityPrototypes = nil
 
 function SignalToEntityPrototype(signalType, signalName)
-  if signalName == 'composite-combinator-io-marker' then
-	msg(1, inspect(allEntityPrototypes))
-  end
   if signalType ~= 'item' and signalType ~= 'item-with-tags' then
     return nil
   end

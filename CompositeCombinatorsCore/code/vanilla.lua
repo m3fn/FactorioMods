@@ -178,6 +178,13 @@ local function substituteVerySpecialSignal(signalName)
 	return signalName
 end
 
+local function unsubstituteVerySpecialSignal(signalName)
+	if signalName == 'signal-composite-combinators-base-each' then signalName = "signal-each" end
+	if signalName == 'signal-composite-combinators-base-everything' then signalName = "signal-everything" end
+	if signalName == 'signal-composite-combinators-base-anything' then signalName = "signal-anything" end
+	return signalName
+end
+
 local function convertArithmeticDeciderCommon(str, slots)
 	local nextSlot = 1
 	
@@ -271,21 +278,21 @@ function arithmeticCombinatorSpawned(entity, slots, nextSlot)
 	local params = entity.get_control_behavior().parameters
 
 	if slots[nextSlot].signal.name ~= baseConst.specialSignal.name then
-		params.first_signal = { type = slots[nextSlot].signal.type, name = slots[nextSlot].signal.name }
+		params.first_signal = { type = slots[nextSlot].signal.type, name = unsubstituteVerySpecialSignal(slots[nextSlot].signal.name) }
 	else
 		params.first_constant = slots[nextSlot].count
 	end
 	nextSlot = nextSlot + 1
 
 	if slots[nextSlot].signal.name ~= baseConst.specialSignal.name then
-		params.second_signal = slots[nextSlot].signal
+		params.second_signal = { type = slots[nextSlot].signal.type, name = unsubstituteVerySpecialSignal( slots[nextSlot].signal.name) }
 	else
 		params.second_constant = slots[nextSlot].count
 	end
 	nextSlot = nextSlot + 1
 
 	if slots[nextSlot].signal.name ~= baseConst.specialSignal.name then
-		params.output_signal = slots[nextSlot].signal
+		params.output_signal = { type = slots[nextSlot].signal.type, name = unsubstituteVerySpecialSignal(slots[nextSlot].signal.name) }
 	end
 	params.operation = baseConst.intToCombinatorOperation[''..slots[nextSlot].count]
 	nextSlot = nextSlot + 1
@@ -340,19 +347,19 @@ function deciderCombinatorSpawned(entity, slots, nextSlot)
 	
 	local params = entity.get_control_behavior().parameters
 	if slots[nextSlot].signal.name ~= baseConst.specialSignal.name then
-		params.parameters.first_signal = slots[nextSlot].signal
+		params.parameters.first_signal = { type = slots[nextSlot].signal.type, name = unsubstituteVerySpecialSignal(slots[nextSlot].signal.name) }
 	end
 	nextSlot = nextSlot + 1
 
 	if slots[nextSlot].signal.name ~= baseConst.specialSignal.name then
-		params.parameters.second_signal = slots[nextSlot].signal
+		params.parameters.second_signal = { type = slots[nextSlot].signal.type, name = unsubstituteVerySpecialSignal(slots[nextSlot].signal.name) }
 	else
 		params.parameters.constant = slots[nextSlot].count
 	end
 	nextSlot = nextSlot + 1
 
 	if slots[nextSlot].signal.name ~= baseConst.specialSignal.name then
-		params.parameters.output_signal = slots[nextSlot].signal
+		params.parameters.output_signal = { type = slots[nextSlot].signal.type, name = unsubstituteVerySpecialSignal(slots[nextSlot].signal.name) }
 	end
 	local thirdSlotValue = slots[nextSlot].count
 	local dd = bit32.band(thirdSlotValue, 32767)

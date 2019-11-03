@@ -5,7 +5,6 @@ Progress:
    ------
    - Build and remove by hand and with robots
    - Blueprinting: polish
-   - Reconsider dataSlots removal.
    - Complete Distinct wire constant combinator design & GUIs - fucking on_tick workarounds
    ------
 
@@ -73,14 +72,13 @@ Some time later:
 - ? Specify component index
 
 - Selection tools and icons graphics
-- Do not store spawned entities in dict, on blueprinting get all position info from entities themselves
-- Draw small leds on components
+- Draw small leds with components over the combinator
 - Good graphics
 - Complex Distinct combinator GUI
 - Add components substrings to dict
 - Check out unsanctioned components settings change?
 - Inteference from other mod, like with script_raised_destroy, script_raised_revive, script_raised_built, on_trigger_created_entity, look for other undesired way of disrupting setup
 - Check Corpses
-- Cross-surface configuring, compatibility with any rts-style mods out there (are there?) -- both at least for distinct constant combinator gui
+- Cross-surface configuring, compatibility with any rts-style mods out there (are there any?) -- both at least for distinct constant combinator gui
 
   .......
