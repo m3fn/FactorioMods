@@ -285,7 +285,7 @@ function PrintComponentsStringFromComponents(player, combinator)
 end
 
 function ShowSelectionStr(player, entities)
-	local str = Func:GetComponentsStringFromEntities(entities)
+	local str = Func:GetComponentsStringFromArchetypes(entities)
 	
 	if not not tonumber(str) then
 		player.print(str)
@@ -305,14 +305,14 @@ function ShowSelectionStr2(player, entities)
 	end
 end
 
-function PrintOneComponentStr(player, bigComponents)
-	local str = Func:GetOneComponentStr(bigComponents)
+function PrintOneArchetypeEntityStr(player, archetypeEntities)
+	local str = Func:GetOneArchetypeEntityStr(archetypeEntities)
 	
 	ShowModalText(player.index, str, "misc.ComponentsLayoutString_3")
 end
 
 function ShowSelectionComponentStr(player, entities)
-	PrintOneComponentStr(player, entities, true)
+	PrintOneArchetypeEntityStr(player, entities, true)
 end
 
 
@@ -421,7 +421,7 @@ function OnPlayerBuiltEntity(e)
 					end
 				end
 				if addSubTask then
-					table.insert(unboundEntsTask, { constructionData = entity, combinator = nil, isReady = false, state = 1, age = 1 })
+					table.insert(unboundEntsTask, { constructionData = entity, combinator = nil, state = 1, age = 1 })
 				end
 			elseif combinatorDataDesc ~= nil then
 				for _, subTask in pairs(unboundEntsTask) do
@@ -433,7 +433,7 @@ function OnPlayerBuiltEntity(e)
 					end
 				end
 				if addSubTask then
-					table.insert(unboundEntsTask, { constructionData = nil, combinator = entity, isReady = false, state = 2, age = 1 })
+					table.insert(unboundEntsTask, { constructionData = nil, combinator = entity, state = 2, age = 1 })
 				end
 			end
 			
@@ -480,8 +480,8 @@ function OnEntityDiedOrDestroyed(entity, isScript)
 	local entityName = entity.prototype.name
 	local combinatorDataDesc = global.modCfg.combinatorPrototypes[entityName]
 	if combinatorDataDesc ~= nil then
-		local entityState = global.state.combinatorEntities[entity.unit_number]
-		if entityState == nil then
+		local combinatorEntityState = global.state.combinatorEntities[entity.unit_number]
+		if combinatorEntityState == nil then
 			error('Died entity is not in global.state.combinatorEntities, but is of global.modCfg.combinatorPrototypes Should not happen')
 		end
 		
@@ -489,10 +489,11 @@ function OnEntityDiedOrDestroyed(entity, isScript)
 		Func:EraseCombinatorData(entity)
 	end
 	
-	local componentDataDesc = global.modCfg.componentsDataDescByComponentName[entityName]
+	local componentDataDesc = global.modCfg.componentPrototypesByComponentName[entityName]
 	if componentDataDesc ~= nil then
 		local entiyId = entity.unit_number 
 		-- TODO: optimize
+		-- TODO
 		for _,combinatorEntityState in pairs(global.state.combinatorEntities) do
 			if combinatorEntityState.components ~= nil and not combinatorEntityState.deletingComponents then
 				for _,component in pairs(combinatorEntityState.components) do

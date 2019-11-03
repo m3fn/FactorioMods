@@ -22,35 +22,35 @@ Func.__index = Func
 
 --[[ On rotation change ]]--
 local RearrangeAccordingToRotation
-function Func:RearrangeAccordingToRotation(entity, prevRotation, nextRotation)
-	RearrangeAccordingToRotation(entity, prevRotation, nextRotation)
+function Func:RearrangeAccordingToRotation(combinator, prevRotation, nextRotation)
+	return RearrangeAccordingToRotation(combinator, prevRotation, nextRotation)
 end
 
 local EraseCombinatorData
-function Func:EraseCombinatorData(entity)
-	EraseCombinatorData(entity)
+function Func:EraseCombinatorData(combinator)
+	return EraseCombinatorData(combinator)
 end
 
 --[[ Remove (destroy) combinator components and data about them ]]--
 local DeleteComponents
-function Func:DeleteComponents(entity)
-	DeleteComponents(entity)
+function Func:DeleteComponents(combinator)
+	return DeleteComponents(combinator)
 end
 
 --[[ Main spawn function ]]--
 local SpawnCompositeCombinatorComponents
-function Func:SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
-	SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
+function Func:SpawnCompositeCombinatorComponents(combinator, combinatorDataDesc, strIndex)
+	return SpawnCompositeCombinatorComponents(combinator, combinatorDataDesc, strIndex)
 end
 
 local GetOneComponentStr
-function Func:GetOneComponentStr(bigComponents)
-	return GetOneComponentStr(bigComponents)
+function Func:GetOneArchetypeEntityStr(archetypeEntities)
+	return GetOneArchetypeEntityStr(archetypeEntities)
 end
 
-local GetComponentsStringFromEntities
-function Func:GetComponentsStringFromEntities(entities)
-	return GetComponentsStringFromEntities(entities)
+local GetComponentsStringFromArchetypes
+function Func:GetComponentsStringFromArchetypes(entities)
+	return GetComponentsStringFromArchetypes(entities)
 end
 
 local GetComponentsStringFromComponents
@@ -58,29 +58,35 @@ function Func:GetComponentsStringFromComponents(combinator)
 	return GetComponentsStringFromComponents(combinator)
 end
 
+local GetComponentData
+function Func:GetComponentData(combinatorId, componentId)
+	return GetComponentData(combinatorId, componentId)
+end
+
+local ChangeLayout
+function Func:ChangeLayout(combinatorId, strId)
+	return ChangeLayout(combinatorId, strId)
+end
+
 --- #endregion
 
 
 --- #region: UTIL
 
-local function GetComponentDataDesc(componentEntityName, fromComponents)
+local function GetComponentDataDesc(entityName, fromComponents)
 	if fromComponents then
-		for _,dd in pairs(global.modCfg.componentsDataDesc) do
-			if dd.componentEntityName == componentEntityName then
-				return dd
-			end
-		end
+		return global.modCfg.componentPrototypesByComponentName[entityName]
 	else
-		return global.modCfg.componentsDataDesc[componentEntityName]
+		return global.modCfg.componentPrototypes[entityName]
 	end
 end
 
 local function EntityOrComponentToSignal(entity, fromComponents)
 	if fromComponents then
 		local entityName = entity.name
-		for _,dd in pairs(global.modCfg.componentsDataDesc) do
+		for _,dd in pairs(global.modCfg.componentPrototypes) do
 			if dd.componentEntityName == entityName then
-				return EntityNameToSignal(dd.bigEntityName)
+				return EntityNameToSignal(dd.archetypeName)
 			end
 		end
 	else
@@ -102,12 +108,16 @@ end
 	Error codes:
 		3 No entities
 		-5 Unknown entity
-		-10 Too big area selected (exceeded maxComponentsBigSize)
+		-10 Too big area selected (exceeded maxComponentsArchetypesAreaSize)
 		-14 Invalid characters in component str (see coreConst)
 		-19 exceeded maxComponentStringDataLength
 		-26 Some kind of an error
 		-29 exceeded maxComponents
 		-44 exceeded maxComponentConnections
+		
+	Usage:
+		1 - fromComponents == false, combinator is null 					- get string from construction area with archetypes and io markers
+		2 - fromComponents == true, combinator is composite combinator 		- get string from composite combinator and it's components
 --]]
 
 local function GetComponentsStringFromEntities_Int(combinator, components, fromComponents)
@@ -185,7 +195,7 @@ local function GetComponentsStringFromEntities_Int(combinator, components, fromC
 			dir = bit32.lshift(entity.direction, 16)
 		end
 		
-		if xpos >= limits.maxComponentsBigSize or (entity.position.y-ymin) >= limits.maxComponentsBigSize then
+		if xpos >= limits.maxComponentsArchetypesAreaSize or (entity.position.y-ymin) >= limits.maxComponentsArchetypesAreaSize then
 			return -10
 		end
 		
@@ -316,7 +326,7 @@ local function StringToDataSlots_Int(str)
 		}
 		nextSlot = nextSlot + 1
 		
-		local entityDataDesc = global.modCfg.componentsDataDesc[signalName]
+		local entityDataDesc = global.modCfg.componentPrototypes[signalName]
 		local localDataSlots = Remote:ComponentStringToDataSlots(entityDataDesc, componentDataStr)
 		
 		local localNextSlot = 1
@@ -412,10 +422,9 @@ end
 
 ----------------------------------------------------------------------------------------------------------------------------------
 -- Flow:
--- Placed Combinator entity + Data Slots -> Place and connect inner Components
+-- Placed Combinator entity + DataSlots in argument -> Place and connect inner Components
 
 -- No Limits checks in this piece of code - assuming I have peace with myself and community
-
 ----------------------------------------------------------------------------------------------------------------------------------
 
 -- Warning: enhanced 3d thiking was applied here
@@ -497,7 +506,7 @@ local function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 		dataSlot = dataSlots[nextSlot]
 		nextSlot = nextSlot + 1
 
-		local entityDataDesc = global.modCfg.componentsDataDesc[nextEntityPrototype.name]
+		local entityDataDesc = global.modCfg.componentPrototypes[nextEntityPrototype.name]
 
 		if nextEntityPrototype.name == 'composite-combinator-io-marker' then
 			dataSlot = dataSlots[nextSlot]
@@ -540,7 +549,7 @@ local function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 				if not isSwitchingDim then
 					srcX = baseCoordinate.x + srcX 
 				else
-					srcX = baseCoordinate.x - srcX -- meh
+					srcX = baseCoordinate.x - srcX
 				end
 
 				srcY = baseCoordinate.y + srcY
@@ -558,7 +567,6 @@ local function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 			
 			local curEntitiy = surface.create_entity({
 				name = entityDataDesc.componentEntityName,
-				-- name = nextEntityPrototype.name,
 				position = {
 					x = srcX,
 					y = srcY
@@ -663,7 +671,7 @@ end
 --- #endregion Main functions
 
 
-local function DeleteComponents_Int(entity, combinatorState)
+local function DeleteComponents_Int(combinator, combinatorState)
 	combinatorState.deletingComponents = true
 	for _,componentData in pairs(combinatorState.components) do
 		componentData.componentEntity.destroy() -- ({raise_destroy = true})
@@ -674,33 +682,32 @@ local function DeleteComponents_Int(entity, combinatorState)
 	combinatorState.deletingComponents = false
 end
 
-DeleteComponents = function(entity, combinatorState)
-	local combinatorState = global.state.combinatorEntities[entity.unit_number]
-	DeleteComponents_Int(entity, combinatorState)
+DeleteComponents = function(combinator, combinatorState)
+	local combinatorState = global.state.combinatorEntities[combinator.unit_number]
+	DeleteComponents_Int(combinator, combinatorState)
 end
 
-EraseCombinatorData = function(entity)
-	global.state.combinatorEntities[entity.unit_number] = nil
+EraseCombinatorData = function(combinator)
+	global.state.combinatorEntities[combinator.unit_number] = nil
 end
 
-RearrangeAccordingToRotation = function(entity, prevRotation, nextRotation)
-	msg(1, 'rotat')
-end
-
-function ChangeLayout(entityId, strId)
-	local combinatorEntityState = global.state.combinatorEntities[entityId]
-	local entity = combinatorEntityState.entity
+ChangeLayout = function(combinatorId, strId)
+	local combinatorEntityState = global.state.combinatorEntities[combinatorId]
+	local combinatorEntity = combinatorEntityState.entity
 	
-	DeleteComponents_Int(entity, combinatorEntityState)
+	DeleteComponents_Int(combinatorEntity, combinatorEntityState)
 	
-	local combinatorDataDesc = global.modCfg.combinatorPrototypes[entity.prototype.name]
+	local combinatorDataDesc = global.modCfg.combinatorPrototypes[combinatorEntity.prototype.name]
 
-	SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strId)
+	SpawnCompositeCombinatorComponents(combinatorEntity, combinatorDataDesc, strId)
 end
 
+RearrangeAccordingToRotation = function(combinator, prevRotation, nextRotation)
+	-- ChangeLayout(combinator.unit_number, 1) -- TODO
+end
 
-function GetComponent(entityId, componentId)
-	local combinatorEntityState = global.state.combinatorEntities[entityId]
+GetComponentData = function(combinatorId, componentId)
+	local combinatorEntityState = global.state.combinatorEntities[combinatorId]
 	local i = 1
 	for _,component in pairs(combinatorEntityState.components) do
 		if i == componentId then
@@ -708,37 +715,6 @@ function GetComponent(entityId, componentId)
 		end
 		i = i + 1
 	end
-end
-
-GetComponentsStringFromEntities = function(entities)
-	return GetComponentsStringFromEntities_Int(nil, entities, false)
-end
-
-GetComponentsStringFromComponents = function(combinator)
-	local components = GetCombinatorComponents(combinator)
-
-	return GetComponentsStringFromEntities_Int(combinator, components, true)
-end
-
-function SpawnCompositeCombinatorComponentsBySlots(entity, dataSlots)
-	local dataSlots2 = {
-		dataSlots = dataSlots,
-		nextSlot = -1
-	}
-	SpawnCompositeCombinatorComponents_Int(entity, dataSlots2)
-end
-
-SpawnCompositeCombinatorComponents = function(entity, combinatorDataDesc, strIndex)
-	local componentsStr = combinatorDataDesc.componentsStrings[strIndex]
-	
-	if componentsStr == nil then
-		error("componentsStr by index "..strIndex.." is nil. If you are modder - make sure to reload prototypes, and 'switch' by entity name")
-	end
-	
-	-- One more func for str -> built could made better performance, but I am not willing to create AND support it
-	local dataSlots = StringToDataSlots_Int(componentsStr)
-	
-	SpawnCompositeCombinatorComponents_Int(entity, dataSlots)
 end
 
 local function GetCombinatorComponents(combinator)
@@ -751,9 +727,40 @@ local function GetCombinatorComponents(combinator)
 	return res
 end
 
-GetOneComponentStr = function(bigComponents)
-	for _,entity in pairs(bigComponents) do 
-		local componentDataDesc = global.modCfg.componentsDataDesc[entity.name]
+GetComponentsStringFromArchetypes = function(archetypeEntities) -- TODO
+	return GetComponentsStringFromEntities_Int(nil, archetypeEntities, false)
+end
+
+GetComponentsStringFromComponents = function(combinator)
+	local components = GetCombinatorComponents(combinator)
+
+	return GetComponentsStringFromEntities_Int(combinator, components, true)
+end
+
+function SpawnCompositeCombinatorComponentsBySlots(combinator, dataSlots)
+	local dataSlots2 = {
+		dataSlots = dataSlots,
+		nextSlot = -1
+	}
+	SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
+end
+
+SpawnCompositeCombinatorComponents = function(combinator, combinatorDataDesc, strIndex)
+	local componentsStr = combinatorDataDesc.combinatorStrings[strIndex]
+	
+	if componentsStr == nil then
+		error("componentsStr by index "..strIndex.." is nil. If you are modder - make sure to reload prototypes, and 'switch' by entity name")
+	end
+	
+	-- One more func for str -> built could made better performance, but I am not willing to create AND support it
+	local dataSlots = StringToDataSlots_Int(componentsStr)
+	
+	SpawnCompositeCombinatorComponents_Int(combinator, dataSlots)
+end
+
+GetOneArchetypeEntityStr = function(archetypeEntities)
+	for _,entity in pairs(archetypeEntities) do 
+		local componentDataDesc = global.modCfg.componentPrototypes[entity.name]
 		
 		local componentDataStr = Remote:ComponentToString(componentDataDesc, entity)
 		

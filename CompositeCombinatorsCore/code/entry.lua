@@ -9,6 +9,20 @@
 	Base things - Add vanilla conbinators as components (using component part of that API);
 	
 	Tab is 4 spaces, prototypes use 2 spaces without tabs
+	
+	Glossary:
+		combinator - composite combinator, refer to them as compositeCombiantor in code is a bit redundant
+		combinatorPrototype, compositeCombinatorPrototype, combinatorDataDesc - self explanatory, they are added via remote calls
+		componentPrototype, componentDataDesc - self explanatory, they are added via remote calls
+		component - small entity inside of composite combinator
+		componentArchetype - big component entity
+		
+		For example for decider combinator componentArchetype is 'decider-combinator', component 'composite-combinator-decider-component', one componentPrototype links them
+		
+		str, componentStr, string, combinatorStr, combinatorString - strings are used to store and manipulate combinators and components data
+		DataSlots - is also used to store and manipulate combinators and components data, we could get rid of it if we could add str info to blueprint
+		
+		Naming may be inconsistent in some places
 ]]--
 
 limits = {
@@ -23,7 +37,7 @@ limits = {
 	minCompressionRatio = 2,
 	maxCompressionRatio = 8,					-- just because
 	maxInputsAndOutputsTotal = 32,				-- just because, mby factorio supports less
-	maxComponentsBigSize = 255,					-- to fit in, also enough
+	maxComponentsArchetypesAreaSize = 255,		-- to fit in, also enough
 }
 
 --- #region: Init / Deinit; Events
@@ -34,13 +48,13 @@ local RegisterVanillaComponents
 function OnInit()
 	global.modCfg = { 
 		combinatorPrototypes = { },
-		componentsDataDesc = { },
-		componentsDataDescByComponentName = { }
+		componentPrototypes = { },
+		componentPrototypesByComponentName = { }
 	}
 	
 	global.state = {
-		ioEntStates = { },
 		players = { },
+		ioEntStates = { },
 		combinatorEntities = { },
 		waitingForUnghosting = { },
 		tickTasks = { },
@@ -74,7 +88,7 @@ remote.add_interface("Composite-Combinators-Core", {
 
 	-- Register composite combinator entity itself.
 
-	registerCompositeCombinatorPrototype = function(entityName, compressionRatio, componentsTopLeftOffset, componentsStrings, callbacksRemote)
+	registerCompositeCombinatorPrototype = function(entityName, compressionRatio, componentsTopLeftOffset, combinatorStrings, callbacksRemote)
 	
 		if compressionRatio > limits.maxCompressionRatio or compressionRatio < limits.minCompressionRatio then
 			error("Remote call to Composite-Combinators-Core::registerCompositeCombinatorPrototype failed: compression ratio exceeds limitations")
@@ -99,7 +113,7 @@ remote.add_interface("Composite-Combinators-Core", {
 			combinatorWidth = width,
 			combinatorHeight = height,
 			componentsTopLeftOffset = componentsTopLeftOffset,
-			componentsStrings = componentsStrings,
+			combinatorStrings = combinatorStrings,
 			callbacksRemote = callbacksRemote
 		}
 
@@ -113,8 +127,8 @@ remote.add_interface("Composite-Combinators-Core", {
 	
 	-- Components
 
-	registerComponentPrototype = function(bigEntityName, componentEntityName, connectorIds, entityToStringRemote, stringToDataSlotsRemote, spawnedRemote)
-		if bigEntityName == "" or bigEntityName == nil then
+	registerComponentPrototype = function(archetypeEntityName, componentEntityName, connectorIds, entityToStringRemote, stringToDataSlotsRemote, spawnedRemote)
+		if archetypeEntityName == "" or archetypeEntityName == nil then
 			error("Remote call to Composite-Combinators-Core::registerComponentPrototype failed: null or empty entity name")
 		end
 
@@ -134,7 +148,7 @@ remote.add_interface("Composite-Combinators-Core", {
 		remote.call(spawnedRemote.interface, spawnedRemote.method, nil, nil, -1)
 		
 		local componentDataDesc = {
-			bigEntityName = bigEntityName,
+			archetypeEntityName = archetypeEntityName,
 			componentEntityName = componentEntityName,
 			connectorIds = connectorIds,
 			entityToStringRemote = entityToStringRemote,
@@ -142,8 +156,8 @@ remote.add_interface("Composite-Combinators-Core", {
 			spawnedRemote = spawnedRemote
 		}
 				
-		global.modCfg.componentsDataDesc[bigEntityName] = componentDataDesc
-		global.modCfg.componentsDataDescByComponentName[componentEntityName] = componentDataDesc
+		global.modCfg.componentPrototypes[archetypeEntityName] = componentDataDesc
+		global.modCfg.componentPrototypesByComponentName[componentEntityName] = componentDataDesc
 	end,
 	
 	-- deletComponentPrototype does not make sense to me
@@ -156,19 +170,19 @@ remote.add_interface("Composite-Combinators-Core", {
 	
 	-- Change layout: choose one of predefined strs
 	
-	changeLayout = function(entityId, strId)
-		return ChangeLayout(entityId, strId)
+	changeLayout = function(combinatorId, strId)
+		return Func:ChangeLayout(combinatorId, strId)
 	end,
 	
 	-- Get combinator component unit id
 	-- Use with caution, as any changes to component will be lost on blueprinting, entity direction change, changeLayout...
 	
-	getComponentEntityId = function(entityId, componentId)
-		return GetComponent(entityId, componentId).componentEntity.unit_number
+	getComponentEntityId = function(combinatorId, componentId)
+		return Func:GetComponentData(combinatorId, componentId).componentEntity.unit_number
 	end,
 	
-	getComponentPrototype = function(name)
-		return global.modCfg.componentsDataDesc[name] or global.modCfg.componentsDataDescByComponentName[name]
+	getComponentPrototype = function(componentOrArchetypeName)
+		return global.modCfg.componentPrototypes[componentOrArchetypeName] or global.modCfg.componentPrototypesByComponentName[componentOrArchetypeName]
 	end
 })
 
