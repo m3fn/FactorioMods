@@ -7,11 +7,11 @@ Progress:
    ------
 
    -------
-   - Test build performance a bit to know limitations
    - Slots checksum
-   - Restrict composite combinator flags (e.g. "building-direction-8-way")
-   - Restrict component flags
+   - String checksum
    - getCompositeCombinatorPrototype
+   - getBuildDataSlots
+   - remove integer packing from string
    --------
    
    --------
@@ -20,13 +20,10 @@ Progress:
    --------
    
    ------
+   - Unit tests
    - Write mod description (reasonable, for a couple of days, for devs and not)
    - Test check component's bounds
-   - Add errors
-   - Align namings and code style
    - Comments for devs
-   - Cleanup
-   - Polish eveything with grumpy look
    ------
    
    -------
@@ -36,6 +33,11 @@ Progress:
    ------
    - 0.1.2
    - Ask for looks
+   ------
+   
+   ------
+   - Add errors
+   - Rotation
    ------
   
    ------
@@ -51,6 +53,8 @@ Progress:
    - Pass any damage to the composite combinator, test biters
    - On died, change component icons - can be checked with .destroy()
    - on_player_*
+   - Restrict composite combinator flags (e.g. "building-direction-8-way")
+   - Restrict component flags
    ------
    
    ------
@@ -82,5 +86,8 @@ Some time later:
 - Inteference from other mod, like with script_raised_destroy, script_raised_revive, script_raised_built, on_trigger_created_entity, look for other undesired way of disrupting setup
 - Check Corpses
 - Cross-surface configuring, compatibility with any rts-style mods out there (are there any?) -- both at least for distinct constant combinator gui
-
+- Define custom connectors
+- Cleanup
+- Polish eveything with grumpy look
+- Test build performance a bit to know limitations
   .......

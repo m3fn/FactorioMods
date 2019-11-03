@@ -2,10 +2,14 @@
 --------------------------------------------------------------------------------
 -- Composite Combinators Core mod
 --------------------------------------------------------------------------------
--- vanilla.lua 
+-- components.lua 
 -- Purpose:
-	Add vanilla conbinators as components (using component part the API)
+	Add combinators as components (using component part the API)
+	Add techincal components
 ]]--
+
+ComponentsRegistration = {}
+ComponentsRegistration.__index = ComponentsRegistration
 
 local baseConst = {
 	combinatorOperationToInt = { 
@@ -39,15 +43,12 @@ local function serializeSignal1B(signal)
 	return (signal.type or 'nil')..(baseConst.strBoundary1)..(signal.name or 'nil')
 end
 
---[[
-	o u t d a t e d
-	Constant combinator: 17 slots
-	16 slots with signals
-	1 slot - enabled indication A 0 or A 1
-]]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--- Constant component
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- entity -> string 
-function constantCombinatorSerialize(entity)
+function ComponentsRegistration:ConstantCombinatorSerialize(entity)
 	if entity == nil then
 		return nil
 	end
@@ -68,7 +69,7 @@ function constantCombinatorSerialize(entity)
 end
 
 -- string -> slots 
-function constantCombinatorConvert(str, slots)
+function ComponentsRegistration:ConstantCombinatorConvert(str, slots)
 	if slots == nil then
 		return nil
 	end
@@ -113,7 +114,7 @@ function constantCombinatorConvert(str, slots)
 end
 
 -- slots -> spawn
-function constantCombinatorSpawned(entity, slots, nextSlot)
+function ComponentsRegistration:ConstantCombinatorSpawned(entity, slots, nextSlot)
 	if entity == nil then
 		return nil
 	end
@@ -146,6 +147,10 @@ function constantCombinatorSpawned(entity, slots, nextSlot)
 	
 	return nextSlot
 end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--- Arithmetic and decider components common code 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function serializeArithmeticDeciderCommon(params)
 	local str
@@ -237,16 +242,11 @@ local function convertArithmeticDeciderCommon(str, slots)
 	return nextSlot
 end
 
---[[
-	o u t d a t e d
-	Arithmetic combinator: 
-		1 slot: first_signal or first_constant :: Signal or int (signal=special) 
-		2 slot: second_signal or second_constant :: Signal or int (signal=special)
-		3 slot: signal: output_signal value: operation: "*", "/", "+", "-", "%", "^", "<<", ">>", "AND", "OR", "XOR"
-]]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--- Arithmetic component
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-function arithmeticCombinatorSerialize(entity)
+function ComponentsRegistration:ArithmeticCombinatorSerialize(entity)
 	if entity == nil then
 		return nil
 	end
@@ -263,7 +263,7 @@ function arithmeticCombinatorSerialize(entity)
 	return str
 end
 
-function arithmeticCombinatorConvert(str, slots)
+function ComponentsRegistration:ArithmeticCombinatorConvert(str, slots)
 	if slots == nil then
 		return nil
 	end
@@ -271,7 +271,7 @@ function arithmeticCombinatorConvert(str, slots)
 end
 
 
-function arithmeticCombinatorSpawned(entity, slots, nextSlot)
+function ComponentsRegistration:ArithmeticCombinatorSpawned(entity, slots, nextSlot)
 	if entity == nil then
 		return nil
 	end
@@ -301,16 +301,11 @@ function arithmeticCombinatorSpawned(entity, slots, nextSlot)
 	return nextSlot
 end
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--- Decider component
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
---[[
-	o u t d a t e d
-	Decider combinator:
-		1 slot: first_signal or none (signal=special)
-		2 slot: second_signal or constant :: Signal or int (signal=special)
-		3 slot: sinal: output_signal or none (signal=special), value = comparator: "<", ">", "=", "≥", "≤", "≠", copy_count_from_input is 16th bit
-]]--
-
-function deciderCombinatorSerialize(entity)
+function ComponentsRegistration:DeciderCombinatorSerialize(entity)
 	if entity == nil then
 		return nil
 	end
@@ -333,14 +328,14 @@ function deciderCombinatorSerialize(entity)
 	return str
 end
 
-function deciderCombinatorConvert(str, slots)
+function ComponentsRegistration:DeciderCombinatorConvert(str, slots)
 	if slots == nil then
 		return nil
 	end
 	convertArithmeticDeciderCommon(str, slots)
 end
 
-function deciderCombinatorSpawned(entity, slots, nextSlot)
+function ComponentsRegistration:DeciderCombinatorSpawned(entity, slots, nextSlot)
 	if entity == nil then
 		return nil
 	end
@@ -370,4 +365,39 @@ function deciderCombinatorSpawned(entity, slots, nextSlot)
 	entity.get_control_behavior().parameters = params
 	nextSlot = nextSlot + 1
 	return nextSlot
+end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--- IO marker as a component
+--- Not actually built as a component, but writes to string where to connect inputs and outputs, handled as a special component in func.lua
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function ComponentsRegistration:IOMarkerSerialize(entity)
+	if entity == nil then
+		return nil
+	end
+	
+	local entityId = entity.unit_number
+	local dataDesc = global.state.ioEntStates[entityId] or { num = '1' }
+
+	local str = ''..dataDesc.num
+	return str
+end
+
+function ComponentsRegistration:IOMarkerConvert(str, slots)
+	if slots == nil then
+		return nil
+	end
+	
+	local num = tonumber(str)
+	
+	local nextSlot = 1
+	slots[nextSlot] = { signal = { type = 'item', name = 'composite-combinator-io-marker' }, count = num, index = nextSlot }
+end
+
+function ComponentsRegistration:IOMarkerSpawn(entity, slots, nextSlot)
+	if entity == nil then
+		return nil
+	end
+	error('Not supposed to be here')
 end

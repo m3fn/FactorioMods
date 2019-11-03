@@ -4,16 +4,91 @@
 --------------------------------------------------------------------------------
 -- func.lua 
 -- Purpose: 
-	All the logic of handling composite combinators;
-	Core things;
+	Core logic;
 ]]--
 
-coreConst = {
+local coreConst = {
 	strBoundary1 = '$',
 	strBoundary2 = '(',
 	strBoundary3 = ')',
-	specialSignal = { type = "virtual", name = "signal-composite-combinators-core-technical" }
+	specialSignal = { type = "virtual", name = "signal-composite-combinators-core-technical" },
+	debugMode = false
 }
+
+--- #region: Func Interface
+
+Func = {}
+Func.__index = Func
+
+--[[ On rotation change ]]--
+local RearrangeAccordingToRotation
+function Func:RearrangeAccordingToRotation(entity, prevRotation, nextRotation)
+	RearrangeAccordingToRotation(entity, prevRotation, nextRotation)
+end
+
+local EraseCombinatorData
+function Func:EraseCombinatorData(entity)
+	EraseCombinatorData(entity)
+end
+
+--[[ Remove (destroy) combinator components and data about them ]]--
+local DeleteComponents
+function Func:DeleteComponents(entity)
+	DeleteComponents(entity)
+end
+
+--[[ Main spawn function ]]--
+local SpawnCompositeCombinatorComponents
+function Func:SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
+	SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
+end
+
+local GetOneComponentStr
+function Func:GetOneComponentStr(bigComponents)
+	return GetOneComponentStr(bigComponents)
+end
+
+local GetComponentsStringFromEntities
+function Func:GetComponentsStringFromEntities(entities)
+	return GetComponentsStringFromEntities(entities)
+end
+
+local GetComponentsStringFromComponents
+function Func:GetComponentsStringFromComponents(combinator)
+	return GetComponentsStringFromComponents(combinator)
+end
+
+--- #endregion
+
+
+--- #region: UTIL
+
+local function GetComponentDataDesc(componentEntityName, fromComponents)
+	if fromComponents then
+		for _,dd in pairs(global.modCfg.componentsDataDesc) do
+			if dd.componentEntityName == componentEntityName then
+				return dd
+			end
+		end
+	else
+		return global.modCfg.componentsDataDesc[componentEntityName]
+	end
+end
+
+local function EntityOrComponentToSignal(entity, fromComponents)
+	if fromComponents then
+		local entityName = entity.name
+		for _,dd in pairs(global.modCfg.componentsDataDesc) do
+			if dd.componentEntityName == entityName then
+				return EntityNameToSignal(dd.bigEntityName)
+			end
+		end
+	else
+		return EntityToSignal(entity)
+	end
+end
+
+--- #endregion
 
 --- #region: Logic cells composition - main functions
 
@@ -21,70 +96,7 @@ coreConst = {
 -- Flow:
 -- Entities -> String
 -- Application is various: on development, on blueprinting, on something else...
--- Blocks: dictionary, entities, connections
 ----------------------------------------------------------------------------------------------------------------------------------
-
-function GetComponentsDataSlotsFromBigEntities(entities)
-	return GetComponentsDataSlotsFromEntities_Int(nil, entities, false)
-end
-
-function GetComponentsDataSlotsFromBigEntities_Prn(player, entities)
-	local str = GetComponentsDataSlotsFromEntities_Int(nil,entities, false)
-	
-	if not not tonumber(str) then
-		player.print(str)
-	else
-		ShowModalText(player.index, str, "misc.ComponentsLayoutString_1")
-	end
-	
-	return str
-end
-
-function GetComponentsDataSlotsFromSmallEntities_Prn(player, combinator)
-	local str = GetComponentsDataSlotsFromSmallEntities(combinator)
-	
-	if not not tonumber(str) then
-		player.print(str)
-	else
-		ShowModalText(player.index, str, "misc.ComponentsLayoutString_2")
-	end
-	
-	return str
-end
-
-local function GetCombinatorComponents(combinator)
-	local res = { }
-	local desc = global.state.combinatorEntities[combinator.unit_number]
-	game.players[1].print(inspect(desc))
-	for _,com in pairs(desc.components) do
-		table.insert(res, com.componentEntity)
-	end
-	return res
-end
-
-function GetComponentsDataSlotsFromSmallEntities(combinator)
-	local components = GetCombinatorComponents(combinator)
-
-	return GetComponentsDataSlotsFromEntities_Int(combinator, components, true)
-end
-
-function PrintOneComponentStr(player, entities)
-	local str = GetOneComponentStr(entities)
-	
-	ShowModalText(player.index, str, "misc.ComponentsLayoutString_3")
-end
-
-function GetOneComponentStr(entities)
-	for _,entity in pairs(entities) do 
-		local entityDataDesc = global.modCfg.componentsDataDesc[entity.name]
-		
-		local signal = EntityToSignal(entity)
-		
-		local componentDataStr = remote.call(entityDataDesc.entityToStringRemote.interface, entityDataDesc.entityToStringRemote.method, entity)
-		
-		return componentDataStr
-	end
-end
 
 --[[
 	Error codes:
@@ -98,34 +110,7 @@ end
 		-44 exceeded maxComponentConnections
 --]]
 
-local function GetEntityDataDesc(entityName, fromComponents)
-	if fromComponents then
-		for _,dd in pairs(global.modCfg.componentsDataDesc) do
-			if dd.componentEntityName == entityName then
-				return dd
-			end
-		end
-	else
-		return global.modCfg.componentsDataDesc[entityName]
-	end
-end
-
-local function EntityOrComponentToSignal(entity, fromComponents)
-	if fromComponents then
-		local entityName = entity.name
-		for _,dd in pairs(global.modCfg.componentsDataDesc) do
-							game.players[1].print(dd.componentEntityName..' '..entityName)
-			if dd.componentEntityName == entityName then
-				game.players[1].print(dd.bigEntityName)
-				return EntityNameToSignal(dd.bigEntityName)
-			end
-		end
-	else
-		return EntityToSignal(entity)
-	end
-end
-
-function GetComponentsDataSlotsFromEntities_Int(combinator, entities, fromComponents)
+local function GetComponentsStringFromEntities_Int(combinator, components, fromComponents)
 
 	-- internal data structure entity ids
 	local entNumberToEntId = { }
@@ -142,7 +127,7 @@ function GetComponentsDataSlotsFromEntities_Int(combinator, entities, fromCompon
 	local stringsDict = { }
 	local stringsDictIndex = 1
 	
-	if not entities[1] then
+	if not components[1] then
 		return 3
 	end
 	
@@ -150,8 +135,8 @@ function GetComponentsDataSlotsFromEntities_Int(combinator, entities, fromCompon
 	local entityDataDesc
 	
 	-- put some strings in dict
-	for _,entity in pairs(entities) do 
-		entityDataDesc = GetEntityDataDesc(entity.name, fromComponents)
+	for _,entity in pairs(components) do 
+		entityDataDesc = GetComponentDataDesc(entity.name, fromComponents)
 		
 		if entityDataDesc == nil then
 			return -5
@@ -184,9 +169,9 @@ function GetComponentsDataSlotsFromEntities_Int(combinator, entities, fromCompon
 	local ypos
 	local dir
 	
-	-- serialize entities
-	for _,entity in pairs(entities) do 
-		entityDataDesc = GetEntityDataDesc(entity.name, fromComponents)
+	-- serialize components entities
+	for _,entity in pairs(components) do 
+		entityDataDesc = GetComponentDataDesc(entity.name, fromComponents)
 		
 		signal = EntityOrComponentToSignal(entity, fromComponents)
 		
@@ -206,7 +191,7 @@ function GetComponentsDataSlotsFromEntities_Int(combinator, entities, fromCompon
 		
 		local entPosAndDir = xpos + ypos + dir -- love it
 		
-		local componentDataStr = remote.call(entityDataDesc.entityToStringRemote.interface, entityDataDesc.entityToStringRemote.method, entity)
+		local componentDataStr = Remote:ComponentToString(entityDataDesc, entity)
 		
 		-- componentDataStr may vary
 		local componentDataStrLen = string.len(componentDataStr)
@@ -236,8 +221,8 @@ function GetComponentsDataSlotsFromEntities_Int(combinator, entities, fromCompon
 	local connected = { }
 	-- 
 	-- serialize connections
-	for _,entity in pairs(entities) do 
-		entityDataDesc = GetEntityDataDesc(entity.name, fromComponents)
+	for _,entity in pairs(components) do 
+		entityDataDesc = GetComponentDataDesc(entity.name, fromComponents)
 		
 		local connectionDefinitions = entity.circuit_connection_definitions
 
@@ -286,14 +271,14 @@ end
 -- Blocks: entities, connections
 ----------------------------------------------------------------------------------------------------------------------------------
 
-function StringToDataSlots(str)
+local function StringToDataSlots_Int(str)
 	local dataSlots = { }
 	local nextSlot = 1
 	local nextEntId = 1
 	
 	local spl = split3(str, coreConst.strBoundary3)
 	local dictSrc = spl[1]
-	local entities = spl[2]
+	local components = spl[2]
 	local connections = spl[3]
 	
 	spl = split3(dictSrc, coreConst.strBoundary1)
@@ -307,8 +292,8 @@ function StringToDataSlots(str)
 		stringsDictIndex = stringsDictIndex + 1
 	end
 	
-	-- convert entities
-	spl = split3(entities, coreConst.strBoundary2)
+	-- convert entities components
+	spl = split3(components, coreConst.strBoundary2)
 	
 	local entityNumber = 1
 	
@@ -332,9 +317,7 @@ function StringToDataSlots(str)
 		nextSlot = nextSlot + 1
 		
 		local entityDataDesc = global.modCfg.componentsDataDesc[signalName]
-		local localDataSlots = { }
-		
-		remote.call(entityDataDesc.stringToDataSlotsRemote.interface, entityDataDesc.stringToDataSlotsRemote.method, componentDataStr, localDataSlots)
+		local localDataSlots = Remote:ComponentStringToDataSlots(entityDataDesc, componentDataStr)
 		
 		local localNextSlot = 1
 		for _,slot in pairs(localDataSlots) do
@@ -435,31 +418,8 @@ end
 
 ----------------------------------------------------------------------------------------------------------------------------------
 
-function SpawnCompositeCombinatorComponentsBySlots(entity, dataSlots)
-	local dataSlots2 = {
-		dataSlots = dataSlots,
-		nextSlot = -1
-	}
-	SpawnCompositeCombinatorComponents_Int(entity, dataSlots2)
-end
-
-function SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
-	local componentsStr = combinatorDataDesc.componentsStrings[strIndex]
-	
-	if componentsStr == nil then
-		error("componentsStr by index "..strIndex.." is nil. If you are modder - make sure to reload prototypes, and 'switch' by entity name")
-	end
-	
-	-- One more func for str -> built could made better performance, but I am not willing to create AND support it
-	local dataSlots = StringToDataSlots(componentsStr)
-	
-	SpawnCompositeCombinatorComponents_Int(entity, dataSlots)
-end
-
-local dbg = false; -- TODO: smth
-
 -- Warning: enhanced 3d thiking was applied here
-function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
+local function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	local surface = combinator.surface
 	local combinatorDataDesc = global.modCfg.combinatorPrototypes[combinator.prototype.name]
 	
@@ -477,13 +437,13 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	local origDir
 
 	local logicAreaPositionMultiplier = {
-		x = dbg and 2 or 1.0/combinatorDataDesc.compressionRatio,
-		y = dbg and 2 or 1.0/combinatorDataDesc.compressionRatio
+		x = coreConst.debugMode and 2 or 1.0/combinatorDataDesc.compressionRatio,
+		y = coreConst.debugMode and 2 or 1.0/combinatorDataDesc.compressionRatio
 	}
 	
 	local dir = combinator.direction
 	local isForwardDir = dir == 2 or dir == 4	 -- if not, build beginning from the opposite site 
-	local isSwitchingDim = dir == 4 or dir == 0   -- switch x and y
+	local isSwitchingDim = dir == 4 or dir == 0  -- switch x and y
 	
 	local baseCoordinate
 	
@@ -522,7 +482,7 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	local outConnections = { }
 	local ioMarkerIds = { }
 
-	-- place entities
+	-- place components
 	while true do
 		local dataSlot = dataSlots[nextSlot]
 		nextSlot = nextSlot + 1
@@ -569,10 +529,10 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 				srcY = t
 			end
 			
-			if not dbg and combinatorDataDesc.combinatorWidth < srcX or srcX < 0 then
+			if not coreConst.debugMode and combinatorDataDesc.combinatorWidth < srcX or srcX < 0 then
 				error("Component is out of bounds (X)")
 			end
-			if not dbg and combinatorDataDesc.combinatorHeight < srcY or srcY < 0 then
+			if not coreConst.debugMode and combinatorDataDesc.combinatorHeight < srcY or srcY < 0 then
 				error("Component is out of bounds (X)")
 			end
 			
@@ -607,7 +567,7 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 				force = combinator.force,
 			})
 			
-			nextSlot = remote.call(entityDataDesc.spawnedRemote.interface, entityDataDesc.spawnedRemote.method, curEntitiy, dataSlots, nextSlot)
+			nextSlot = Remote:OnCombinatorSpawned(entityDataDesc, curEntitiy, dataSlots, nextSlot)
 			
 			entIdToEnt[nextEntId] = curEntitiy
 			nextEntId = nextEntId + 1
@@ -700,50 +660,44 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	-- Done!
 end
 
-function DeleteComponents(entity, combinatorEntityState)
-	combinatorEntityState.deletingComponents = true
-	for _,componentData in pairs(combinatorEntityState.components) do
+--- #endregion Main functions
+
+
+local function DeleteComponents_Int(entity, combinatorState)
+	combinatorState.deletingComponents = true
+	for _,componentData in pairs(combinatorState.components) do
 		componentData.componentEntity.destroy() -- ({raise_destroy = true})
 	end
-	combinatorEntityState.components = { }
-	combinatorEntityState.dataSlotsStorage.destroy()
-	combinatorEntityState.dataSlotsStorage = nil
-	combinatorEntityState.deletingComponents = false
+	combinatorState.components = { }
+	combinatorState.dataSlotsStorage.destroy()
+	combinatorState.dataSlotsStorage = nil
+	combinatorState.deletingComponents = false
 end
 
-function EraseEntityData(entity)
+DeleteComponents = function(entity, combinatorState)
+	local combinatorState = global.state.combinatorEntities[entity.unit_number]
+	DeleteComponents_Int(entity, combinatorState)
+end
+
+EraseCombinatorData = function(entity)
 	global.state.combinatorEntities[entity.unit_number] = nil
 end
 
-----------------------------------------------------------------------------------------------------------------------------------
--- Flow:
--- Rearrange according to rotation
-----------------------------------------------------------------------------------------------------------------------------------
-
-function RearrangeAccordingToRotation(entity, prevRotation, nextRotation)
-	--
+RearrangeAccordingToRotation = function(entity, prevRotation, nextRotation)
+	msg(1, 'rotat')
 end
-
-----------------------------------------------------------------------------------------------------------------------------------
--- Flow:
--- Combinator entity layout edit
-----------------------------------------------------------------------------------------------------------------------------------
 
 function ChangeLayout(entityId, strId)
 	local combinatorEntityState = global.state.combinatorEntities[entityId]
 	local entity = combinatorEntityState.entity
 	
-	DeleteComponents(entity, combinatorEntityState)
+	DeleteComponents_Int(entity, combinatorEntityState)
 	
 	local combinatorDataDesc = global.modCfg.combinatorPrototypes[entity.prototype.name]
 
 	SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strId)
 end
 
-----------------------------------------------------------------------------------------------------------------------------------
--- Flow:
--- Get combinator entity component
-----------------------------------------------------------------------------------------------------------------------------------
 
 function GetComponent(entityId, componentId)
 	local combinatorEntityState = global.state.combinatorEntities[entityId]
@@ -755,5 +709,54 @@ function GetComponent(entityId, componentId)
 		i = i + 1
 	end
 end
- 
---- #endregion
+
+GetComponentsStringFromEntities = function(entities)
+	return GetComponentsStringFromEntities_Int(nil, entities, false)
+end
+
+GetComponentsStringFromComponents = function(combinator)
+	local components = GetCombinatorComponents(combinator)
+
+	return GetComponentsStringFromEntities_Int(combinator, components, true)
+end
+
+function SpawnCompositeCombinatorComponentsBySlots(entity, dataSlots)
+	local dataSlots2 = {
+		dataSlots = dataSlots,
+		nextSlot = -1
+	}
+	SpawnCompositeCombinatorComponents_Int(entity, dataSlots2)
+end
+
+SpawnCompositeCombinatorComponents = function(entity, combinatorDataDesc, strIndex)
+	local componentsStr = combinatorDataDesc.componentsStrings[strIndex]
+	
+	if componentsStr == nil then
+		error("componentsStr by index "..strIndex.." is nil. If you are modder - make sure to reload prototypes, and 'switch' by entity name")
+	end
+	
+	-- One more func for str -> built could made better performance, but I am not willing to create AND support it
+	local dataSlots = StringToDataSlots_Int(componentsStr)
+	
+	SpawnCompositeCombinatorComponents_Int(entity, dataSlots)
+end
+
+local function GetCombinatorComponents(combinator)
+	local res = { }
+	local combinatorDataDesc = global.state.combinatorEntities[combinator.unit_number]
+	game.players[1].print(inspect(combinatorDataDesc))
+	for _,component in pairs(combinatorDataDesc.components) do
+		table.insert(res, component.componentEntity)
+	end
+	return res
+end
+
+GetOneComponentStr = function(bigComponents)
+	for _,entity in pairs(bigComponents) do 
+		local componentDataDesc = global.modCfg.componentsDataDesc[entity.name]
+		
+		local componentDataStr = Remote:ComponentToString(componentDataDesc, entity)
+		
+		return componentDataStr
+	end
+end

@@ -58,11 +58,35 @@ end
 
 remote.add_interface("ExtremelyUsefulCombinators", {
 	PickBuildString = function(entity)
+		if entity == nil then
+			return nil
+		end
 		if entity.name == "euc-simple-delay-combinator" then
 			SetDelayCombinatorDisplay(entity, const.simpleDelayCombinator.defaultDelayId)
 			return const.simpleDelayCombinator.defaultDelayId
 		end
 		return 1
+	end,
+	AddSlotsInfo = function(entity, slots)
+		if entity == nil then
+			return nil
+		end
+		if entity.name == "euc-distinct-constant-combinator" then
+		end
+		if entity.name == "euc-simple-delay-combinator" then
+			slots[1] = { signal = { type = 'item', name = 'wood' }, count = global.state.delayCombinators[entity.unit_number].currentDelayId, index = 1 }
+		end
+	end,
+	OnBuiltFromGhostWithSlotsInfo = function(entity, slots, nextSlot)
+		if entity == nil then
+			return nil
+		end
+		if entity.name == "euc-distinct-constant-combinator" then
+		end
+		if entity.name == "euc-simple-delay-combinator" then
+			global.state.delayCombinators[entity.unit_number].currentDelayId = slots[nextSlot].count
+		end
+		return nextSlot + 1
 	end
 })
 
@@ -131,7 +155,9 @@ function SetDelayCombinatorDisplay(entity, delayId)
 end
 
 function OnEucGuiClick(e)
+	local playerIndex = e.player_index
 	local elementName = e.element.name
+	local playerDesc = global.state.players[playerIndex]
 	local entity = playerDesc.centralUIElement.selectedEntity
 	local player = game.get_player(playerIndex)
 	if playerDesc.centralUIElement.name == "DelayCombinator" then

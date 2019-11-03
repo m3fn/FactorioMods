@@ -5,7 +5,8 @@
 -- game.lua 
 -- Purpose: 
 	Dev GUI
-	Game events 
+	Game events
+	Outer layer logic
 ]]--
 
 
@@ -186,7 +187,6 @@ function ShowModalText(playerIndex, str, title)
 	player.opened = frame
 	frame.force_auto_center()
 	textBox.select_all()
-		
 end
 
 function TrySaveModalText(playerIndex)
@@ -272,17 +272,43 @@ end
 
 -- Dev. rest
 
+function PrintComponentsStringFromComponents(player, combinator)
+	local str = Func:GetComponentsStringFromComponents(combinator)
+	
+	if not not tonumber(str) then
+		player.print(str)
+	else
+		ShowModalText(player.index, str, "misc.ComponentsLayoutString_2")
+	end
+	
+	return str
+end
+
 function ShowSelectionStr(player, entities)
-	GetComponentsDataSlotsFromBigEntities_Prn(player, entities)
+	local str = Func:GetComponentsStringFromEntities(entities)
+	
+	if not not tonumber(str) then
+		player.print(str)
+	else
+		ShowModalText(player.index, str, "misc.ComponentsLayoutString_1")
+	end
+	
+	return str
 end
 
 function ShowSelectionStr2(player, entities)
 	for _,entity in pairs(entities) do
 		if global.state.combinatorEntities[entity.unit_number] ~= nil then
-			GetComponentsDataSlotsFromSmallEntities_Prn(player, entity)
+			PrintComponentsStringFromComponents(player, entity)
 			return
 		end
 	end
+end
+
+function PrintOneComponentStr(player, bigComponents)
+	local str = Func:GetOneComponentStr(bigComponents)
+	
+	ShowModalText(player.index, str, "misc.ComponentsLayoutString_3")
 end
 
 function ShowSelectionComponentStr(player, entities)
@@ -313,13 +339,13 @@ function OnPlayerSelectedArea(e)
 		CloseMenus(playerIndex)
 		
 		for _,ent in pairs(e.entities) do
-			local combinatorDataDesc = global.modCfg.combinatorPrototypes[ent.prototype.name]
+			--[[local combinatorDataDesc = global.modCfg.combinatorPrototypes[ent.prototype.name]
 			
-			local compStr = GetComponentsDataSlotsFromBigEntities_Int( { ent } )
+			local compStr = Func:GetComponentsStringFromEntities_Int( { ent } )
 			
 			local dataSlots = StringToDataSlots(componentsStr)
 			
-			SpawnCompositeCombinatorComponents_Int(ent, dataSlots)
+			Func:SpawnCompositeCombinatorComponents_Int(ent, dataSlots)]]--
 		end
 	end
 end
@@ -346,9 +372,9 @@ function OnCombinatorBuilt(entity, combinatorDataDesc)
 		end
 	end
 	
-	local strIndex = remote.call(combinatorDataDesc.callbacksRemote, "PickBuildString", entity)
+	local strIndex = Remote:PickBuildString(combinatorDataDesc, entity)
 
-	SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
+	Func:SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
 end
 
 function OnEntityBuiltSimple(entity)
@@ -430,7 +456,8 @@ function OnEntityMinedSimple(entity)
 		error('Mined entity is not in global.state.combinatorEntities, but is of global.modCfg.combinatorPrototypes Should not happen')
 	end
 	
-	DeleteComponents(entity, entityState)
+	Func:DeleteComponents(entity)
+	Func:EraseCombinatorData(entity)
 end
 
 function OnPlayerMinedEntity(e)
@@ -458,8 +485,8 @@ function OnEntityDiedOrDestroyed(entity, isScript)
 			error('Died entity is not in global.state.combinatorEntities, but is of global.modCfg.combinatorPrototypes Should not happen')
 		end
 		
-		DeleteComponents(entity, entityState)
-		EraseEntityData(entity)
+		Func:DeleteComponents(entity)
+		Func:EraseCombinatorData(entity)
 	end
 	
 	local componentDataDesc = global.modCfg.componentsDataDescByComponentName[entityName]
@@ -494,7 +521,7 @@ function OnPlayerRotatedEntity(e)
 		return
 	end
 	
-	RearrangeAccordingToRotation(e.entity, e.previous_direction, e.entity.direction)
+	Func:RearrangeAccordingToRotation(e.entity, e.previous_direction, e.entity.direction)
 end
 
 function OnPlayerSetupBlueprint(e)

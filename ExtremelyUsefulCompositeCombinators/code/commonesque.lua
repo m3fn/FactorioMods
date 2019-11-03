@@ -88,6 +88,8 @@ function OnGuiClick(e)
 	end
 end
 
+local de = defines.events
+
 script.on_event(de.on_selected_entity_changed, OnSelectedEntityChanged)
 script.on_event(de.on_gui_click, OnGuiClick)
 script.on_event(de.on_gui_closed, OnGuiClosed)

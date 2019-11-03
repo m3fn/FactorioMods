@@ -126,7 +126,9 @@ function GetValue (tab, key)
     return nil
 end
 
-function RecreateAllSignals()
+local allItemSignals = nil
+
+local function RecreateAllSignals()
 	allItemSignals = { }
 	-- 'item'!, 'fluid', 'virtual'
 	for _,itemPrototype in pairs(game.item_prototypes) do
@@ -137,8 +139,6 @@ function RecreateAllSignals()
 		allItemSignals[itemPrototype.name] = { type = itemPrototype.type, name = itemPrototype.name }
 	end
 end
-
-local allItemSignals = nil
 
 function EntityNameToSignal(name)
     if allItemSignals == nil then
