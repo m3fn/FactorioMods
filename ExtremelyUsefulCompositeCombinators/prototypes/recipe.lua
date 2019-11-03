@@ -18,7 +18,7 @@ data:extend(
     ingredients =
     {
       {"arithmetic-combinator", 2},
-	  {"decider-combinator", 2},
+      {"decider-combinator", 2},
       {"electronic-circuit", 1}
     },
     result = "euc-simple-delay-combinator"

@@ -4,26 +4,26 @@
 --------------------------------------------------------------------------------
 -- vanilla.lua 
 -- Purpose:
-    Add vanilla conbinators as components (using component part the API)
+	Add vanilla conbinators as components (using component part the API)
 ]]--
 
 local baseConst = {
-    combinatorOperationToInt = { 
-        [""] = 0, 
-        ["*"] = 1, ["/"] = 2, ["+"] = 3, ["-"] = 4, ["%"] = 5, ["^"] = 6, ["<<"] = 7, [">>"] = 8, ["AND"] = 9, ["OR"] = 10, ["XOR"] = 11,
-    },
-    intToCombinatorOperation = {
-        ["0"] = "", 
-        ["1"] = "*", ["2"] = "/", ["3"] = "+", ["4"] = "-", ["5"] = "%", ["6"] = "^", ["7"] = "<<", ["8"] = ">>", ["9"] = "AND", ["10"] = "OR", ["11"] = "XOR"
-    },
-    combinatorComparatorToInt = {
-        [""] = 0,
-        ["<"] = 1, [">"] = 2, ["="] = 3, ["≥"] = 4, ["≤"] = 5, ["≠"] = 6
-    },
-    intToCombinatorComparator = {
-        ["0"] = "",
-        ["1"] = "<", ["2"] = ">", ["3"] = "=", ["4"] = "≥", ["5"] = "≤", ["6"] = "≠"
-    },
+	combinatorOperationToInt = { 
+		[""] = 0, 
+		["*"] = 1, ["/"] = 2, ["+"] = 3, ["-"] = 4, ["%"] = 5, ["^"] = 6, ["<<"] = 7, [">>"] = 8, ["AND"] = 9, ["OR"] = 10, ["XOR"] = 11,
+	},
+	intToCombinatorOperation = {
+		["0"] = "", 
+		["1"] = "*", ["2"] = "/", ["3"] = "+", ["4"] = "-", ["5"] = "%", ["6"] = "^", ["7"] = "<<", ["8"] = ">>", ["9"] = "AND", ["10"] = "OR", ["11"] = "XOR"
+	},
+	combinatorComparatorToInt = {
+		[""] = 0,
+		["<"] = 1, [">"] = 2, ["="] = 3, ["≥"] = 4, ["≤"] = 5, ["≠"] = 6
+	},
+	intToCombinatorComparator = {
+		["0"] = "",
+		["1"] = "<", ["2"] = ">", ["3"] = "=", ["4"] = "≥", ["5"] = "≤", ["6"] = "≠"
+	},
 	strBoundary1 = '@',
 	strBoundary2 = '[',
 	strBoundary3 = ']',

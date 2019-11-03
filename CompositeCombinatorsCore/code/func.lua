@@ -482,7 +482,7 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	}
 	
 	local dir = combinator.direction
-	local isForwardDir = dir == 2 or dir == 4     -- if not, build beginning from the opposite site 
+	local isForwardDir = dir == 2 or dir == 4	 -- if not, build beginning from the opposite site 
 	local isSwitchingDim = dir == 4 or dir == 0   -- switch x and y
 	
 	local baseCoordinate
@@ -678,7 +678,7 @@ function SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	})
 	combinatorEntityState.dataSlotsStorage = dataSlotsStorage
 	
-    local beh = dataSlotsStorage.get_control_behavior()
+	local beh = dataSlotsStorage.get_control_behavior()
 	
 	beh.enabled = true
 	

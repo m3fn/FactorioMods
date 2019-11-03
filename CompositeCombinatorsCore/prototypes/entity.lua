@@ -42,12 +42,12 @@ function generate_decider_component(combinator)
       shift = util.by_pixel(0, 0)
     }
   }
-	  
+    
   local sprite = 
   {
     north = spriteSide,
-	east = spriteSide,
-	south = spriteSide,
+  east = spriteSide,
+  south = spriteSide,
     west = spriteSide
   }
 
@@ -72,7 +72,7 @@ function generate_decider_component(combinator)
         }
       }
     })
-	
+  
   combinator.activity_led_sprites =
   {
     north = genericComponentActivityLedSprites,
@@ -154,12 +154,12 @@ local function generate_arithmetic_component(combinator)
       shift = util.by_pixel(0, 0)
     }
   }
-	  
+    
   local sprite = 
   {
     north = spriteSide,
-	east = spriteSide,
-	south = spriteSide,
+  east = spriteSide,
+  south = spriteSide,
     west = spriteSide
   }
   
@@ -184,7 +184,7 @@ local function generate_arithmetic_component(combinator)
         }
       }
     })
-	
+  
   combinator.activity_led_sprites =
   {
     north = genericComponentActivityLedSprites,
@@ -296,7 +296,7 @@ function generate_component_constant_combinator(combinator, isConstructionData)
     })
   end
 
-	
+  
   combinator.activity_led_sprites =
   {
     north = genericComponentActivityLedSprites,
@@ -601,8 +601,8 @@ data:extend(
     selection_box = {{0.5, 0.5}, {0.5, 0.5}},
 
     item_slot_count = 64,
-	
-	selectable_in_game = false,
+  
+  selectable_in_game = false,
 
     vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
   }, false),
@@ -646,8 +646,8 @@ data:extend(
 
     input_connection_bounding_box = {{-0.5, 0}, {0.5, 1}},
     output_connection_bounding_box = {{-0.5, -1}, {0.5, 0}},
-	
-	selectable_in_game = false,
+  
+  selectable_in_game = false,
 
     circuit_wire_max_distance = 9
   },
@@ -691,8 +691,8 @@ data:extend(
 
     input_connection_bounding_box = {{-0.5, 0}, {0.5, 1}},
     output_connection_bounding_box = {{-0.5, -1}, {0.5, 0}},
-	
-	selectable_in_game = false,
+  
+  selectable_in_game = false,
 
     input_connection_points =
     {

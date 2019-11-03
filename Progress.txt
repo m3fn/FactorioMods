@@ -3,8 +3,6 @@ Progress:
 
 
    ------
-   - Build and remove by hand and with robots
-   - Blueprinting: polish
    - Complete Distinct wire constant combinator design & GUIs - fucking on_tick workarounds
    ------
 
@@ -15,9 +13,13 @@ Progress:
    - Restrict component flags
    - getCompositeCombinatorPrototype
    --------
-
+   
+   --------
+   - Build and remove by hand and with robots
+   - Blueprinting: polish
+   --------
+   
    ------
-   - Sanitize tabs/spaces
    - Write mod description (reasonable, for a couple of days, for devs and not)
    - Test check component's bounds
    - Add errors

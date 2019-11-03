@@ -39,11 +39,17 @@ function OnInit()
 		delayCombinators = { },
 		constantCombinators = { }
 	}
-    
+	
 	global.hasTasks = false
 	
 	RegisterEntities()
 	EnsurePlayerStates()
+end
+
+function CreatePlayerDesc()
+	return {
+		centralUIElement = nil
+	}
 end
 
 function OnConfigChanged(data)
@@ -92,12 +98,6 @@ function RegisterEntities()
 	
 end
 
-function SetDelayCombinatorDisplay(entity, delayId)
-	local params = entity.get_control_behavior().parameters
-	params.parameters.operation = const.simpleDelayCombinator.thresholdIdToSign[delayId]
-	entity.get_control_behavior().parameters = params
-end
-
 function OnTick(e)
 	if global.hasTasks == false then -- return as qucikly as we can
 		return
@@ -124,6 +124,81 @@ function OnTick(e)
 	end
 end
 
+function SetDelayCombinatorDisplay(entity, delayId)
+	local params = entity.get_control_behavior().parameters
+	params.parameters.operation = const.simpleDelayCombinator.thresholdIdToSign[delayId]
+	entity.get_control_behavior().parameters = params
+end
+
+function OnEucGuiClick(e)
+	local elementName = e.element.name
+	local entity = playerDesc.centralUIElement.selectedEntity
+	local player = game.get_player(playerIndex)
+	if playerDesc.centralUIElement.name == "DelayCombinator" then
+		local tnum = 1
+		for num in ipairs(const.simpleDelayCombinator.thresholds) do -- I hate lua too much to do this in a civil way
+			if elementName == "button_setdelay_"..tnum then 
+				remote.call("Composite-Combinators-Core", "changeLayout", entity.unit_number, tnum)
+				SetDelayCombinatorDisplay(entity, tnum)
+				global.state.delayCombinators[entity.unit_number].currentDelayId = tnum
+				CloseMenus(playerIndex)
+				return
+			end
+			tnum = tnum + 1
+		end
+	end
+	if playerDesc.centralUIElement.name == "DistinctConstantCombinator" then	
+		if elementName == "button_pickwire_red" then 
+			CloseMenus(playerIndex)
+			local combinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", entity.unit_number, 1)
+			local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
+				position = player.position,
+				radius = 1024,
+				name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
+			})
+			for _,entity in pairs(pf) do
+				if entity.unit_number == combinatorId then
+					player.opened = entity
+					return
+				end
+			end
+			return
+		end
+		if elementName == "button_pickwire_green" then 
+			CloseMenus(playerIndex)
+			local combinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", entity.unit_number, 2)
+			local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
+				position = player.position,
+				radius = 1024,
+				name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
+			})
+			for _,entity in pairs(pf) do
+				if entity.unit_number == combinatorId then
+					player.opened = entity
+					return
+				end
+			end
+			return
+		end
+	end
+end
+
+
+function OnCombinatorBuilt(entity)
+	if entity.name == "euc-distinct-constant-combinator" then
+		global.state.constantCombinators[entity.unit_number] = { entity = entity }
+	end
+	if entity.name == "euc-simple-delay-combinator" then
+		global.state.delayCombinators[entity.unit_number] = { entity = entity, currentDelayId = const.simpleDelayCombinator.defaultDelayId }
+	end
+end
+
+
+function TrySaveOpenedMenus(playerIndex)
+	TrySaveIoCombinatorSettings(playerIndex)
+	TrySaveModalText(playerIndex)
+end
+
 function ShowCombinatorMenuCommon(entity, playerIndex, name)
 	local playerDesc = global.state.players[playerIndex]
 	CloseMenus(playerIndex)
@@ -140,17 +215,17 @@ function ShowDistinctConstantCombinatorMenu(entity, playerIndex)
 	local player = game.players[playerIndex]
 	
 	local frame = player.gui.screen.add{
-        type = "frame",
-        name = "euc_delay_combinator",
-        style = "composite_combinators_settings_container",
-        caption = { "misc.DelaySettings" },
-        direction = "vertical",
-    }
+		type = "frame",
+		name = "euc_delay_combinator",
+		style = "composite_combinators_settings_container",
+		caption = { "misc.DelaySettings" },
+		direction = "vertical",
+	}
 	local flow = frame.add {
-        type = "flow",
+		type = "flow",
 		name = "flow",
-        direction = "vertical"
-    }
+		direction = "vertical"
+	}
 	flow.add {
 		type = "label",
 		name = "label",
@@ -158,10 +233,10 @@ function ShowDistinctConstantCombinatorMenu(entity, playerIndex)
 		caption =  { "misc.DistinctConstantCombinator_SelectWire" }
 	}
 	local buttonsFlow = frame.add {
-        type = "flow",
+		type = "flow",
 		name = "flow2",
-        direction = "horizontal"
-    }
+		direction = "horizontal"
+	}
 	buttonsFlow.add {
 		type = "sprite-button",
 		name = "button_pickwire_red",
@@ -184,16 +259,16 @@ function ShowDelayCombinatorMenu(entity, playerIndex)
 	local player = game.players[playerIndex]
 	
 	local frame = player.gui.screen.add{
-        type = "frame",
-        name = "euc_delay_combinator",
-        caption = { "misc.DelaySettings" },
-        direction = "vertical",
-    }
+		type = "frame",
+		name = "euc_delay_combinator",
+		caption = { "misc.DelaySettings" },
+		direction = "vertical",
+	}
 	local flow = frame.add {
-        type = "flow",
+		type = "flow",
 		name = "flow",
-        direction = "vertical"
-    }
+		direction = "vertical"
+	}
 	local indicatorFlow = flow.add {
 		type = "flow",
 		name = "flow1",
@@ -251,167 +326,8 @@ function ShowDelayCombinatorMenu(entity, playerIndex)
 	frame.force_auto_center()
 end
 
-
-function OnGuiClick(e)
-	local playerIndex = e.player_index
-	local playerDesc = global.state.players[playerIndex]
-	
-	if playerDesc.centralUIElement then
-		local elementName = e.element.name
-		local entity = playerDesc.centralUIElement.selectedEntity
-		local player = game.get_player(playerIndex)
-		if playerDesc.centralUIElement.name == "DelayCombinator" then
-			local tnum = 1
-			for num in ipairs(const.simpleDelayCombinator.thresholds) do -- I hate lua too much to do this in a civil way
-				if elementName == "button_setdelay_"..tnum then 
-					remote.call("Composite-Combinators-Core", "changeLayout", entity.unit_number, tnum)
-					SetDelayCombinatorDisplay(entity, tnum)
-					global.state.delayCombinators[entity.unit_number].currentDelayId = tnum
-					CloseMenus(playerIndex)
-					return
-				end
-				tnum = tnum + 1
-			end
-		end
-		if playerDesc.centralUIElement.name == "DistinctConstantCombinator" then	
-			if elementName == "button_pickwire_red" then 
-				CloseMenus(playerIndex)
-				local combinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", entity.unit_number, 1)
-				local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
-					position = player.position,
-					radius = 1024,
-					name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
-				})
-				for _,entity in pairs(pf) do
-					if entity.unit_number == combinatorId then
-						player.opened = entity
-						return
-					end
-				end
-				return
-			end
-			if elementName == "button_pickwire_green" then 
-				CloseMenus(playerIndex)
-				local combinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", entity.unit_number, 2)
-				local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
-					position = player.position,
-					radius = 1024,
-					name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
-				})
-				for _,entity in pairs(pf) do
-					if entity.unit_number == combinatorId then
-						player.opened = entity
-						return
-					end
-				end
-				return
-			end
-		end
-	end
-end
-
-function OnSelectedEntityChanged(e)
-	local playerIndex = e.player_index
-	local player = game.players[playerIndex]
-	
-	if player.selected then
-		if HasValue(const.managedEnts, player.selected.name) then
-			addTickTask("MaintainUI", { playerIndex = playerIndex, age = 1 })
-		end
-	end
-end
-
-
-function OnCheckedStateChanged(e)
-
-
-end
-
-
-function OnCombinatorBuilt(entity)
-	if entity.name == "euc-distinct-constant-combinator" then
-		global.state.constantCombinators[entity.unit_number] = { entity = entity }
-	end
-	if entity.name == "euc-simple-delay-combinator" then
-		global.state.delayCombinators[entity.unit_number] = { entity = entity, currentDelayId = const.simpleDelayCombinator.defaultDelayId }
-	end
-end
-
-function OnPlayerBuiltEntity(e)
-	local entity = e.created_entity
-	if HasValue(const.managedEnts, entity.name) then
-		OnCombinatorBuilt(entity)
-	end
-end
-
-function OnRotobBuiltEntity(e)
-	local entity = e.created_entity
-	if HasValue(const.managedEnts, entity.name) then
-		OnCombinatorBuilt(entity)
-	end
-end
-
--- TODO: on destroyed
-
-function OnPlayerJoinedGame(e)
-	local playerIndex = e.player_index
-	global.state.players[playerIndex] = CreatePlayerDesc()
-end
-
-function OnPlayerLeftGame(e)
-	local playerIndex = e.player_index
-	global.state.players[playerIndex] = nil
-end
-
-
-function CreatePlayerDesc()
-	return {
-		centralUIElement = nil
-	}
-end
-
-function EnsurePlayerStates()
-	for _, player in pairs(game.connected_players) do
-		global.state.players[player.index] = CreatePlayerDesc()
-	end
-end
-
-
-function CloseMenus(playerIndex)
-	local playerDesc = global.state.players[playerIndex]
-	if playerDesc.centralUIElement and playerDesc.centralUIElement.selectedEntityId then
-		TrySaveIoCombinatorSettings(playerIndex)
-		TrySaveModalText(playerIndex)
-	end
-	playerDesc.centralUIElement = nil
-	removeTickTask("MaintainUI")
-	
-	local player = game.get_player(playerIndex)
-	player.opened = nil
-	player.gui.screen.clear()
-end
-
-function OnGuiClosed(e)
-	local player = game.get_player(e.player_index)
-	CloseMenus(e.player_index)
-	if player.selected then
-		if HasValue(const.managedEnts, openedEntityName) then
-			addTickTask("MaintainUI", { playerIndex = e.player_index, age = 1 })
-		end
-	end
-end
-
-
 local de = defines.events
 
 script.on_init(OnInit)
 script.on_configuration_changed(OnConfigChanged)
 script.on_event(de.on_tick, OnTick)
-script.on_event(de.on_selected_entity_changed, OnSelectedEntityChanged)
-script.on_event(de.on_gui_click, OnGuiClick)
-script.on_event(de.on_gui_closed, OnGuiClosed)
-script.on_event(de.on_gui_checked_state_changed, OnCheckedStateChanged)
-script.on_event(de.on_player_joined_game, OnPlayerJoinedGame)
-script.on_event(de.on_player_left_game, OnPlayerLeftGame)
-script.on_event(de.on_built_entity, OnPlayerBuiltEntity)
-script.on_event(de.on_robot_built_entity, OnRotobBuiltEntity)

@@ -45,7 +45,7 @@ function OnTick(e)
 		return
 	end
 	
-	-- even simple task.age = task.age + 1 in this function is taking anacceptable amount of time, IMHO
+	-- even simple task.age = task.age + 1 in this function is taking unacceptable amount of time, IMHO
 	
 	for name, task in pairs(global.state.tickTasks) do
 		if name == "MaintainUI" then
@@ -166,12 +166,12 @@ function ShowModalText(playerIndex, str, title)
 	local player = game.players[playerIndex]
 
 	local frame = player.gui.screen.add{
-        type = "frame",
-        style = "composite_combinators_settings_container",
-        caption = { title },
-        direction = "vertical",
+		type = "frame",
+		style = "composite_combinators_settings_container",
+		caption = { title },
+		direction = "vertical",
 		auto_center = true
-    }
+	}
 	frame.add {
 		type = "line",
 		direction = "horizontal"
@@ -214,17 +214,17 @@ function ShowIoCombinatorMenu(entity, playerIndex)
 	local dataDesc = global.state.ioEntStates[entity.unit_number] or { num = '1' }
 	
 	local frame = player.gui.screen.add{
-        type = "frame",
-        name = "composite_combinators_io_settings",
-        style = "composite_combinators_settings_container_small",
-        caption = { "misc.IOSettings" },
-        direction = "vertical",
-    }
+		type = "frame",
+		name = "composite_combinators_io_settings",
+		style = "composite_combinators_settings_container_small",
+		caption = { "misc.IOSettings" },
+		direction = "vertical",
+	}
 	local flow = frame.add {
-        type = "flow",
+		type = "flow",
 		name = "flow",
-        direction = "vertical"
-    }
+		direction = "vertical"
+	}
 	local toggleFlow = flow.add {
 		type = "flow",
 		name = "flow1",
