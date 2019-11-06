@@ -3,7 +3,7 @@
 -- Extremely Useful Composite Combinators mod
 --------------------------------------------------------------------------------
 -- commonesque.lua 
-
+	Common events for all combinators and UIs
 ]]--
 
 function OnSelectedEntityChanged(e)
@@ -36,7 +36,7 @@ function OnPlayerBuiltEntity(e)
 	end
 end
 
-function OnRotobBuiltEntity(e)
+function OnRobotBuiltEntity(e)
 	local entity = e.created_entity
 	if HasValue(const.managedEnts, entity.name) then
 		OnCombinatorBuilt(entity)
@@ -73,10 +73,15 @@ function OnGuiClosed(e)
 	local player = game.get_player(e.player_index)
 	CloseMenus(e.player_index)
 	if player.selected then
-		if HasValue(const.managedEnts, openedEntityName) then
+		local selectedEntityName = player.selected.name
+		if HasValue(const.managedEnts, selectedEntityName) then
 			addTickTask("MaintainUI", { playerIndex = e.player_index, age = 1 })
 		end
 	end
+	for _,h in pairs(global.state.nextGuiCloseHandlers) do
+		h(e)
+	end
+	global.state.nextGuiCloseHandlers = { }
 end
 
 function OnGuiClick(e)
@@ -97,4 +102,4 @@ script.on_event(de.on_gui_checked_state_changed, OnCheckedStateChanged)
 script.on_event(de.on_player_joined_game, OnPlayerJoinedGame)
 script.on_event(de.on_player_left_game, OnPlayerLeftGame)
 script.on_event(de.on_built_entity, OnPlayerBuiltEntity)
-script.on_event(de.on_robot_built_entity, OnRotobBuiltEntity)
+script.on_event(de.on_robot_built_entity, OnRobotBuiltEntity)

@@ -22,6 +22,18 @@ data:extend(
       {"electronic-circuit", 1}
     },
     result = "euc-simple-delay-combinator"
-  }
+  },
+  {
+    type = "recipe",
+    name = "euc-filter-combinator",
+    enabled = true,
+    ingredients =
+    {
+      {"arithmetic-combinator", 2},
+      {"decider-combinator", 2},
+      {"electronic-circuit", 1}
+    },
+    result = "euc-filter-combinator"
+  },
 }
 )

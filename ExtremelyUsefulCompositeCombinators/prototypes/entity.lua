@@ -1,9 +1,10 @@
-local function generate_arithmetic_combinator(combinator)
+local function generate_arithmetic_combinator(name, combinator)
+
   combinator.sprites =
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = "__ExtremelyUsefulCompositeCombinators__/graphics/entity/arithmetic-combinator.png",
+          filename = "__ExtremelyUsefulCompositeCombinators__/graphics/entity/"..name..".png",
           width = 74,
           height = 64,
           frame_count = 1,
@@ -11,7 +12,7 @@ local function generate_arithmetic_combinator(combinator)
           hr_version =
           {
             scale = 0.5,
-            filename = "__ExtremelyUsefulCompositeCombinators__/graphics/entity/hr-arithmetic-combinator.png",
+            filename = "__ExtremelyUsefulCompositeCombinators__/graphics/entity/hr-"..name..".png",
             width = 144,
             height = 124,
             frame_count = 1,
@@ -1042,7 +1043,7 @@ local function generate_constant_combinator(combinator)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = "__ExtremelyUsefulCompositeCombinators__/graphics/entity/constant-combinator.png",
+          filename = "__ExtremelyUsefulCompositeCombinators__/graphics/entity/distinct-constant-combinator.png",
           width = 58,
           height = 52,
           frame_count = 1,
@@ -1050,7 +1051,7 @@ local function generate_constant_combinator(combinator)
           hr_version =
           {
             scale = 0.5,
-            filename = "__ExtremelyUsefulCompositeCombinators__/graphics/entity/hr-constant-combinator.png",
+            filename = "__ExtremelyUsefulCompositeCombinators__/graphics/entity/hr-distinct-constant-combinator.png",
             width = 114,
             height = 102,
             frame_count = 1,
@@ -1211,7 +1212,7 @@ generate_constant_combinator
   {
     type = "constant-combinator",
     name = "euc-distinct-constant-combinator",
-    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/constant-combinator.png",
+    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/distinct-constant-combinator.png",
     icon_size = 32,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 0.1, result = "euc-distinct-constant-combinator"},
@@ -1243,11 +1244,11 @@ generate_constant_combinator
     circuit_wire_max_distance = 11
   },
   
-  generate_arithmetic_combinator
+  generate_arithmetic_combinator("simple-delay-combinator",
   {
     type = "arithmetic-combinator",
     name = "euc-simple-delay-combinator",
-    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/arithmetic-combinator.png",
+    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/simple-delay-combinator.png",
     icon_size = 32,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 0.1, result = "euc-simple-delay-combinator"},
@@ -1309,7 +1310,75 @@ generate_constant_combinator
     output_connection_bounding_box = {{-0.5, -1}, {0.5, 0}},
 
     circuit_wire_max_distance = 11
-  },
+  }),
+  
+  generate_arithmetic_combinator("filter-combinator",
+  {
+    type = "arithmetic-combinator",
+    name = "euc-filter-combinator",
+    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/filter-combinator.png",
+    icon_size = 32,
+    flags = {"placeable-neutral", "player-creation"},
+    minable = {mining_time = 0.1, result = "euc-filter-combinator"},
+    max_health = 150,
+    corpse = "arithmetic-combinator-remnants",
+    collision_box = {{-0.35, -0.65}, {0.35, 0.65}},
+    selection_box = {{-0.5, -1}, {0.5, 1}},
+
+    energy_source =
+    {
+      type = "electric",
+      usage_priority = "secondary-input"
+    },
+    active_energy_usage = "1KW",
+
+    working_sound =
+    {
+      sound =
+      {
+        filename = "__base__/sound/combinator.ogg",
+        volume = 0.45
+      },
+      max_sounds_per_type = 2,
+      match_speed_to_activity = true
+    },
+    vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+
+    activity_led_light =
+    {
+      intensity = 0,
+      size = 1,
+      color = {r = 1.0, g = 1.0, b = 1.0}
+    },
+
+    activity_led_light_offsets =
+    {
+      {0.234375, -0.484375},
+      {0.5, 0},
+      {-0.265625, 0.140625},
+      {-0.453125, -0.359375}
+    },
+
+    screen_light =
+    {
+      intensity = 0.3,
+      size = 0.6,
+      color = {r = 1.0, g = 1.0, b = 1.0}
+    },
+
+    screen_light_offsets =
+    {
+      {0.015625, -0.234375},
+      {0.015625, -0.296875},
+      {0.015625, -0.234375},
+      {0.015625, -0.296875}
+    },
+
+    input_connection_bounding_box = {{-0.5, 0}, {0.5, 1}},
+    output_connection_bounding_box = {{-0.5, -1}, {0.5, 0}},
+
+    circuit_wire_max_distance = 11
+  }),
   
 }
 )

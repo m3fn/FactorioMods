@@ -3,15 +3,31 @@
 -- Extremely Useful Composite Combinators mod
 --------------------------------------------------------------------------------
 -- euc.lua 
-
+	Main
 ]]--
 
 const = {
 	managedEnts = {
 		"euc-distinct-constant-combinator",
-		"euc-simple-delay-combinator"
+		"euc-simple-delay-combinator",
+		"euc-filter-combinator"
+	},
+	distinctConstantCombinator = {
+		defaultBuildString = "item$composite-combinator-io-marker$item$constant-combinator$)1$2$1$262144$1(3$4$2$131584$1[(3$4$2$393472$1[()01$131073$65537(00$196609$65537("
 	},
 	simpleDelayCombinator = {
+		buildStrings = {
+			-- 1 tick
+			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131328$1(1$2$45$131333$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131339$2()01$131073$65537(01$262145$65538(00$196610$65537(00$262147$65538(",
+			-- 2 ticks
+			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$196609$65537(01$131073$65538(01$393218$65538(00$262147$65537(00$327684$65538(00$393221$65538(",
+			-- 3 ticks
+			"item$composite-combinator-io-marker$arithmetic-combinator$)1$2$1$0$1(1$2$1$0$2(1$3$45$131330$virtual@signal-each@^@1@virtual@signal-each@1(1$3$45$131074$virtual@signal-each@^@1@virtual@signal-each@1(1$3$45$131332$virtual@signal-each@^@1@virtual@signal-each@1(1$3$45$131076$virtual@signal-each@^@1@virtual@signal-each@1(1$3$45$131334$virtual@signal-each@^@1@virtual@signal-each@1(1$3$45$131078$virtual@signal-each@^@1@virtual@signal-each@1()01$262145$65537(00$196609$65537(01$524290$131073(00$458754$131073(00$327683$65538(01$393220$65538(00$458757$65538(01$524294$65538(",
+			-- 5 ticks
+			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131330$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131336$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131586$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131845$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131592$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$393217$65537(01$131073$65538(01$196610$65538(01$327683$65538(01$327684$131073(01$786436$65538(00$458758$65537(00$524295$65538(00$589832$65538(00$655369$65538(00$720906$65538(00$786443$65538(",
+			-- 7 ticks
+			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131330$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131332$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131334$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131336$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131586$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131588$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131845$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131590$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131592$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$524289$65537(01$196609$65538(01$196610$131073(01$327682$65538(01$327684$131073(01$458756$65538(01$458758$131073(01$1048582$65538(00$589832$65537(00$655369$65538(00$720906$65538(00$786443$65538(00$851980$65538(00$917517$65538(00$983054$65538(00$1048591$65538(",
+		},
 		defaultDelayId = 3,
 		thresholds = {
 			1, 2, 3, 5, 7
@@ -23,9 +39,14 @@ const = {
 			[5] = 4,
 			[7] = 5
 		},
-		thresholdIdToSign = {
+		thresholdIdToSign = { -- use vanilla arithmetic combinator signs to display current delay
 			'+', '-', '*', '/', '%'
 		}
+	},
+	filterCombinator = {
+		emptyString = "item$composite-combinator-io-marker$)1$2$1$0$2(1$2$1$0$1()",
+		maxItems = 8,
+		emptyDisplaySign = '^'
 	}
 	
 	
@@ -36,8 +57,11 @@ function OnInit()
 		tickTasks = { },
 		tasksCount = 0,
 		players = { },
+		constantCombinators = { },
 		delayCombinators = { },
-		constantCombinators = { }
+		filterCombinators = { },
+		
+		nextGuiCloseHandlers = { }
 	}
 	
 	global.hasTasks = false
@@ -56,14 +80,31 @@ function OnConfigChanged(data)
 	EnsurePlayerStates() -- TODO REMOVE?
 end
 
+-- callbacks from core
 remote.add_interface("ExtremelyUsefulCombinators", {
-	PickBuildString = function(entity)
+	GetBuildString = function(entity)
 		if entity == nil then
 			return nil
 		end
-		if entity.name == "euc-simple-delay-combinator" then
-			SetDelayCombinatorDisplay(entity, const.simpleDelayCombinator.defaultDelayId)
-			return const.simpleDelayCombinator.defaultDelayId
+		local entityName = entity.name
+		if entityName == "euc-distinct-constant-combinator" then
+			return const.distinctConstantCombinator.defaultBuildString
+		end
+		if entityName == "euc-simple-delay-combinator" then
+			local delayId
+			if global.state.delayCombinators[entity.unit_number] then
+				-- GetBuildString is called when changing delay
+				delayId = global.state.delayCombinators[entity.unit_number].currentDelayId
+			else
+				-- Although it is set on on_built_entity in OnCombinatorBuilt function, on_built_entity order is not defined
+				-- This is for the case if core mod on_built_entity is called second
+				delayId = const.simpleDelayCombinator.defaultDelayId
+			end
+			SetDelayCombinatorDisplay(entity, delayId)
+			return const.simpleDelayCombinator.buildStrings[delayId]
+		end
+		if entityName == "euc-filter-combinator" then
+			return const.filterCombinator.emptyString
 		end
 		return 1
 	end,
@@ -71,55 +112,49 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 		if entity == nil then
 			return nil
 		end
-		if entity.name == "euc-distinct-constant-combinator" then
+		local entityName = entity.name
+		if entityName == "euc-distinct-constant-combinator" then
 		end
-		if entity.name == "euc-simple-delay-combinator" then
+		if entityName == "euc-simple-delay-combinator" then
+			-- add some information so we can identify combinator settings when it is built from blueprint
 			slots[1] = { signal = { type = 'item', name = 'wood' }, count = global.state.delayCombinators[entity.unit_number].currentDelayId, index = 1 }
+		end
+		if entityName ==  "euc-filter-combinator" then
+		
 		end
 	end,
 	OnBuiltFromGhostWithSlotsInfo = function(entity, slots, nextSlot)
 		if entity == nil then
 			return nil
 		end
-		if entity.name == "euc-distinct-constant-combinator" then
+		local entityName = entity.name
+		if entityName == "euc-distinct-constant-combinator" then
 		end
-		if entity.name == "euc-simple-delay-combinator" then
+		if entityName == "euc-simple-delay-combinator" then
+			-- Combinator layout is preserved on blueprinting, now should gain knowledge about what is current layout
+			-- It is easier to use AddSlotsInfo / OnBuiltFromGhostWithSlotsInfo for this than to lookup current components setup
 			global.state.delayCombinators[entity.unit_number].currentDelayId = slots[nextSlot].count
+		end
+		if entityName ==  "euc-filter-combinator" then
+		
 		end
 		return nextSlot + 1
 	end
 })
 
+local function RegisterEntity(name, offs, cpos)
+	remote.call(
+		"Composite-Combinators-Core", "registerCompositeCombinatorPrototype", 
+		name, offs, cpos,
+		"ExtremelyUsefulCombinators"
+	)
+end
 
 function RegisterEntities()
-	remote.call(
-		"Composite-Combinators-Core", "registerCompositeCombinatorPrototype", 
-		"euc-distinct-constant-combinator", 
-		2, { x = 0.5, y = 0.5 },
-		{
-			"item$composite-combinator-io-marker$item$constant-combinator$)1$2$1$262144$1(3$4$2$131584$1[(3$4$2$393472$1[()01$131073$65537(00$196609$65537("
-		},
-		"ExtremelyUsefulCombinators"
-	)
-	remote.call(
-		"Composite-Combinators-Core", "registerCompositeCombinatorPrototype", 
-		"euc-simple-delay-combinator", 
-		6, { x = 0.66, y = 0.33 },
-		{
-			-- 1 tick
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131328$1(1$2$45$131333$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131339$2()01$131073$65537(01$262145$65538(00$196610$65537(00$262147$65538(",
-			-- 2 ticks
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$196609$65537(01$131073$65538(01$393218$65538(00$262147$65537(00$327684$65538(00$393221$65538(",
-			-- 3 ticks
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131845$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$262145$65537(01$131073$65538(01$196610$65538(01$524291$65538(00$327684$65537(00$393221$65538(00$458758$65538(00$524295$65538(",
-			-- 5 ticks
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131330$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131336$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131586$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131845$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131592$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$393217$65537(01$131073$65538(01$196610$65538(01$327683$65538(01$327684$131073(01$786436$65538(00$458758$65537(00$524295$65538(00$589832$65538(00$655369$65538(00$720906$65538(00$786443$65538(",
-			-- 7 ticks
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131330$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131332$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131334$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131336$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131586$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131588$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131845$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131590$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131592$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$524289$65537(01$196609$65538(01$196610$131073(01$327682$65538(01$327684$131073(01$458756$65538(01$458758$131073(01$1048582$65538(00$589832$65537(00$655369$65538(00$720906$65538(00$786443$65538(00$851980$65538(00$917517$65538(00$983054$65538(00$1048591$65538(",
-		},
-		"ExtremelyUsefulCombinators"
-	)
-	
+	-- Register our entities, other info is gained through callbacks
+	RegisterEntity("euc-distinct-constant-combinator", 	2, { x = 0.5, y = 0.5 })
+	RegisterEntity("euc-simple-delay-combinator", 		6, { x = 0.66, y = 0.33 })
+	RegisterEntity("euc-filter-combinator", 			6, { x = 0.66, y = 0.33 })
 end
 
 function OnTick(e)
@@ -140,7 +175,7 @@ function OnTick(e)
 				end
 			else
 				task.age = task.age + 1
-				if task.age > 2 and not player.selected then
+				if task.age > 1 and not player.selected then
 					removeTickTask("MaintainUI")
 				end
 			end
@@ -148,10 +183,41 @@ function OnTick(e)
 	end
 end
 
-function SetDelayCombinatorDisplay(entity, delayId)
+function SetCommonArithmeticCombinatorDisplay(entity, operation)
+	-- use vanilla arithmetic combinator signs to display anything
 	local params = entity.get_control_behavior().parameters
-	params.parameters.operation = const.simpleDelayCombinator.thresholdIdToSign[delayId]
+	params.parameters.operation = operation
 	entity.get_control_behavior().parameters = params
+end
+
+function SetDelayCombinatorDisplay(entity, delayId)
+	local operation = const.simpleDelayCombinator.thresholdIdToSign[delayId]
+	SetCommonArithmeticCombinatorDisplay(entity, operation)
+end
+
+function DistinctConstantCombinatorClick_ForWire(combinator, player, wireId)
+	local playerIndex = player.index
+	local combinatorId = combinator.unit_number
+	CloseMenus(playerIndex)
+	local constantCombinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", combinatorId, wireId)
+	-- TODO: find better way
+	local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
+		position = player.position,
+		radius = 1024,
+		name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
+	})
+	for _,entity in pairs(pf) do
+		if entity.unit_number == constantCombinatorId then
+			player.opened = entity
+			table.insert(
+				global.state.nextGuiCloseHandlers, 
+				function(e) 
+					remote.call("Composite-Combinators-Core", "refreshDataStorageSlots", combinatorId)
+				end
+			)
+			return
+		end
+	end
 end
 
 function OnEucGuiClick(e)
@@ -164,9 +230,8 @@ function OnEucGuiClick(e)
 		local tnum = 1
 		for num in ipairs(const.simpleDelayCombinator.thresholds) do -- I hate lua too much to do this in a civil way
 			if elementName == "button_setdelay_"..tnum then 
-				remote.call("Composite-Combinators-Core", "changeLayout", entity.unit_number, tnum)
-				SetDelayCombinatorDisplay(entity, tnum)
 				global.state.delayCombinators[entity.unit_number].currentDelayId = tnum
+				remote.call("Composite-Combinators-Core", "changeLayout", entity.unit_number)
 				CloseMenus(playerIndex)
 				return
 			end
@@ -174,36 +239,13 @@ function OnEucGuiClick(e)
 		end
 	end
 	if playerDesc.centralUIElement.name == "DistinctConstantCombinator" then	
+		-- Show inner constant combinators on click
 		if elementName == "button_pickwire_red" then 
-			CloseMenus(playerIndex)
-			local combinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", entity.unit_number, 1)
-			local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
-				position = player.position,
-				radius = 1024,
-				name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
-			})
-			for _,entity in pairs(pf) do
-				if entity.unit_number == combinatorId then
-					player.opened = entity
-					return
-				end
-			end
+			DistinctConstantCombinatorClick_ForWire(entity, player, 1)
 			return
 		end
 		if elementName == "button_pickwire_green" then 
-			CloseMenus(playerIndex)
-			local combinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", entity.unit_number, 2)
-			local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
-				position = player.position,
-				radius = 1024,
-				name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
-			})
-			for _,entity in pairs(pf) do
-				if entity.unit_number == combinatorId then
-					player.opened = entity
-					return
-				end
-			end
+			DistinctConstantCombinatorClick_ForWire(entity, player, 2)
 			return
 		end
 	end
@@ -211,11 +253,15 @@ end
 
 
 function OnCombinatorBuilt(entity)
-	if entity.name == "euc-distinct-constant-combinator" then
+	local entityName = entity.name
+	if entityName== "euc-distinct-constant-combinator" then
 		global.state.constantCombinators[entity.unit_number] = { entity = entity }
 	end
-	if entity.name == "euc-simple-delay-combinator" then
+	if entityName == "euc-simple-delay-combinator" then
 		global.state.delayCombinators[entity.unit_number] = { entity = entity, currentDelayId = const.simpleDelayCombinator.defaultDelayId }
+	end
+	if entityName ==  "euc-filter-combinator" then
+		SetCommonArithmeticCombinatorDisplay(entity, const.filterCombinator.emptyDisplaySign)
 	end
 end
 
@@ -351,6 +397,8 @@ function ShowDelayCombinatorMenu(entity, playerIndex)
 	player.opened = frame
 	frame.force_auto_center()
 end
+
+-- that's it
 
 local de = defines.events
 
