@@ -75,7 +75,15 @@ end
 	Length should be always equal
 --]]
 
+
 function FuncMain:GetComponentsStringFromEntities_Int(combinator, components, fromComponents)
+	local combinatorEntityState = fromComponents and global.state.combinatorEntities[combinator.unit_number] or nil
+	
+	
+end
+
+
+function FuncMain:GetComponentsStringFromEntities_Int_C(combinator, components, fromComponents)
 
 	-- internal data structure entity ids
 	local entNumberToEntId = { }

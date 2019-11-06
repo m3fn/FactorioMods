@@ -7,28 +7,23 @@ Progress:
    ------
 
    -------
-   - Slots checksum
-   - String checksum
    - getCompositeCombinatorPrototype
    - getBuildDataSlots
    - remove integer packing from string
-   --------
    
-   --------
-   - Build and remove by hand and with robots
+   - Constant blueprinting, blueprint state return
+   - Test out Build and remove by hand and with robots
    - Blueprinting: polish
+   
+   - Filter combinator with shit GUIs an graphics
    --------
    
    ------
-   - Unit tests
+   - Unit tests? - check all states of vanilla components
    - Write mod description (reasonable, for a couple of days, for devs and not)
-   - Test check component's bounds
+   - Check component's bounds is buggy
    - Comments for devs
    ------
-   
-   -------
-   - Fix bugs, edge cases
-   ------- 
    
    ------
    - 0.1.2
@@ -42,8 +37,8 @@ Progress:
   
    ------
    - Str builder APIs
-   - Index Filter with shit GUIs an graphics
    - Simple memory with shit GUIs an graphics
+   - Switch combinator with shit GUIs an graphics
    ------
    
    ------
@@ -55,6 +50,9 @@ Progress:
    - on_player_*
    - Restrict composite combinator flags (e.g. "building-direction-8-way")
    - Restrict component flags
+   - Slots checksum
+   - String checksum
+   - ChangeLayout does not reset entity
    ------
    
    ------
@@ -65,10 +63,14 @@ Progress:
    - Publish Pre-alpha 0.2 (mod portal) ?
    ------
    
+    -------
+    - Find bugs, edge cases
+    ------- 
+   
    ------
    - Other unexpected work
    - Wait and get feedback from community
-
+   - Index Filter with shit GUIs an graphics
    ------
 	
 
@@ -90,4 +92,5 @@ Some time later:
 - Cleanup
 - Polish eveything with grumpy look
 - Test build performance a bit to know limitations
+
   .......
