@@ -372,6 +372,10 @@ end
 --- Not actually built as a component, but writes to string where to connect inputs and outputs, handled as a special component in func.lua
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+function ComponentsRegistration:IOMarkerSerializeSub(ioNum)
+	return ''..ioNum
+end
+
 function ComponentsRegistration:IOMarkerSerialize(entity)
 	if entity == nil then
 		return nil
@@ -380,8 +384,7 @@ function ComponentsRegistration:IOMarkerSerialize(entity)
 	local entityId = entity.unit_number
 	local dataDesc = global.state.ioEntStates[entityId] or { num = '1' }
 
-	local str = ''..dataDesc.num
-	return str
+	return ComponentsRegistration:IOMarkerSerializeSub(dataDesc.num)
 end
 
 function ComponentsRegistration:IOMarkerConvert(str, slots)

@@ -1,3 +1,6 @@
+
+local bebak = false -- bibok
+
 local genericComponentActivityLedSprites = 
   {
      filename = "__CompositeCombinatorsCore__/graphics/activity-leds/component-LED.png",
@@ -127,8 +130,10 @@ function generate_decider_component(combinator)
       wire = constantComponentWireConnectionOffset
     }
   }
-  combinator.draw_circuit_wires = false
-  combinator.draw_copper_wires = false
+  if not bebak then
+    combinator.draw_circuit_wires = false
+    combinator.draw_copper_wires = false
+  end
   return combinator
 end
 
@@ -243,8 +248,10 @@ local function generate_arithmetic_component(combinator)
       wire = constantComponentWireConnectionOffset
     }
   }
-  combinator.draw_circuit_wires = false
-  combinator.draw_copper_wires = false
+  if not bebak then
+    combinator.draw_circuit_wires = false
+    combinator.draw_copper_wires = false
+  end
   return combinator
 end
 
@@ -335,8 +342,10 @@ function generate_component_constant_combinator(combinator, isConstructionData)
     }
   }
   
-  combinator.draw_circuit_wires = false
-  combinator.draw_copper_wires = false
+  if not bebak then
+    combinator.draw_circuit_wires = false
+    combinator.draw_copper_wires = false
+  end
   
   return combinator
 end
@@ -618,7 +627,7 @@ data:extend(
     max_health = 150,
     corpse = "small-remnants",
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = {{0.5, 0.5}, {0.5, 0.5}},
+    selection_box = bebak and {{-2.5, -2.5}, {4.5, 4.5}} or {{0.5, 0.5}, {0.5, 0.5}},
 
     energy_source =
     {
@@ -663,7 +672,7 @@ data:extend(
     max_health = 150,
     corpse = "small-remnants",
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = {{0.5, 0.5}, {0.5, 0.5}},
+    selection_box = bebak and {{-2.5, -2.5}, {4.5, 4.5}} or {{0.5, 0.5}, {0.5, 0.5}},
 
     energy_source =
     {

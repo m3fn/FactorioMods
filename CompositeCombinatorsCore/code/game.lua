@@ -272,18 +272,6 @@ end
 
 -- Dev. rest
 
-function PrintComponentsStringFromComponents(player, combinator)
-	local str = Func:GetComponentsStringFromComponents(combinator)
-	
-	if not not tonumber(str) then
-		player.print(str)
-	else
-		ShowModalText(player.index, str, "misc.ComponentsLayoutString_2")
-	end
-	
-	return str
-end
-
 function ShowSelectionStr(player, entities)
 	local str = Func:GetComponentsStringFromArchetypes(entities)
 	
@@ -296,26 +284,6 @@ function ShowSelectionStr(player, entities)
 	return str
 end
 
-function ShowSelectionStr2(player, entities)
-	for _,entity in pairs(entities) do
-		if global.state.combinatorEntities[entity.unit_number] ~= nil then
-			PrintComponentsStringFromComponents(player, entity)
-			return
-		end
-	end
-end
-
-function PrintOneArchetypeEntityStr(player, archetypeEntities)
-	local str = Func:GetOneArchetypeEntityStr(archetypeEntities)
-	
-	ShowModalText(player.index, str, "misc.ComponentsLayoutString_3")
-end
-
-function ShowSelectionComponentStr(player, entities)
-	PrintOneArchetypeEntityStr(player, entities, true)
-end
-
-
 function OnPlayerSelectedArea(e)
 	local playerIndex = e.player_index
 	if e.item == "composite-combinator-str" then
@@ -325,27 +293,22 @@ function OnPlayerSelectedArea(e)
 	end
 	if e.item == "composite-combinator-component-str" then
 		local player = game.get_player(playerIndex)
-		ShowSelectionComponentStr(player, e.entities)
-		player.clean_cursor()
-	end
-	if e.item == "composite-combinator-composite-str" then
-		local player = game.get_player(playerIndex)
-		ShowSelectionStr2(player, e.entities)
-		player.clean_cursor()
-	end
-	if e.item == "composite-combinator-test-reserialize" and e.entities[1] then
-		local player = game.get_player(playerIndex)
 		player.clean_cursor()
 		CloseMenus(playerIndex)
-		
+	
+		local str = nil
 		for _,ent in pairs(e.entities) do
-			--[[local combinatorDataDesc = global.modCfg.combinatorPrototypes[ent.prototype.name]
-			
-			local compStr = Func:GetComponentsStringFromEntities_Int( { ent } )
-			
-			local dataSlots = StringToDataSlots(componentsStr)
-			
-			Func:SpawnCompositeCombinatorComponents_Int(ent, dataSlots)]]--
+			local combinatorEntityState = global.state.combinatorEntities[ent.unit_number]
+
+			if combinatorEntityState ~= nil then
+				if str ~= nil then
+					str = "-80"
+				end
+				str = Func:GetComponentsStringFromComponents(ent)
+			end
+		end
+		if str ~= nil then
+			ShowModalText(playerIndex, str, "misc.ComponentsLayoutString_2")
 		end
 	end
 end
@@ -365,16 +328,16 @@ function OnCombinatorBuilt(entity, combinatorDataDesc)
 	for _,item in pairs(global.state.waitingForUnghosting) do
 		if not item.combinatorGhost.valid then -- Ghost should not exist at this point
 			if entity.position.x == item.ghostLocation.x and entity.position.y == item.ghostLocation.y then
-				SpawnCompositeCombinatorComponentsBySlots(entity, item.dataSlots) -- hell yeah
+				Func:SpawnCompositeCombinatorComponentsBySlots(entity, item.dataSlots) -- hell yeah
 				global.state.waitingForUnghosting[_] = nil 
 				return
 			end
 		end
 	end
 	
-	local strIndex = Remote:PickBuildString(combinatorDataDesc, entity)
+	local str = Remote:GetBuildString(combinatorDataDesc, entity)
 
-	Func:SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, strIndex)
+	Func:SpawnCompositeCombinatorComponents(entity, combinatorDataDesc, str)
 end
 
 function OnEntityBuiltSimple(entity)
@@ -391,7 +354,7 @@ Blueprinting flow is:
 Whichever ghost built first (combinator or construction data) - addTickTask("Unbound construction data or composite combinator")
 Second ghost - modify tick task pinpoiting by location
 Then on tick remove construction data ghost, save data of combinator ghost in global
-Then when built by robot - usual OnBuilt, except we use data from cosntructionData, not via PickBuildString str
+Then when built by robot - usual OnBuilt, but we use data from cosntructionData, not via PickBuildString str
 
 ]]--
 

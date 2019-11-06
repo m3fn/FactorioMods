@@ -50,7 +50,7 @@ data:extend({
     },
     -- style = "green",
   },
-  {
+  --[[{
     type = "selection-tool",
     name = "composite-combinator-test-reserialize",
     icon = "__CompositeCombinatorsCore__/graphics/tools/verify_tool.png",
@@ -97,7 +97,7 @@ data:extend({
       flags = {"icon"},
     },
     -- style = "green",
-  },
+  },]]--
   {
     type = "selection-tool",
     name = "composite-combinator-component-str",
@@ -146,7 +146,7 @@ data:extend({
     },
     -- style = "green",
   },
-  {
+  --[[{
     type = "selection-tool",
     name = "composite-combinator-composite-str",
     icon = "__CompositeCombinatorsCore__/graphics/tools/composite_string_tool.png",
@@ -193,7 +193,7 @@ data:extend({
       flags = {"icon"},
     },
     -- style = "green",
-  },
+  },]]--
 })
 
 end

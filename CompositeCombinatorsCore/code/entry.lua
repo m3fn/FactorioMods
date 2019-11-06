@@ -65,6 +65,12 @@ function OnInit()
 	
 	RegisterServiceComponents()
 	RegisterVanillaComponents()
+	
+	if settings.startup['composite-combinators-dev-mode'].value then
+	
+		commands.add_command("CCCTest", '', UnitTest)
+	
+	end
 end
 
 function OnConfigChanged(data)
@@ -88,7 +94,7 @@ remote.add_interface("Composite-Combinators-Core", {
 
 	-- Register composite combinator entity itself.
 
-	registerCompositeCombinatorPrototype = function(entityName, compressionRatio, componentsTopLeftOffset, combinatorStrings, callbacksRemote)
+	registerCompositeCombinatorPrototype = function(entityName, compressionRatio, componentsTopLeftOffset, callbacksRemote)
 	
 		if compressionRatio > limits.maxCompressionRatio or compressionRatio < limits.minCompressionRatio then
 			error("Remote call to Composite-Combinators-Core::registerCompositeCombinatorPrototype failed: compression ratio exceeds limitations")
@@ -103,7 +109,7 @@ remote.add_interface("Composite-Combinators-Core", {
 		end
 		
 		-- Say hello
-		remote.call(callbacksRemote, "PickBuildString", nil)
+		remote.call(callbacksRemote, "GetBuildString", nil)
 		remote.call(callbacksRemote, "AddSlotsInfo", nil, nil)
 		remote.call(callbacksRemote, "OnBuiltFromGhostWithSlotsInfo", nil, nil, -1)
 				
@@ -113,7 +119,6 @@ remote.add_interface("Composite-Combinators-Core", {
 			combinatorWidth = width,
 			combinatorHeight = height,
 			componentsTopLeftOffset = componentsTopLeftOffset,
-			combinatorStrings = combinatorStrings,
 			callbacksRemote = callbacksRemote
 		}
 
@@ -175,7 +180,7 @@ remote.add_interface("Composite-Combinators-Core", {
 	end,
 	
 	-- Get combinator component unit id
-	-- Use with caution, as any changes to component will be lost on blueprinting, entity direction change, changeLayout...
+	-- Any changes to component will be lost on blueprinting, entity direction change, changeLayout... before call to refreshDataSlots
 	
 	getComponentEntityId = function(combinatorId, componentId)
 		return Func:GetComponentData(combinatorId, componentId).componentEntity.unit_number
@@ -183,7 +188,11 @@ remote.add_interface("Composite-Combinators-Core", {
 	
 	getComponentPrototype = function(componentOrArchetypeName)
 		return global.modCfg.componentPrototypes[componentOrArchetypeName] or global.modCfg.componentPrototypesByComponentName[componentOrArchetypeName]
-	end
+	end,
+	
+	refreshDataStorageSlots = function(combinatorId)
+		return Func:RefreshDataStorageSlots(combinatorId)
+	end,
 })
 
 --- #endregion
@@ -208,8 +217,8 @@ function Remote:OnCombinatorSpawned(entityDataDesc, entity, dataSlots, nextSlot)
 	return remote.call(entityDataDesc.spawnedRemote.interface, entityDataDesc.spawnedRemote.method, entity, dataSlots, nextSlot)
 end
 
-function Remote:PickBuildString(combinatorDataDesc, entity)
-	return remote.call(combinatorDataDesc.callbacksRemote, "PickBuildString", entity)
+function Remote:GetBuildString(combinatorDataDesc, entity)
+	return remote.call(combinatorDataDesc.callbacksRemote, "GetBuildString", entity)
 end
 
 --- #endregion
