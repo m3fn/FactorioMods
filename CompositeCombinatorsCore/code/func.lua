@@ -7,43 +7,6 @@
 	Core logic;
 ]]--
 
-
---- #region: StrCreationInfo
-
-StrCreationInfo = {}
-StrCreationInfo.__index = StrCreationInfo
-
-function StrCreationInfo:create(combinatorName)
-   local struct = {}
-   setmetatable(struct, StrCreationInfo)
-   struct.ents = { }
-   struct.connections = { }
-   return struct
-end
-
-function StrCreationInfo:addComponent(prototypeName, position, direction, componentString, virtualUnitId)
-	table.insert(self.ents, {
-		prototypeName = prototypeName
-		position = position,
-		direction = direction,
-		componentString = componentString,
-		virtualUnitId = virtualUnitId
-	})
-end
-
-function StrCreationInfo:connectComponents(virtualUnitId1, virtualUnitId2, connector1, connector2, wire)
-	table.insert(self.connections, {
-		virtualUnitId1 = virtualUnitId1,
-		virtualUnitId2 = virtualUnitId2,
-		connector1 = connector1,
-		connector2 = connector2,
-		wire = wire
-	})
-end
-
---- #endregion
-
-
 --- #region: Func Interface
 
 Func = {}

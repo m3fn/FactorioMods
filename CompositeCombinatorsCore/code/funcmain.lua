@@ -8,9 +8,9 @@
 ]]--
 
 local coreConst = {
-	strBoundary1 = '$',
-	strBoundary2 = '(',
-	strBoundary3 = ')',
+	strBoundary1 = '#',
+	strBoundary2 = '%',
+	strBoundary3 = '$',
 	specialSignal = { type = "virtual", name = "signal-composite-combinators-core-technical" },
 	debugMode = false
 }
@@ -35,7 +35,7 @@ local function EntityOrComponentToSignal_Int(entity, fromComponents)
 			end
 		end
 	else
-		return EntityToSignal(entity)
+		return EntityNameToSignal(entity.name)
 	end
 end
 
@@ -56,6 +56,39 @@ end
 -- Application is various: on development, on blueprinting, on something else...
 ----------------------------------------------------------------------------------------------------------------------------------
 
+StrBuilder = {}
+StrBuilder.__index = StrBuilder
+
+function StrBuilder:new()
+   local struct = {}
+   setmetatable(struct, StrBuilder)
+   struct.prototypeName = nil
+   struct.fromComponents = nil
+   struct.components = { }
+   struct.connections = { }
+   return struct
+end
+
+function StrBuilder:AddComponent(prototypeName, position, direction, componentString, virtualUnitId)
+	table.insert(self.components, {
+		name = prototypeName,
+		position = position,
+		direction = direction,
+		componentString = componentString,
+		virtualUnitId = virtualUnitId
+	})
+end
+
+function StrBuilder:AddConnection(virtualUnitId1, virtualUnitId2, connector1, connector2, wire)
+	table.insert(self.connections, {
+		virtualUnitId1 = virtualUnitId1,
+		virtualUnitId2 = virtualUnitId2,
+		connector1 = connector1,
+		connector2 = connector2,
+		wire = wire
+	})
+end
+
 --[[
 	Error codes:
 		3 No entities
@@ -75,64 +108,15 @@ end
 	Length should be always equal
 --]]
 
-
-function FuncMain:GetComponentsStringFromEntities_Int(combinator, components, fromComponents)
+function StrBuilder:Fill(combinator, components, fromComponents)
 	local combinatorEntityState = fromComponents and global.state.combinatorEntities[combinator.unit_number] or nil
 	
-	
-end
-
-
-function FuncMain:GetComponentsStringFromEntities_Int_C(combinator, components, fromComponents)
-
-	-- internal data structure entity ids
-	local entNumberToEntId = { }
-
-	local countsStr = ''
-	local signal
-	local nextEntId = 1
-	local str = ''
-	
-	-- get topLeft pos, geather strings
+	self.prototypeName = fromComponents and combinator.name or nil
+	self.fromComponents = fromComponents
 	
 	local xmin = 2147483647
 	local ymin = 2147483647
-	local stringsDict = { }
-	local stringsDictIndex = 1
 	
-	if not components[1] then
-		return 3
-	end
-	
-	local combinatorEntityState = fromComponents and global.state.combinatorEntities[combinator.unit_number] or nil
-	local entityDataDesc
-	
-	
-	stringsDict["item"] = stringsDictIndex
-	stringsDictIndex = stringsDictIndex + 1
-	str = str.."item"..(coreConst.strBoundary1)
-	
-	stringsDict["composite-combinator-io-marker"] = stringsDictIndex
-	stringsDictIndex = stringsDictIndex + 1
-	str = str.."composite-combinator-io-marker"..(coreConst.strBoundary1)
-	
-	local orderedComponents = { }
-	
-	for _,entity in pairs(components) do 
-		if entity.name == "composite-combinator-io-marker" then
-			table.insert(orderedComponents, entity)
-		end
-	end
-	
-	for _,entity in pairs(components) do 
-		if entity.name ~= "composite-combinator-io-marker" then
-			table.insert(orderedComponents, entity)
-		end
-	end
-	
-	components = orderedComponents
-
-	-- put some strings in dict
 	for _,entity in pairs(components) do 
 		entityDataDesc = GetComponentDataDesc(entity.name, fromComponents)
 		
@@ -146,8 +130,175 @@ function FuncMain:GetComponentsStringFromEntities_Int_C(combinator, components, 
 		if entity.position.y < ymin then
 			ymin = entity.position.y
 		end
+	end
+	
+	local nextVirtualEntId = 1
+	local entIdToVirtualEntId = { }
+	
+	local redirectConnectionsConnectorIdToIOMarker = { }
+	
+	-- fake dem io markers - Build() does not work with connections of components to combinator entity 
+	-- serialize composite combinator connectors as io markers
+	if fromComponents then
+		local connectionDefinitions = combinator.circuit_connection_definitions
 		
-		signal = EntityOrComponentToSignal(entity, fromComponents)
+		entityDataDesc = GetComponentDataDesc("composite-combinator-io-marker", false)
+		
+		for __,ccDef in pairs(connectionDefinitions) do
+			if not redirectConnectionsConnectorIdToIOMarker[ccDef.target_circuit_id] then
+				local componentDataStr = ComponentsRegistration:IOMarkerSerializeSub(ccDef.target_circuit_id)
+				local componentDataStrLen = string.len(componentDataStr)
+				
+				self:AddComponent(
+					"composite-combinator-io-marker", 
+					{ x = 0, y = 0 }, 
+					0,
+					componentDataStr, 
+					nextVirtualEntId
+				)
+				
+				redirectConnectionsConnectorIdToIOMarker[ccDef.target_circuit_id] = nextVirtualEntId
+				entIdToVirtualEntId[entity.unit_number] = nextVirtualEntId
+				nextVirtualEntId = nextVirtualEntId + 1
+			end
+		end
+	end
+	
+	for _,entity in pairs(components) do 
+		entityDataDesc = GetComponentDataDesc(entity.name, fromComponents)
+		
+		local pos = { }
+		local dir
+		
+		if fromComponents then
+			pos.x = combinatorEntityState.components[entity.unit_number].origPos.x
+			pos.y = combinatorEntityState.components[entity.unit_number].origPos.y
+			dir = combinatorEntityState.components[entity.unit_number].origPos.dir
+		elseif entity.name == "composite-combinator-io-marker" then
+			pos.x = 0 -- for the sake of equality of result for both operating modes
+			pos.y = 0
+			dir = 0
+		else
+			pos.x = entity.position.x-xmin
+			pos.y = entity.position.y-ymin
+			dir = entity.direction
+		end
+		
+		self:AddComponent(
+			entity.name, 
+			pos, 
+			dir,
+			Remote:ComponentToString(entityDataDesc, entity), 
+			nextVirtualEntId
+		)
+		
+		entIdToVirtualEntId[entity.unit_number] = nextVirtualEntId
+		nextVirtualEntId = nextVirtualEntId + 1
+	end
+	
+	local connected = { }
+	
+	for _,entity in pairs(components) do 
+		local connectionDefinitions = entity.circuit_connection_definitions
+		
+		for __,ccDef in pairs(connectionDefinitions) do
+			local ent1id = entIdToVirtualEntId[entity.unit_number]
+			local ent1circuitId = ccDef.source_circuit_id
+			local ent2id
+			local ent2circuitId
+			if fromComponents and ccDef.target_entity.unit_number == combinator.unit_number then
+				-- redirect connection from combinator to io marker
+				ent2id = redirectConnectionsConnectorIdToIOMarker[ccDef.target_circuit_id]
+				ent2circuitId = 1
+			else
+				ent2id = entIdToVirtualEntId[ccDef.target_entity.unit_number]
+				ent2circuitId = ccDef.target_circuit_id
+			end
+
+			if not connected[ent2id..' '..ent1id] then
+			
+				self:AddConnection(
+					ent1id,
+					ent2id,
+					ent1circuitId,
+					ent2circuitId,
+					ccDef.wire
+				)
+			
+				connected[ent1id..' '..ent2id] = true
+			end
+		end
+	end
+	
+	msg(1, inspect(self.connections))
+end
+
+function FuncMain:GetComponentsStringFromEntities_Int(combinator, components, fromComponents)
+	local bdr = StrBuilder:new()
+	
+	-- Create str build info
+	bdr:Fill(combinator, components, fromComponents)
+	
+	-- Create str from build info, at Build() no access to real entities is performed
+	return bdr:Build()
+end
+
+function StrBuilder:Build()
+	local signal
+	local str = ''
+	
+	-- get topLeft pos, geather strings
+	
+	local stringsDict = { }
+	local stringsDictIndex = 1
+	
+	if not self.components[1] then
+		return 3
+	end
+	
+	stringsDict["item"] = stringsDictIndex
+	stringsDictIndex = stringsDictIndex + 1
+	str = str.."item"..(coreConst.strBoundary1)
+	
+	stringsDict["composite-combinator-io-marker"] = stringsDictIndex
+	stringsDictIndex = stringsDictIndex + 1
+	str = str.."composite-combinator-io-marker"..(coreConst.strBoundary1)
+	
+	local orderedComponents = self.components
+	
+	--[[for _,entity in pairs(self.components) do 
+		if entity.name == "composite-combinator-io-marker" then
+			table.insert(orderedComponents, entity)
+		end
+	end
+	
+	for _,entity in pairs(self.components) do 
+		if entity.name ~= "composite-combinator-io-marker" then
+			table.insert(orderedComponents, entity)
+		end
+	end]]--
+	
+	local entityDataDesc
+	
+	local xmin = 2147483647
+	local ymin = 2147483647
+	
+	-- put some strings in dict
+	for _,entity in pairs(orderedComponents) do 
+		entityDataDesc = GetComponentDataDesc(entity.name, self.fromComponents)
+		
+		if entityDataDesc == nil then
+			return -5
+		end
+		
+		if entity.position.x < xmin then
+			xmin = entity.position.x
+		end
+		if entity.position.y < ymin then
+			ymin = entity.position.y
+		end
+		
+		signal = EntityOrComponentToSignal(entity, self.fromComponents)
 		
 		if not stringsDict[signal.type] then
 			stringsDict[signal.type] = stringsDictIndex
@@ -163,72 +314,23 @@ function FuncMain:GetComponentsStringFromEntities_Int_C(combinator, components, 
 	
 	str = str..(coreConst.strBoundary3)
 	
-	local xpos
-	local ypos
-	local dir
-	
-	-- serialize composite combinator connectors as io markers
-	
-	local redirectConnectionsConnectorIdToIOMarker = { }
-	
-	if fromComponents then -- fake dem io markers
-		local connectionDefinitions = combinator.circuit_connection_definitions
-		
-		entityDataDesc = GetComponentDataDesc("composite-combinator-io-marker", false)
-		
-		-- local nextEntIdVirtual = nextEntId + 1
-		
-		for __,ccDef in pairs(connectionDefinitions) do
-			if not redirectConnectionsConnectorIdToIOMarker[ccDef.target_circuit_id] then
-				local componentDataStr = ComponentsRegistration:IOMarkerSerializeSub(ccDef.target_circuit_id)
-				local componentDataStrLen = string.len(componentDataStr)
-						
-				str = str..stringsDict["item"]..(coreConst.strBoundary1)..stringsDict["composite-combinator-io-marker"]..(coreConst.strBoundary1)..componentDataStrLen..(coreConst.strBoundary1)
-				str = str..'0'..(coreConst.strBoundary1)..componentDataStr..(coreConst.strBoundary2)
-				
-				redirectConnectionsConnectorIdToIOMarker[ccDef.target_circuit_id] = nextEntId
-				entNumberToEntId[combinator.unit_number] = nextEntId
-				nextEntId = nextEntId + 1
-			end
-		end
-	end
-	
 	-- serialize components entities
-	for _,entity in pairs(components) do 
+	for _,entity in pairs(orderedComponents) do 
 		entityDataDesc = GetComponentDataDesc(entity.name, fromComponents)
 		
 		signal = EntityOrComponentToSignal(entity, fromComponents)
 		
-		if fromComponents then
-			xpos = math.floor(combinatorEntityState.components[entity.unit_number].origPos.x)
-			ypos = bit32.lshift(math.floor(combinatorEntityState.components[entity.unit_number].origPos.y), 8)
-			dir = bit32.lshift(combinatorEntityState.components[entity.unit_number].origPos.dir, 16)
-		elseif entity.name == "composite-combinator-io-marker" then
-			xpos = 0 -- for the sake of equality of result for both operating modes
-			ypos = 0
-			dir = 0
-		else
-			xpos = math.floor(entity.position.x-xmin)
-			ypos = bit32.lshift(math.floor(entity.position.y-ymin), 8)
-			dir = bit32.lshift(entity.direction, 16)
-		end
-		
-		msg(1, game.tick..'pos: '..xpos..' '..ypos..' '..dir)
-		
-		if xpos >= limits.maxComponentsArchetypesAreaSize or (entity.position.y-ymin) >= limits.maxComponentsArchetypesAreaSize then
+		if entity.position.x >= limits.maxComponentsArchetypesAreaSize or entity.position.y >= limits.maxComponentsArchetypesAreaSize or 
+			(entity.position.x-xmin) >= limits.maxComponentsArchetypesAreaSize or (entity.position.y-ymin) >= limits.maxComponentsArchetypesAreaSize then
 			return -10
 		end
 		
-		local entPosAndDir = xpos + ypos + dir
-		
-		local componentDataStr = Remote:ComponentToString(entityDataDesc, entity)
-		
 		-- componentDataStr may vary
-		local componentDataStrLen = string.len(componentDataStr)
+		local componentDataStrLen = string.len(entity.componentString)
 		
-		if (string.find(componentDataStr, coreConst.strBoundary1, 1, true)) or
-			(string.find(componentDataStr, coreConst.strBoundary2, 1, true)) or 
-			(string.find(componentDataStr, coreConst.strBoundary3, 1, true)) then
+		if (string.find(entity.componentString, coreConst.strBoundary1, 1, true)) or
+			(string.find(entity.componentString, coreConst.strBoundary2, 1, true)) or 
+			(string.find(entity.componentString, coreConst.strBoundary3, 1, true)) then
 			return -14
 		end
 		
@@ -237,72 +339,37 @@ function FuncMain:GetComponentsStringFromEntities_Int_C(combinator, components, 
 		end
 		
 		str = str..(stringsDict[signal.type])..(coreConst.strBoundary1)..(stringsDict[signal.name])..(coreConst.strBoundary1)..componentDataStrLen..(coreConst.strBoundary1)
-		str = str..entPosAndDir..(coreConst.strBoundary1)..componentDataStr..(coreConst.strBoundary2)
-		
-		entNumberToEntId[entity.unit_number] = nextEntId
-		nextEntId = nextEntId + 1
+		str = str..entity.position.x..(coreConst.strBoundary1)..entity.position.y..(coreConst.strBoundary1)..entity.direction..(coreConst.strBoundary1)..entity.componentString..(coreConst.strBoundary2)
 	end
 
 	str = str..(coreConst.strBoundary3)
 
 	local nextConnection = 1
-	local connected = { }
 	
 	-- serialize connections
-	for _,entity in pairs(components) do 
-		entityDataDesc = GetComponentDataDesc(entity.name, fromComponents)
-		
-		local connectionDefinitions = entity.circuit_connection_definitions
-		
-		table.sort(
-			connectionDefinitions, 
-			function(a,b) 
-				if a.wire == b.wire then
-					return a.target_entity.unit_number < b.target_entity.unit_number
-				end
-				return a.wire < b.wire
-			end
-		)
-		
-		for __,ccDef in pairs(connectionDefinitions) do
+	for _,ccDef in pairs(self.connections) do 
+		local ent1id = ccDef.virtualUnitId1
+		local ent2id = ccDef.virtualUnitId2
 
-			local ent1id = entNumberToEntId[entity.unit_number]
-			local ent2id = entNumberToEntId[ccDef.target_entity.unit_number]
-			
-			if fromComponents and ccDef.target_entity.unit_number == combinator.unit_number then
-				ent2id = redirectConnectionsConnectorIdToIOMarker[ccDef.target_circuit_id]
-			end
-			
-			-- msg(1, inspect(connectionDefinitions) .. 'bi')
-			
-			if not connected[ent2id..' '..ent1id] then -- if only this language had continue...
-				
-				if not ent1id or not ent2id then
-					return -26
-				end
-
-				if ent1id >= limits.maxComponents or ent2id >= limits.maxComponents then
-					return -29
-				end
-				
-				connected[ent1id..' '..ent2id] = true
-
-				str = str..((ccDef.wire == defines.wire_type.red and "01") or "00")..(coreConst.strBoundary1)
-				str = str..(ent1id + bit32.lshift(ent2id, 16))..(coreConst.strBoundary1)
-				str = str..(ccDef.source_circuit_id + bit32.lshift(ccDef.target_circuit_id, 16))
-				str = str..(coreConst.strBoundary2)
-				
-				nextConnection = nextConnection + 1
-			else
-				game.players[1].print("NO"..ent2id)
-			end
+		if not ent1id or not ent2id then
+			return -26
 		end
+
+		if ent1id >= limits.maxComponents or ent2id >= limits.maxComponents then
+			return -29
+		end
+		
+		str = str..((ccDef.wire == defines.wire_type.red and "01") or "00")..(coreConst.strBoundary1)
+		str = str..ent1id..(coreConst.strBoundary1)..ent2id..(coreConst.strBoundary1)
+		str = str..ccDef.connector1..(coreConst.strBoundary1)..ccDef.connector2..(coreConst.strBoundary1)
+		str = str..(coreConst.strBoundary2)
+		
+		nextConnection = nextConnection + 1
 	end
 	
 	if nextConnection > limits.maxComponentConnections then
 		return -44
 	end
-	
 	
 	return str
 end
@@ -347,15 +414,17 @@ function FuncMain:StringToDataSlots_Int(str)
 		local signalType = stringsDict[tonumber(entitySpl[1])]
 		local signalName = stringsDict[tonumber(entitySpl[2])]
 		local dataLen = entitySpl[3]
-		local entPosAndDir = entitySpl[4]
-		local componentDataStr = entitySpl[5]
+		local entPosX = tonumber(entitySpl[4])
+		local entPosY = tonumber(entitySpl[5])
+		local entDir = tonumber(entitySpl[6])
+		local componentDataStr = entitySpl[7]
 		
 		dataSlots[nextSlot] = { signal = { type = signalType, name = signalName }, count = 37, index = nextSlot }
 		nextSlot = nextSlot + 1
-		
+			
 		dataSlots[nextSlot] = { 
 			signal = coreConst.specialSignal, 
-			count = entPosAndDir, 
+			count = math.floor(entPosX) + bit32.lshift(math.floor(entPosY), 8) + bit32.lshift(entDir, 16), 
 			index = nextSlot
 		}
 		nextSlot = nextSlot + 1
@@ -403,12 +472,11 @@ function FuncMain:StringToDataSlots_Int(str)
 		if wireType == nil then
 			break
 		end
-		local entIds = connectionSpl[2]
-		local connectionIds = connectionSpl[3]
+		local ent1Id = tonumber(connectionSpl[2])
+		local ent2Id = tonumber(connectionSpl[3])
+		local connection1Id = tonumber(connectionSpl[4])
+		local connection2Id = tonumber(connectionSpl[5])
 		
-		local ent1Id = tonumber(bit32.band(entIds, 0xFFFF))
-		local ent2Id = tonumber(bit32.band(bit32.rshift(entIds, 16), 0xFFFF))
-	
 		if ent1Id >= limits.maxComponents or ent2Id >= limits.maxComponents then
 			error("Composite-Combinators-Core::StringToDataSlots failed: maxComponents exceeded")
 		end
@@ -418,7 +486,7 @@ function FuncMain:StringToDataSlots_Int(str)
 				type = "item", 
 				name = wireType == "01" and "red-wire" or "green-wire"
 			}, 
-			count = entIds,
+			count = (ent1Id + bit32.lshift(ent2Id, 16)),
 			index = nextSlot
 		}
 		nextSlot = nextSlot + 1
@@ -428,7 +496,7 @@ function FuncMain:StringToDataSlots_Int(str)
 				type = "item", 
 				name = "wood"
 			}, 
-			count = connectionIds,
+			count = (connection1Id + bit32.lshift(connection2Id, 16)),
 			index = nextSlot
 		}
 		nextSlot = nextSlot + 1
@@ -572,12 +640,12 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 				srcY = t
 			end
 			
-			if not coreConst.debugMode and combinatorDataDesc.combinatorWidth < srcX or srcX < 0 then
-				error("Component is out of bounds (X)")
-			end
-			if not coreConst.debugMode and combinatorDataDesc.combinatorHeight < srcY or srcY < 0 then
-				error("Component is out of bounds (X)")
-			end
+			--if not coreConst.debugMode and combinatorDataDesc.combinatorWidth < srcX or srcX < 0 then
+			--	error("Component is out of bounds (X)")
+			--end
+			--if not coreConst.debugMode and combinatorDataDesc.combinatorHeight < srcY or srcY < 0 then
+			--	error("Component is out of bounds (Y)")
+			--end
 			
 			if isForwardDir then
 				if not isSwitchingDim then

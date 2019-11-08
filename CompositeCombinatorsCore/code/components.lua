@@ -28,9 +28,9 @@ local baseConst = {
 		["0"] = "",
 		["1"] = "<", ["2"] = ">", ["3"] = "=", ["4"] = "≥", ["5"] = "≤", ["6"] = "≠"
 	},
-	strBoundary1 = '@',
-	strBoundary2 = '[',
-	strBoundary3 = ']',
+	strBoundary1 = '!',
+	strBoundary2 = '*',
+	strBoundary3 = '~',
 	strSpecial = '^',
 	specialSignal = { type = "virtual", name = "signal-composite-combinators-base-technical" }
 }

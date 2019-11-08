@@ -2,14 +2,8 @@
 Progress:
 
 
-   ------
-   - Complete Distinct wire constant combinator design & GUIs - fucking on_tick workarounds
-   ------
-
    -------
-   - getCompositeCombinatorPrototype
-   - getBuildDataSlots
-   - remove integer packing from string
+   - Redo strs
    
    - Constant blueprinting, blueprint state return
    - Test out Build and remove by hand and with robots
