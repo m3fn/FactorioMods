@@ -19,8 +19,12 @@ end
 
 
 function OnCheckedStateChanged(e)
-
-
+	local playerIndex = e.player_index
+	local playerDesc = global.state.players[playerIndex]
+	
+	if playerDesc.centralUIElement then
+		OnEucCheckedStateChanged(e)
+	end
 end
 
 function EnsurePlayerStates()
@@ -93,6 +97,15 @@ function OnGuiClick(e)
 	end
 end
 
+function OnGuiElemChanged(e)
+	local playerIndex = e.player_index
+	local playerDesc = global.state.players[playerIndex]
+	
+	if playerDesc.centralUIElement then
+		OnEucGuiElemChanged(e)
+	end
+end
+
 local de = defines.events
 
 script.on_event(de.on_selected_entity_changed, OnSelectedEntityChanged)
@@ -103,3 +116,4 @@ script.on_event(de.on_player_joined_game, OnPlayerJoinedGame)
 script.on_event(de.on_player_left_game, OnPlayerLeftGame)
 script.on_event(de.on_built_entity, OnPlayerBuiltEntity)
 script.on_event(de.on_robot_built_entity, OnRobotBuiltEntity)
+script.on_event(de.on_gui_elem_changed, OnGuiElemChanged)

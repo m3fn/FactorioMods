@@ -7,7 +7,7 @@ data:extend(
     ingredients =
     {
       {"constant-combinator", 2},
-      {"electronic-circuit", 1}
+      {"electronic-circuit", 2}
     },
     result = "euc-distinct-constant-combinator"
   },
@@ -17,23 +17,21 @@ data:extend(
     enabled = true,
     ingredients =
     {
-      {"arithmetic-combinator", 2},
-      {"decider-combinator", 2},
-      {"electronic-circuit", 1}
+      {"arithmetic-combinator", 8},
+      {"electronic-circuit", 12}
     },
     result = "euc-simple-delay-combinator"
   },
   {
     type = "recipe",
-    name = "euc-filter-combinator",
+    name = "euc-inclusive-filter-combinator",
     enabled = true,
     ingredients =
     {
-      {"arithmetic-combinator", 2},
-      {"decider-combinator", 2},
-      {"electronic-circuit", 1}
+      {"decider-combinator", 8},
+      {"electronic-circuit", 12}
     },
-    result = "euc-filter-combinator"
+    result = "euc-inclusive-filter-combinator"
   },
 }
 )

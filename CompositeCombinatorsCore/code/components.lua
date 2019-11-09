@@ -311,16 +311,20 @@ function ComponentsRegistration:DeciderCombinatorSerialize(entity)
 	end
 	local params = entity.get_control_behavior().parameters
 	
-	local str = serializeArithmeticDeciderCommon(params)
-	
-	local thirdSlotValue = baseConst.combinatorComparatorToInt[''..params.parameters.comparator]
+	return ComponentsRegistration:DeciderCombinatorBuildString(params)
+end
 
-	if params.parameters.copy_count_from_input then
+function ComponentsRegistration:DeciderCombinatorBuildString(combinatorParameters)
+	local str = serializeArithmeticDeciderCommon(combinatorParameters)
+	
+	local thirdSlotValue = baseConst.combinatorComparatorToInt[''..combinatorParameters.parameters.comparator]
+
+	if combinatorParameters.parameters.copy_count_from_input then
 		thirdSlotValue = thirdSlotValue + bit32.lshift(1, 16)
 	end
 
-	if params.parameters.output_signal then
-		str = str..serializeSignal1B(params.parameters.output_signal)..(baseConst.strBoundary1)..thirdSlotValue
+	if combinatorParameters.parameters.output_signal then
+		str = str..serializeSignal1B(combinatorParameters.parameters.output_signal)..(baseConst.strBoundary1)..thirdSlotValue
 	else
 		str = str..baseConst.strSpecial..(baseConst.strBoundary1)..thirdSlotValue
 	end
@@ -385,6 +389,10 @@ function ComponentsRegistration:IOMarkerSerialize(entity)
 	local dataDesc = global.state.ioEntStates[entityId] or { num = '1' }
 
 	return ComponentsRegistration:IOMarkerSerializeSub(dataDesc.num)
+end
+
+function ComponentsRegistration:IOCombinatorBuildString(ioNum)
+	return ComponentsRegistration:IOMarkerSerializeSub(ioNum)
 end
 
 function ComponentsRegistration:IOMarkerConvert(str, slots)

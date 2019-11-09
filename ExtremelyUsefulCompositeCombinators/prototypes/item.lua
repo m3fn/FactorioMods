@@ -22,12 +22,12 @@ data:extend(
   },
   {
     type = "item",
-    name = "euc-filter-combinator",
-    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/filter-combinator.png",
+    name = "euc-inclusive-filter-combinator",
+    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/inclusive-filter-combinator.png",
     icon_size = 32,
     subgroup = "circuit-network",
-    place_result="euc-filter-combinator",
-    order = "c[combinators]-e[euc-filter-combinator]",
+    place_result="euc-inclusive-filter-combinator",
+    order = "c[combinators]-e[euc-inclusive-filter-combinator]",
     stack_size= 50,
   },
   

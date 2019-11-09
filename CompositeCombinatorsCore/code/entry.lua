@@ -58,7 +58,8 @@ function OnInit()
 		combinatorEntities = { },
 		waitingForUnghosting = { },
 		tickTasks = { },
-		tasksCount = 0
+		tasksCount = 0,
+		extBuildingStrs = { }
 	}
 	
 	global.hasTasks = false
@@ -169,19 +170,48 @@ remote.add_interface("Composite-Combinators-Core", {
 	
 	-- Build components str with
 	
-	beginBuildComponents = function(identifier)
-		error('not implemented')
+	strBuilderBegin = function(identifier, combinatorPrototypeName)
+		if global.state.extBuildingStrs[identifier] then
+			error("Str builder with this identifier is already in progress")
+		end
+		global.state.extBuildingStrs[identifier] = StrBuilder:new()
+		global.state.extBuildingStrs[identifier].fromComponents = false -- ?
 	end,
 	
-	-- Change layout: choose one of predefined strs
+	strBuilderAddComponent = function(identifier, prototypeName, position, direction, componentString, virtualUnitId)
+		if not global.state.extBuildingStrs[identifier] then
+			error("Str builder with this identifier is not in progress")
+		end
+		global.state.extBuildingStrs[identifier]:AddComponent(prototypeName, position, direction, componentString, virtualUnitId)
+	end,
 	
-	changeLayout = function(combinatorId, strId)
-		return Func:ChangeLayout(combinatorId, strId)
+	strBuilderAddConnection = function(identifier, virtualUnitId1, virtualUnitId2, connector1, connector2, wire)
+		if not global.state.extBuildingStrs[identifier] then
+			error("Str builder with this identifier is not in progress")
+		end
+		global.state.extBuildingStrs[identifier]:AddConnection(virtualUnitId1, virtualUnitId2, connector1, connector2, wire)
+	end,
+	
+	strBuilderCompileAndClose = function(identifier)
+		if not global.state.extBuildingStrs[identifier] then
+			error("Str builder with this identifier is not in progress")
+		end
+		local res = global.state.extBuildingStrs[identifier]:Build()
+		global.state.extBuildingStrs[identifier] = nil
+		return res
+	end,
+	
+	strBuilderClose = function(identifier)
+		global.state.extBuildingStrs[identifier] = nil
+	end,
+	
+	-- Change layout: rebuild combinator, str obtained via GetBuildString remote callback
+	changeLayout = function(combinatorId)
+		return Func:ChangeLayout(combinatorId)
 	end,
 	
 	-- Get combinator component unit id
 	-- Any changes to component will be lost on blueprinting, entity direction change, changeLayout... before call to refreshDataSlots
-	
 	getComponentEntityId = function(combinatorId, componentId)
 		return Func:GetComponentData(combinatorId, componentId).componentEntity.unit_number
 	end,
@@ -228,18 +258,23 @@ end
 
 -- Interface for callbacks from Composite-Combinators-Core
 remote.add_interface("Composite-Combinators-Base", { 
-	IOMarkerSerialize 				= function (...) return ComponentsRegistration:IOMarkerSerialize				(...) end,
-	IOMarkerConvert 				= function (...) return ComponentsRegistration:IOMarkerConvert					(...) end,
-	IOMarkerSpawn 					= function (...) return ComponentsRegistration:IOMarkerSpawn					(...) end,
-	ConstantCombinatorSerialize 	= function (...) return ComponentsRegistration:ConstantCombinatorSerialize		(...) end,
-	ConstantCombinatorConvert 		= function (...) return ComponentsRegistration:ConstantCombinatorConvert		(...) end,
-	ConstantCombinatorSpawned 		= function (...) return ComponentsRegistration:ConstantCombinatorSpawned		(...) end,
-	ArithmeticCombinatorSerialize 	= function (...) return ComponentsRegistration:ArithmeticCombinatorSerialize	(...) end,
-	ArithmeticCombinatorConvert 	= function (...) return ComponentsRegistration:ArithmeticCombinatorConvert		(...) end,
-	ArithmeticCombinatorSpawned 	= function (...) return ComponentsRegistration:ArithmeticCombinatorSpawned		(...) end,
-	DeciderCombinatorSerialize 		= function (...) return ComponentsRegistration:DeciderCombinatorSerialize		(...) end,
-	DeciderCombinatorConvert 		= function (...) return ComponentsRegistration:DeciderCombinatorConvert			(...) end,
-	DeciderCombinatorSpawned 		= function (...) return ComponentsRegistration:DeciderCombinatorSpawned			(...) end,
+	IOMarkerSerialize 				= function (...) return ComponentsRegistration:IOMarkerSerialize						(...) end,
+	IOMarkerConvert 				= function (...) return ComponentsRegistration:IOMarkerConvert							(...) end,
+	IOMarkerSpawn 					= function (...) return ComponentsRegistration:IOMarkerSpawn							(...) end,
+	ConstantCombinatorSerialize 	= function (...) return ComponentsRegistration:ConstantCombinatorSerialize				(...) end,
+	ConstantCombinatorConvert 		= function (...) return ComponentsRegistration:ConstantCombinatorConvert				(...) end,
+	ConstantCombinatorSpawned 		= function (...) return ComponentsRegistration:ConstantCombinatorSpawned				(...) end,
+	ArithmeticCombinatorSerialize 	= function (...) return ComponentsRegistration:ArithmeticCombinatorSerialize			(...) end,
+	ArithmeticCombinatorConvert 	= function (...) return ComponentsRegistration:ArithmeticCombinatorConvert				(...) end,
+	ArithmeticCombinatorSpawned 	= function (...) return ComponentsRegistration:ArithmeticCombinatorSpawned				(...) end,
+	DeciderCombinatorSerialize 		= function (...) return ComponentsRegistration:DeciderCombinatorSerialize				(...) end,
+	DeciderCombinatorConvert 		= function (...) return ComponentsRegistration:DeciderCombinatorConvert					(...) end,
+	DeciderCombinatorSpawned 		= function (...) return ComponentsRegistration:DeciderCombinatorSpawned					(...) end,
+	
+	-- Additional but necessary, if any other combinator will be implemented by any other mod - it is up to them
+	ioMarkerBuildString				= function (...) return ComponentsRegistration:IOCombinatorBuildString					(...) end,
+	deciderCombinatorBuildString	= function (...) return ComponentsRegistration:DeciderCombinatorBuildString				(...) end,
+	
 })
 
 RegisterServiceComponents = function()

@@ -10,7 +10,7 @@ const = {
 	managedEnts = {
 		"euc-distinct-constant-combinator",
 		"euc-simple-delay-combinator",
-		"euc-filter-combinator"
+		"euc-inclusive-filter-combinator"
 	},
 	distinctConstantCombinator = {
 		defaultBuildString = "item$composite-combinator-io-marker$item$constant-combinator$)1$2$1$262144$1(3$4$2$131584$1[(3$4$2$393472$1[()01$131073$65537(00$196609$65537("
@@ -44,10 +44,11 @@ const = {
 		}
 	},
 	filterCombinator = {
-		emptyString = "item$composite-combinator-io-marker$)1$2$1$0$2(1$2$1$0$1()",
+		emptyString = "item#composite-combinator-io-marker#$1#2#1#0#0#0#1%1#2#1#0#0#0#2%$01#1#2#1#1#%00#1#2#1#1#%",
 		maxItems = 8,
 		emptyDisplaySign = '^'
-	}
+	},
+	strBuilderName = "euc"
 	
 	
 }
@@ -87,24 +88,31 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 			return nil
 		end
 		local entityName = entity.name
+		local entityId = entity.unit_number
 		if entityName == "euc-distinct-constant-combinator" then
 			return const.distinctConstantCombinator.defaultBuildString
 		end
 		if entityName == "euc-simple-delay-combinator" then
 			local delayId
-			if global.state.delayCombinators[entity.unit_number] then
+			if global.state.delayCombinators[entityId] then
 				-- GetBuildString is called when changing delay
-				delayId = global.state.delayCombinators[entity.unit_number].currentDelayId
+				delayId = global.state.delayCombinators[entityId].currentDelayId
 			else
 				-- Although it is set on on_built_entity in OnCombinatorBuilt function, on_built_entity order is not defined
-				-- This is for the case if core mod on_built_entity is called second
+				-- This is for the case when core mod on_built_entity is called second
 				delayId = const.simpleDelayCombinator.defaultDelayId
 			end
 			SetDelayCombinatorDisplay(entity, delayId)
 			return const.simpleDelayCombinator.buildStrings[delayId]
 		end
-		if entityName == "euc-filter-combinator" then
-			return const.filterCombinator.emptyString
+		if entityName == "euc-inclusive-filter-combinator" then
+			if global.state.filterCombinators[entityId] then
+			end
+			if global.state.filterCombinators[entityId] and global.state.filterCombinators[entityId].currentStr then
+				return global.state.filterCombinators[entityId].currentStr
+			else
+				return const.filterCombinator.emptyString
+			end
 		end
 		return 1
 	end,
@@ -112,15 +120,16 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 		if entity == nil then
 			return nil
 		end
+		local entityId = entity.unit_number
 		local entityName = entity.name
 		if entityName == "euc-distinct-constant-combinator" then
 		end
 		if entityName == "euc-simple-delay-combinator" then
 			-- add some information so we can identify combinator settings when it is built from blueprint
-			slots[1] = { signal = { type = 'item', name = 'wood' }, count = global.state.delayCombinators[entity.unit_number].currentDelayId, index = 1 }
+			slots[1] = { signal = { type = 'item', name = 'wood' }, count = global.state.delayCombinators[entityId].currentDelayId, index = 1 }
 		end
-		if entityName ==  "euc-filter-combinator" then
-		
+		if entityName ==  "euc-inclusive-filter-combinator" then
+			-- global.state.filterCombinators[entityId]
 		end
 	end,
 	OnBuiltFromGhostWithSlotsInfo = function(entity, slots, nextSlot)
@@ -128,15 +137,16 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 			return nil
 		end
 		local entityName = entity.name
+		local entityId = entity.unit_number
 		if entityName == "euc-distinct-constant-combinator" then
 		end
 		if entityName == "euc-simple-delay-combinator" then
-			-- Combinator layout is preserved on blueprinting, now should gain knowledge about what is current layout
-			-- It is easier to use AddSlotsInfo / OnBuiltFromGhostWithSlotsInfo for this than to lookup current components setup
-			global.state.delayCombinators[entity.unit_number].currentDelayId = slots[nextSlot].count
+			-- Combinator layout is preserved on blueprinting, here we should gain knowledge about what is current layout
+			-- It is much easier to use AddSlotsInfo / OnBuiltFromGhostWithSlotsInfo for this than to lookup current components setup
+			global.state.delayCombinators[entityId].currentDelayId = slots[nextSlot].count
 		end
-		if entityName ==  "euc-filter-combinator" then
-		
+		if entityName ==  "euc-inclusive-filter-combinator" then
+			-- global.state.filterCombinators[entityId]
 		end
 		return nextSlot + 1
 	end
@@ -152,9 +162,9 @@ end
 
 function RegisterEntities()
 	-- Register our entities, other info is gained through callbacks
-	RegisterEntity("euc-distinct-constant-combinator", 	2, { x = 0.5, y = 0.5 })
-	RegisterEntity("euc-simple-delay-combinator", 		6, { x = 0.66, y = 0.33 })
-	RegisterEntity("euc-filter-combinator", 			6, { x = 0.66, y = 0.33 })
+	RegisterEntity("euc-distinct-constant-combinator", 			2, { x = 0.5, y = 0.5 })
+	RegisterEntity("euc-simple-delay-combinator", 				6, { x = 0.66, y = 0.33 })
+	RegisterEntity("euc-inclusive-filter-combinator", 			6, { x = 0.66, y = 0.33 })
 end
 
 function OnTick(e)
@@ -172,6 +182,9 @@ function OnTick(e)
 				end
 				if openedEntityName == "euc-distinct-constant-combinator" then
 					ShowDistinctConstantCombinatorMenu(player.opened, task.playerIndex)
+				end
+				if openedEntityName == "euc-inclusive-filter-combinator" then
+					ShowFilterCombinatorMenu(player.opened, task.playerIndex)
 				end
 			else
 				task.age = task.age + 1
@@ -195,16 +208,83 @@ function SetDelayCombinatorDisplay(entity, delayId)
 	SetCommonArithmeticCombinatorDisplay(entity, operation)
 end
 
+
+
+function UpdateFilterCombinator(entityId)
+	local entityState = global.state.filterCombinators[entityId]
+	local componentStr
+	
+	--- Build str
+	callCore("strBuilderBegin", const.strBuilderName, "euc-inclusive-filter-combinator")
+	
+	local nextX = 10
+	local nextUnitId = 3
+	for _,sig in pairs(entityState.filterSignals) do
+		local deciderComponentParams = { -- vanilla decider combinator params
+			parameters = {
+				comparator = "≠",
+				constant = 0,
+				copy_count_from_input = true,
+				first_signal = {
+					name = sig.name,
+					type = sig.type
+				},
+				output_signal = {
+					name = sig.name,
+					type = sig.type
+				}
+			}
+		}
+		
+		-- damn this feels good; just build this component there, coorinates are as of uncompressed, archetype build
+		componentStr = callBase("deciderCombinatorBuildString", deciderComponentParams)
+		msg(1, 'cshit'..componentStr)
+		callCore("strBuilderAddComponent", const.strBuilderName, "decider-combinator", { x = nextX, y = 2 }, defines.direction.north, componentStr, nextUnitId)
+		nextX = nextX + 2
+		nextUnitId = nextUnitId + 1
+	end
+	
+	if nextUnitId == 3 then -- nothing here
+		callCore("strBuilderClose", const.strBuilderName)
+		return
+	end
+	
+	-- Create input and output
+	componentStr = callBase("ioMarkerBuildString", 1)
+	callCore("strBuilderAddComponent", const.strBuilderName, "composite-combinator-io-marker", { x = 0, y = 0 }, 0, componentStr, 1)
+	componentStr = callBase("ioMarkerBuildString", 2)
+	callCore("strBuilderAddComponent", const.strBuilderName, "composite-combinator-io-marker", { x = 0, y = 0 }, 0, componentStr, 2)
+	
+	-- Connect wires, unit ids 1 and 2 are io markers
+	for _,sig in pairs(entityState.filterSignals) do
+		callCore("strBuilderAddConnection", const.strBuilderName, 1, 3, 1, 1, defines.wire_type.red)
+		callCore("strBuilderAddConnection", const.strBuilderName, 1, 3, 1, 1, defines.wire_type.green)
+		callCore("strBuilderAddConnection", const.strBuilderName, 2, 3, 1, 2, defines.wire_type.red)
+		callCore("strBuilderAddConnection", const.strBuilderName, 2, 3, 1, 2, defines.wire_type.green)
+	end
+	
+	--- Save str
+	
+	local str = callCore("strBuilderCompileAndClose", const.strBuilderName)
+	entityState.currentStr = str
+	
+	--- Apply str
+
+	callCore("changeLayout", entityId)
+end
+
+--- #region Mostly just UI
+
 function DistinctConstantCombinatorClick_ForWire(combinator, player, wireId)
 	local playerIndex = player.index
 	local combinatorId = combinator.unit_number
 	CloseMenus(playerIndex)
-	local constantCombinatorId = remote.call("Composite-Combinators-Core", "getComponentEntityId", combinatorId, wireId)
+	local constantCombinatorId = callCore( "getComponentEntityId", combinatorId, wireId)
 	-- TODO: find better way
 	local pf = player.surface.find_entities_filtered({ -- pfffts, why can't we get ent by id
 		position = player.position,
-		radius = 1024,
-		name = remote.call("Composite-Combinators-Core", "getComponentPrototype", "constant-combinator").componentEntityName
+		radius = 1024, -- TODO: smth better, also surface can be different
+		name = callCore( "getComponentPrototype", "constant-combinator").componentEntityName
 	})
 	for _,entity in pairs(pf) do
 		if entity.unit_number == constantCombinatorId then
@@ -212,7 +292,7 @@ function DistinctConstantCombinatorClick_ForWire(combinator, player, wireId)
 			table.insert(
 				global.state.nextGuiCloseHandlers, 
 				function(e) 
-					remote.call("Composite-Combinators-Core", "refreshDataStorageSlots", combinatorId)
+					callCore( "refreshDataStorageSlots", combinatorId)
 				end
 			)
 			return
@@ -222,16 +302,19 @@ end
 
 function OnEucGuiClick(e)
 	local playerIndex = e.player_index
-	local elementName = e.element.name
-	local playerDesc = global.state.players[playerIndex]
-	local entity = playerDesc.centralUIElement.selectedEntity
 	local player = game.get_player(playerIndex)
+	local playerDesc = global.state.players[playerIndex]
+	
+	local elementName = e.element.name
+	local entity = playerDesc.centralUIElement.selectedEntity
+	local entityId = entity.unit_number
+	
 	if playerDesc.centralUIElement.name == "DelayCombinator" then
 		local tnum = 1
 		for num in ipairs(const.simpleDelayCombinator.thresholds) do -- I hate lua too much to do this in a civil way
 			if elementName == "button_setdelay_"..tnum then 
-				global.state.delayCombinators[entity.unit_number].currentDelayId = tnum
-				remote.call("Composite-Combinators-Core", "changeLayout", entity.unit_number)
+				global.state.delayCombinators[entityId].currentDelayId = tnum
+				callCore("changeLayout", entityId)
 				CloseMenus(playerIndex)
 				return
 			end
@@ -249,18 +332,59 @@ function OnEucGuiClick(e)
 			return
 		end
 	end
+	if playerDesc.centralUIElement.name == "InclusiveFilterCombinator" then
+	end
 end
 
+function OnEucCheckedStateChanged(e)
+	local playerIndex = e.player_index
+	local player = game.get_player(playerIndex)
+	local playerDesc = global.state.players[playerIndex]
+	
+	local elementName = e.element.name
+	local entity = playerDesc.centralUIElement.selectedEntity
+	local entityId = entity.unit_number
+	
+	if playerDesc.centralUIElement.name == "InclusiveFilterCombinator" then	
+		if elementName == "checkbox_isallow" then
+			global.state.filterCombinators[entityId].isAllowMode = e.element.state
+		end
+		UpdateFilterCombinator(entityId)
+	end
+end
+
+function OnEucGuiElemChanged(e)
+	local playerIndex = e.player_index
+	local player = game.get_player(playerIndex)
+	local playerDesc = global.state.players[playerIndex]
+	
+	local elementName = e.element.name
+	local entity = playerDesc.centralUIElement.selectedEntity
+	local entityId = entity.unit_number
+	
+	if playerDesc.centralUIElement.name == "InclusiveFilterCombinator" then	
+		local numId = 1
+		while numId <= const.filterCombinator.maxItems do
+			if elementName == "button_setfilter_"..numId then
+				global.state.filterCombinators[entityId].filterSignals[numId] = e.element.elem_value
+			end
+			numId = numId + 1
+		end
+		UpdateFilterCombinator(entityId)
+	end
+end
 
 function OnCombinatorBuilt(entity)
 	local entityName = entity.name
+	local entityId = entity.unit_number
 	if entityName== "euc-distinct-constant-combinator" then
-		global.state.constantCombinators[entity.unit_number] = { entity = entity }
+		global.state.constantCombinators[entityId] = { entity = entity }
 	end
 	if entityName == "euc-simple-delay-combinator" then
-		global.state.delayCombinators[entity.unit_number] = { entity = entity, currentDelayId = const.simpleDelayCombinator.defaultDelayId }
+		global.state.delayCombinators[entityId] = { entity = entity, currentDelayId = const.simpleDelayCombinator.defaultDelayId }
 	end
-	if entityName ==  "euc-filter-combinator" then
+	if entityName ==  "euc-inclusive-filter-combinator" then
+		global.state.filterCombinators[entityId] = { entity = entity, filterSignals = { }, isAllowMode = true }
 		SetCommonArithmeticCombinatorDisplay(entity, const.filterCombinator.emptyDisplaySign)
 	end
 end
@@ -397,6 +521,80 @@ function ShowDelayCombinatorMenu(entity, playerIndex)
 	player.opened = frame
 	frame.force_auto_center()
 end
+
+function ShowFilterCombinatorMenu(entity, playerIndex)
+	ShowCombinatorMenuCommon(entity, playerIndex, "InclusiveFilterCombinator")
+	
+	local combinatorState = global.state.filterCombinators[entity.unit_number]
+	
+	local player = game.players[playerIndex]
+	
+	local frame = player.gui.screen.add{
+		type = "frame",
+		name = "euc_filter_combinator",
+		style = "composite_combinators_settings_container",
+		caption = { "misc.FilterSettings" },
+		direction = "vertical",
+	}
+	local flow = frame.add {
+		type = "flow",
+		name = "flow",
+		direction = "vertical"
+	}
+	--[[lflow.add {
+		type = "label",
+		name = "label",
+		style = "subheader_caption_label",
+		caption = { "misc.FilterCombinator_IsAllowMode" }
+	}
+	flow.add {
+		type = "checkbox",
+		name = "checkbox_isallow",
+		style = "euc_checkbox",
+		caption = { "misc.FilterCombinator_IsAllowMode" },
+		state = combinatorState.isAllowMode
+	}]]--
+	local buttonsFlow = flow.add {
+		type = "flow",
+		name = "flow2",
+		direction = "horizontal"
+	}
+	buttonsFlow.add {
+		type = "label",
+		name = "label3",
+		style = "subheader_caption_label",
+		caption = { "misc.FilterCombinator_Items" }
+	}
+	buttonsFlow = flow.add {
+		type = "flow",
+		name = "flowA", 
+		style = "euc_spaceflow",
+		direction = "horizontal"
+	}
+	local numId = 1
+	while numId <= const.filterCombinator.maxItems do
+		buttonsFlow.add {
+			type = "choose-elem-button",
+			name = "button_setfilter_"..numId,
+			style = "euc_elembutton",
+			elem_type = "signal",
+			signal = combinatorState.filterSignals[numId] or nil
+		}
+		if numId % 4 == 0 then
+			buttonsFlow = flow.add {
+				type = "flow",
+				name = "flow"..(numId), 
+				style = "euc_spaceflow",
+				direction = "horizontal"
+			}
+		end
+		numId = numId + 1
+	end
+	player.opened = frame
+	frame.force_auto_center()
+end
+
+--- #endregion
 
 -- that's it
 

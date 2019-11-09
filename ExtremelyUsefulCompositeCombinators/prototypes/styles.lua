@@ -14,9 +14,23 @@ data.raw["gui-style"]["default"]["euc_iconbutton"] = {
   padding = 4
 }
 
+data.raw["gui-style"]["default"]["euc_elembutton"] = {
+  type = "button_style",
+  minimal_width = 36,
+  minimal_height = 36,
+  padding = 4
+}
+
 
 data.raw["gui-style"]["default"]["euc_button"] = {
   type = "button_style",
+  minimal_width = 32,
+  minimal_height = 32,
+  padding = 3
+}
+
+data.raw["gui-style"]["default"]["euc_checkbox"] = {
+  type = "checkbox_style",
   minimal_width = 32,
   minimal_height = 32,
   padding = 3

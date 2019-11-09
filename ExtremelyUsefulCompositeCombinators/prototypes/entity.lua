@@ -1312,14 +1312,14 @@ generate_constant_combinator
     circuit_wire_max_distance = 11
   }),
   
-  generate_arithmetic_combinator("filter-combinator",
+  generate_arithmetic_combinator("inclusive-filter-combinator",
   {
     type = "arithmetic-combinator",
-    name = "euc-filter-combinator",
-    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/filter-combinator.png",
+    name = "euc-inclusive-filter-combinator",
+    icon = "__ExtremelyUsefulCompositeCombinators__/graphics/icons/inclusive-filter-combinator.png",
     icon_size = 32,
     flags = {"placeable-neutral", "player-creation"},
-    minable = {mining_time = 0.1, result = "euc-filter-combinator"},
+    minable = {mining_time = 0.1, result = "euc-inclusive-filter-combinator"},
     max_health = 150,
     corpse = "arithmetic-combinator-remnants",
     collision_box = {{-0.35, -0.65}, {0.35, 0.65}},

@@ -153,7 +153,7 @@ end
 
 SpawnCompositeCombinatorComponents = function(combinator, combinatorDataDesc, componentsStr)
 	if componentsStr == nil then
-		error("componentsStr is nil. If you are modder - make sure to reload prototypes, and 'switch' by entity name")
+		error("componentsStr is nil.")
 	end
 	
 	-- One more func for str -> built could made better performance, but I am not willing to create AND support it

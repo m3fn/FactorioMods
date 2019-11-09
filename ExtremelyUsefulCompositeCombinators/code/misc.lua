@@ -23,3 +23,11 @@ function removeTickTask(taskName)
 	end
 	global.hasTasks = global.tasksCount == 0
 end
+
+function callCore(...)
+	return remote.call("Composite-Combinators-Core", ...)
+end
+
+function callBase(...)
+	return remote.call("Composite-Combinators-Base", ...)
+end

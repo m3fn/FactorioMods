@@ -229,8 +229,6 @@ function StrBuilder:Fill(combinator, components, fromComponents)
 			end
 		end
 	end
-	
-	msg(1, inspect(self.connections))
 end
 
 function FuncMain:GetComponentsStringFromEntities_Int(combinator, components, fromComponents)
@@ -239,7 +237,7 @@ function FuncMain:GetComponentsStringFromEntities_Int(combinator, components, fr
 	-- Create str build info
 	bdr:Fill(combinator, components, fromComponents)
 	
-	-- Create str from build info, at Build() no access to real entities is performed
+	-- Create str from build info; at Build() no access to real entities is performed
 	return bdr:Build()
 end
 
