@@ -611,7 +611,7 @@ data:extend(
 
     item_slot_count = 64,
   
-  selectable_in_game = false,
+  selectable_in_game = bebak,
 
     vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
   }, false),
@@ -627,7 +627,7 @@ data:extend(
     max_health = 150,
     corpse = "small-remnants",
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = bebak and {{-2.5, -2.5}, {4.5, 4.5}} or {{0.5, 0.5}, {0.5, 0.5}},
+    selection_box = bebak and {{-1, -1}, {2, 2}} or {{0.5, 0.5}, {0.5, 0.5}},
 
     energy_source =
     {
@@ -656,7 +656,7 @@ data:extend(
     input_connection_bounding_box = {{-0.5, 0}, {0.5, 1}},
     output_connection_bounding_box = {{-0.5, -1}, {0.5, 0}},
   
-  selectable_in_game = false,
+  selectable_in_game = bebak,
 
     circuit_wire_max_distance = 9
   },
@@ -672,7 +672,7 @@ data:extend(
     max_health = 150,
     corpse = "small-remnants",
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = bebak and {{-2.5, -2.5}, {4.5, 4.5}} or {{0.5, 0.5}, {0.5, 0.5}},
+    selection_box = bebak and {{-1, -1}, {2, 2}}  or {{0.5, 0.5}, {0.5, 0.5}},
 
     energy_source =
     {
@@ -701,7 +701,7 @@ data:extend(
     input_connection_bounding_box = {{-0.5, 0}, {0.5, 1}},
     output_connection_bounding_box = {{-0.5, -1}, {0.5, 0}},
   
-  selectable_in_game = false,
+  selectable_in_game = bebak,
 
     input_connection_points =
     {

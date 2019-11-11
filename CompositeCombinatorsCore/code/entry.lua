@@ -196,6 +196,7 @@ remote.add_interface("Composite-Combinators-Core", {
 		if not global.state.extBuildingStrs[identifier] then
 			error("Str builder with this identifier is not in progress")
 		end
+		global.state.extBuildingStrs[identifier]:RefineCustomBuild()
 		local res = global.state.extBuildingStrs[identifier]:Build()
 		global.state.extBuildingStrs[identifier] = nil
 		return res

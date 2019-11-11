@@ -9,13 +9,14 @@ Progress:
    - Test out Build and remove by hand and with robots
    - Blueprinting: polish
    
+   - Add str versions
+   
    - Filter combinator with shit GUIs an graphics
    --------
    
    ------
    - Unit tests? - check all states of vanilla components
    - Write mod description (reasonable, for a couple of days, for devs and not)
-   - Check component's bounds is buggy
    - Comments for devs
    ------
    
@@ -86,5 +87,6 @@ Some time later:
 - Cleanup
 - Polish eveything with grumpy look
 - Test build performance a bit to know limitations
+- Check component's bounds is buggy
 
   .......

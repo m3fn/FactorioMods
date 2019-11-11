@@ -48,7 +48,7 @@ const = {
 		maxItems = 8,
 		emptyDisplaySign = '^'
 	},
-	strBuilderName = "euc"
+	strBuilderName = "euc",
 	
 	
 }
@@ -208,7 +208,28 @@ function SetDelayCombinatorDisplay(entity, delayId)
 	SetCommonArithmeticCombinatorDisplay(entity, operation)
 end
 
-
+function UpdateFilterCombinator_CreateDeciderForWire(x, y, nextUnitId, sig)
+	local deciderComponentParams = { -- vanilla decider combinator params
+		parameters = {
+			comparator = "≠",
+			constant = 0,
+			copy_count_from_input = false,
+			first_signal = {
+				name = sig.name,
+				type = sig.type
+			},
+			output_signal = {
+				name = sig.name,
+				type = sig.type
+			}
+		}
+	}
+	
+	-- damn this feels good; just build this component there, coorinates are as of uncompressed, archetype build
+	componentStr = callBase("deciderCombinatorBuildString", deciderComponentParams)
+	
+	callCore("strBuilderAddComponent", const.strBuilderName, "decider-combinator", { x = x, y = y }, defines.direction.east, componentStr, nextUnitId)
+end
 
 function UpdateFilterCombinator(entityId)
 	local entityState = global.state.filterCombinators[entityId]
@@ -217,50 +238,38 @@ function UpdateFilterCombinator(entityId)
 	--- Build str
 	callCore("strBuilderBegin", const.strBuilderName, "euc-inclusive-filter-combinator")
 	
-	local nextX = 10
-	local nextUnitId = 3
+	local nextX = 1
+	local nextUnitId = 1
 	for _,sig in pairs(entityState.filterSignals) do
-		local deciderComponentParams = { -- vanilla decider combinator params
-			parameters = {
-				comparator = "≠",
-				constant = 0,
-				copy_count_from_input = true,
-				first_signal = {
-					name = sig.name,
-					type = sig.type
-				},
-				output_signal = {
-					name = sig.name,
-					type = sig.type
-				}
-			}
-		}
-		
-		-- damn this feels good; just build this component there, coorinates are as of uncompressed, archetype build
-		componentStr = callBase("deciderCombinatorBuildString", deciderComponentParams)
-		msg(1, 'cshit'..componentStr)
-		callCore("strBuilderAddComponent", const.strBuilderName, "decider-combinator", { x = nextX, y = 2 }, defines.direction.north, componentStr, nextUnitId)
-		nextX = nextX + 2
+		-- Separate combinators for each wire type
+		UpdateFilterCombinator_CreateDeciderForWire(nextX, 1, nextUnitId, sig)
+		nextX = nextX + 1
 		nextUnitId = nextUnitId + 1
+		if not entityState.mixWires then
+			UpdateFilterCombinator_CreateDeciderForWire(nextX, 2, nextUnitId, sig)
+			nextX = nextX + 1
+			nextUnitId = nextUnitId + 1
+		end
 	end
 	
-	if nextUnitId == 3 then -- nothing here
+	if nextUnitId == 1 then -- nothing here
 		callCore("strBuilderClose", const.strBuilderName)
 		return
 	end
 	
-	-- Create input and output
-	componentStr = callBase("ioMarkerBuildString", 1)
-	callCore("strBuilderAddComponent", const.strBuilderName, "composite-combinator-io-marker", { x = 0, y = 0 }, 0, componentStr, 1)
-	componentStr = callBase("ioMarkerBuildString", 2)
-	callCore("strBuilderAddComponent", const.strBuilderName, "composite-combinator-io-marker", { x = 0, y = 0 }, 0, componentStr, 2)
-	
+	nextUnitId = 1
 	-- Connect wires, unit ids 1 and 2 are io markers
 	for _,sig in pairs(entityState.filterSignals) do
-		callCore("strBuilderAddConnection", const.strBuilderName, 1, 3, 1, 1, defines.wire_type.red)
-		callCore("strBuilderAddConnection", const.strBuilderName, 1, 3, 1, 1, defines.wire_type.green)
-		callCore("strBuilderAddConnection", const.strBuilderName, 2, 3, 1, 2, defines.wire_type.red)
-		callCore("strBuilderAddConnection", const.strBuilderName, 2, 3, 1, 2, defines.wire_type.green)
+		-- connect zero entity each decider component, corresponding inputs and outputs
+		-- zero is composite combinator
+		callCore("strBuilderAddConnection", const.strBuilderName, 0, nextUnitId, 1, 1, defines.wire_type.red)
+		callCore("strBuilderAddConnection", const.strBuilderName, 0, nextUnitId, 2, 2, defines.wire_type.red)
+		if not entityState.mixWires then
+			nextUnitId = nextUnitId + 1
+		end
+		callCore("strBuilderAddConnection", const.strBuilderName, 0, nextUnitId, 1, 1, defines.wire_type.green)
+		callCore("strBuilderAddConnection", const.strBuilderName, 0, nextUnitId, 2, 2, defines.wire_type.green)		
+		nextUnitId = nextUnitId + 1
 	end
 	
 	--- Save str
@@ -346,8 +355,8 @@ function OnEucCheckedStateChanged(e)
 	local entityId = entity.unit_number
 	
 	if playerDesc.centralUIElement.name == "InclusiveFilterCombinator" then	
-		if elementName == "checkbox_isallow" then
-			global.state.filterCombinators[entityId].isAllowMode = e.element.state
+		if elementName == "checkbox_mixwires" then
+			global.state.filterCombinators[entityId].mixWires = e.element.state
 		end
 		UpdateFilterCombinator(entityId)
 	end
@@ -384,7 +393,7 @@ function OnCombinatorBuilt(entity)
 		global.state.delayCombinators[entityId] = { entity = entity, currentDelayId = const.simpleDelayCombinator.defaultDelayId }
 	end
 	if entityName ==  "euc-inclusive-filter-combinator" then
-		global.state.filterCombinators[entityId] = { entity = entity, filterSignals = { }, isAllowMode = true }
+		global.state.filterCombinators[entityId] = { entity = entity, filterSignals = { }, mixWires = false }
 		SetCommonArithmeticCombinatorDisplay(entity, const.filterCombinator.emptyDisplaySign)
 	end
 end
@@ -541,19 +550,19 @@ function ShowFilterCombinatorMenu(entity, playerIndex)
 		name = "flow",
 		direction = "vertical"
 	}
-	--[[lflow.add {
+	flow.add {
 		type = "label",
 		name = "label",
 		style = "subheader_caption_label",
-		caption = { "misc.FilterCombinator_IsAllowMode" }
+		caption = { "misc.FilterCombinator_MixWires" }
 	}
 	flow.add {
 		type = "checkbox",
-		name = "checkbox_isallow",
+		name = "checkbox_mixwires",
 		style = "euc_checkbox",
-		caption = { "misc.FilterCombinator_IsAllowMode" },
-		state = combinatorState.isAllowMode
-	}]]--
+		caption = { "misc.FilterCombinator_MixWires" },
+		state = combinatorState.mixWires
+	}
 	local buttonsFlow = flow.add {
 		type = "flow",
 		name = "flow2",

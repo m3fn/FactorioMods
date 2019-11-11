@@ -108,6 +108,48 @@ end
 	Length should be always equal
 --]]
 
+
+function StrBuilder:RefineCustomBuild()
+	-- Add io markers, replace connections with zero entity id
+	
+	local ioMarkerDesc = GetComponentDataDesc("composite-combinator-io-marker", false)
+	local createdIoMarkers = { }
+	
+	local total = 1
+	for _, __ in pairs(self.components) do
+		total = total + 1
+	end
+	
+	local currentIoMarkerId = total
+	for __,ccDef in pairs(self.connections) do
+		if ccDef.virtualUnitId1 == 0 or ccDef.virtualUnitId2 == 0 then
+			local isFirst = ccDef.virtualUnitId1 == 0
+			local combinatorConnectorId = isFirst and ccDef.connector1 or ccDef.connector2
+			
+			if not createdIoMarkers[combinatorConnectorId] then
+				local componentDataStr = ComponentsRegistration:IOMarkerSerializeSub(combinatorConnectorId)
+				self:AddComponent(
+					"composite-combinator-io-marker", 
+					{ x = 0, y = 0 }, 
+					0,
+					componentDataStr, 
+					currentIoMarkerId
+				)
+				createdIoMarkers[combinatorConnectorId] = currentIoMarkerId
+				currentIoMarkerId = currentIoMarkerId + 1
+			end
+			
+			if isFirst then
+				ccDef.connector1 = 1
+				ccDef.virtualUnitId1 = createdIoMarkers[combinatorConnectorId]
+			else
+				ccDef.connector2 = 1
+				ccDef.virtualUnitId2 = createdIoMarkers[combinatorConnectorId]
+			end
+		end
+	end
+end
+
 function StrBuilder:Fill(combinator, components, fromComponents)
 	local combinatorEntityState = fromComponents and global.state.combinatorEntities[combinator.unit_number] or nil
 	
@@ -147,8 +189,7 @@ function StrBuilder:Fill(combinator, components, fromComponents)
 		for __,ccDef in pairs(connectionDefinitions) do
 			if not redirectConnectionsConnectorIdToIOMarker[ccDef.target_circuit_id] then
 				local componentDataStr = ComponentsRegistration:IOMarkerSerializeSub(ccDef.target_circuit_id)
-				local componentDataStrLen = string.len(componentDataStr)
-				
+
 				self:AddComponent(
 					"composite-combinator-io-marker", 
 					{ x = 0, y = 0 }, 
@@ -497,6 +538,7 @@ function FuncMain:StringToDataSlots_Int(str)
 			count = (connection1Id + bit32.lshift(connection2Id, 16)),
 			index = nextSlot
 		}
+
 		nextSlot = nextSlot + 1
 
 		nextConnection = nextConnection + 1
@@ -726,7 +768,7 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 			entity2 = combinator
 			connection2Id = outConnections[ent2Id].num
 		end
-
+		
 		entity1.connect_neighbour({
 			wire = wireType == "red-wire" and defines.wire_type.red or defines.wire_type.green,
 			target_entity = entity2,
