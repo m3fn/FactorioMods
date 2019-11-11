@@ -8,6 +8,7 @@
 ]]--
 
 local coreConst = {
+	dataVersion = 2,
 	strBoundary1 = '#',
 	strBoundary2 = '%',
 	strBoundary3 = '$',
@@ -447,6 +448,17 @@ function FuncMain:StringToDataSlots_Int(str)
 	
 	local entityNumber = 1
 	
+	local initDataSlot = { 
+		signal = { 
+			type = "item", 
+			name = "wood"
+		}, 
+		count = (coreConst.dataVersion),
+		index = nextSlot
+	}
+	dataSlots[nextSlot] = initDataSlot
+	nextSlot = nextSlot + 1
+	
 	for _,node in pairs(spl) do 
 		local entitySpl = split3(node, coreConst.strBoundary1)
 		if not entitySpl[1] then break end
@@ -632,6 +644,18 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	
 	local outConnections = { }
 	local ioMarkerIds = { }
+	
+	local initDataSlot = dataSlots[nextSlot]
+	nextSlot = nextSlot + 1
+	
+	local dataVersion = bit32.band(initDataSlot.count, 0xFFFF)
+	local combinatorInfoBlockLen = bit32.band(bit32.rshift(initDataSlot.count, 16), 0xFFFF)
+
+	if combinatorInfoBlockLen ~= 0 then
+		Remote:OnBuiltFromGhostWithSlotsInfo(combinatorDataDesc, combinator, dataSlots, nextSlot)
+		
+		nextSlot = nextSlot + combinatorInfoBlockLen + 1
+	end
 
 	-- place components
 	while true do
@@ -789,19 +813,42 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	combinatorEntityState.dataSlotsStorage = dataSlotsStorage
 	
 	local beh = dataSlotsStorage.get_control_behavior()
-	
 	beh.enabled = true
 	
-	nextSlot = 1
-
+	local infoSlots = Remote:AddSlotsInfo(combinatorDataDesc, combinator)
+	local infoSlotsLen = 0
+	for _, slot in pairs(infoSlots) do
+		infoSlotsLen = infoSlotsLen + 1
+	end
+	
 	local params = { }
+	nextSlot = 1
+	
+	initDataSlot = { 
+		signal = { 
+			type = "item", 
+			name = "wood"
+		}, 
+		count = (coreConst.dataVersion + bit32.lshift(infoSlotsLen, 16)),
+		index = nextSlot
+	}
+	table.insert(params, initDataSlot)
+	nextSlot = nextSlot + 1
+	for _, slot in pairs(infoSlots) do
+		infoSlots[nextSlot - 1].index = nextSlot -- mehhh
+		table.insert(params, infoSlots[nextSlot - 1])
+		nextSlot = nextSlot + 1
+	end
+	
+	local nextSlotSub = 1
 	while true do 
-		if not dataSlots[nextSlot] then
+		if not dataSlots[nextSlotSub] then
 			break
 		end
-		dataSlots[nextSlot].index = nextSlot -- we didn't care about index up to this point; has to be in sequence
-		table.insert(params, dataSlots[nextSlot])
+		dataSlots[nextSlotSub].index = nextSlot -- we didn't care about index up to this point; has to be in sequence
+		table.insert(params, dataSlots[nextSlotSub])
 		nextSlot = nextSlot + 1
+		nextSlotSub = nextSlotSub + 1
 	end
 	beh.parameters = {parameters = params} 
 

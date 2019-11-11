@@ -18,15 +18,15 @@ const = {
 	simpleDelayCombinator = {
 		buildStrings = {
 			-- 1 tick
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131328$1(1$2$45$131333$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131339$2()01$131073$65537(01$262145$65538(00$196610$65537(00$262147$65538(",
+			"item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#1.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#3.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#4#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#5#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#6#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#7#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%01#2#3#2#1#%01#3#4#2#1#%01#4#5#2#1#%01#5#6#2#1#%01#6#7#2#1#%01#7#8#2#1#%01#8#9#2#1#%",
 			-- 2 ticks
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$196609$65537(01$131073$65538(01$393218$65538(00$262147$65537(00$327684$65538(00$393221$65538(",
+			"item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#1.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#3.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#4#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#5#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#6#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#7#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%01#2#3#2#1#%01#3#4#2#1#%01#4#5#2#1#%01#5#6#2#1#%01#6#7#2#1#%01#7#8#2#1#%01#8#9#2#1#%",
 			-- 3 ticks
 			"item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#1.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#3.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#4#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#5#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#6#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#7#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%01#2#3#2#1#%01#3#4#2#1#%01#4#5#2#1#%01#5#6#2#1#%01#6#7#2#1#%01#7#8#2#1#%01#8#9#2#1#%",
 			-- 5 ticks
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131330$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131336$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131586$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131845$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131592$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$393217$65537(01$131073$65538(01$196610$65538(01$327683$65538(01$327684$131073(01$786436$65538(00$458758$65537(00$524295$65538(00$589832$65538(00$655369$65538(00$720906$65538(00$786443$65538(",
+			"item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#1.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#3.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#4#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#5#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#6#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#7#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%01#2#3#2#1#%01#3#4#2#1#%01#4#5#2#1#%01#5#6#2#1#%01#6#7#2#1#%01#7#8#2#1#%01#8#9#2#1#%",
 			-- 7 ticks
-			"item$arithmetic-combinator$item$composite-combinator-io-marker$)1$2$45$131330$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131332$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131075$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131334$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131077$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131336$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131079$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131584$1(1$2$45$131586$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131843$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131588$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131845$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131590$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131847$virtual@signal-each@^@1@virtual@signal-each@1(1$2$45$131592$virtual@signal-each@^@1@virtual@signal-each@1(3$4$1$131595$2()01$524289$65537(01$196609$65538(01$196610$131073(01$327682$65538(01$327684$131073(01$458756$65538(01$458758$131073(01$1048582$65538(00$589832$65537(00$655369$65538(00$720906$65538(00$786443$65538(00$851980$65538(00$917517$65538(00$983054$65538(00$1048591$65538(",
+			"item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#1.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#3.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#4#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#5#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#6#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#7#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%01#2#3#2#1#%01#3#4#2#1#%01#4#5#2#1#%01#5#6#2#1#%01#6#7#2#1#%01#7#8#2#1#%01#8#9#2#1#%",
 		},
 		defaultDelayId = 3,
 		thresholds = {
@@ -116,21 +116,25 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 		end
 		return 1
 	end,
-	AddSlotsInfo = function(entity, slots)
+	AddSlotsInfo = function(entity)
 		if entity == nil then
 			return nil
 		end
+		local slots = { }
 		local entityId = entity.unit_number
 		local entityName = entity.name
 		if entityName == "euc-distinct-constant-combinator" then
 		end
 		if entityName == "euc-simple-delay-combinator" then
 			-- add some information so we can identify combinator settings when it is built from blueprint
-			slots[1] = { signal = { type = 'item', name = 'wood' }, count = global.state.delayCombinators[entityId].currentDelayId, index = 1 }
+			if global.state.delayCombinators[entityId] then
+				slots[1] = { signal = { type = 'item', name = 'wood' }, count = global.state.delayCombinators[entityId].currentDelayId, index = 1 }
+			end
 		end
 		if entityName ==  "euc-inclusive-filter-combinator" then
 			-- global.state.filterCombinators[entityId]
 		end
+		return slots
 	end,
 	OnBuiltFromGhostWithSlotsInfo = function(entity, slots, nextSlot)
 		if entity == nil then
@@ -143,7 +147,12 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 		if entityName == "euc-simple-delay-combinator" then
 			-- Combinator layout is preserved on blueprinting, here we should gain knowledge about what is current layout
 			-- It is much easier to use AddSlotsInfo / OnBuiltFromGhostWithSlotsInfo for this than to lookup current components setup
-			global.state.delayCombinators[entityId].currentDelayId = slots[nextSlot].count
+			if global.state.delayCombinators[entityId] then
+				global.state.delayCombinators[entityId].currentDelayId = slots[nextSlot].count
+			else
+				-- We reached this place before OnCombinatorBuilt
+				global.state.delayCombinators[entityId] = { currentDelayId = slots[nextSlot].count }
+			end
 		end
 		if entityName ==  "euc-inclusive-filter-combinator" then
 			-- global.state.filterCombinators[entityId]
@@ -390,7 +399,11 @@ function OnCombinatorBuilt(entity)
 		global.state.constantCombinators[entityId] = { entity = entity }
 	end
 	if entityName == "euc-simple-delay-combinator" then
-		global.state.delayCombinators[entityId] = { entity = entity, currentDelayId = const.simpleDelayCombinator.defaultDelayId }
+		local applyDelay = const.simpleDelayCombinator.defaultDelayId
+		if global.state.delayCombinators[entityId] then
+			applyDelay = global.state.delayCombinators[entityId].currentDelayId
+		end
+		global.state.delayCombinators[entityId] = { entity = entity, currentDelayId = applyDelay }
 	end
 	if entityName ==  "euc-inclusive-filter-combinator" then
 		global.state.filterCombinators[entityId] = { entity = entity, filterSignals = { }, mixWires = false }

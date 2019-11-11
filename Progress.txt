@@ -9,7 +9,7 @@ Progress:
    - Test out Build and remove by hand and with robots
    - Blueprinting: polish
    
-   - Add str versions
+   - Add str versions, ent info
    
    - Filter combinator with shit GUIs an graphics
    --------

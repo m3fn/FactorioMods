@@ -252,6 +252,14 @@ function Remote:GetBuildString(combinatorDataDesc, entity)
 	return remote.call(combinatorDataDesc.callbacksRemote, "GetBuildString", entity)
 end
 
+function Remote:AddSlotsInfo(combinatorDataDesc, combinator)
+	return remote.call(combinatorDataDesc.callbacksRemote, "AddSlotsInfo", combinator)
+end
+
+function Remote:OnBuiltFromGhostWithSlotsInfo(combinatorDataDesc, combinator, slots, nextSlot)
+	return remote.call(combinatorDataDesc.callbacksRemote, "OnBuiltFromGhostWithSlotsInfo", combinator, slots, nextSlot)
+end
+
 --- #endregion
 
 
