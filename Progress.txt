@@ -3,18 +3,20 @@ Progress:
 
 
    -------
-   - Redo strs
-   
    - Constant blueprinting, blueprint state return
    - Test out Build and remove by hand and with robots
    - Blueprinting: polish
    
-   - Add str versions, ent info
-   
-   - Filter combinator with shit GUIs an graphics
+   - Add str versions
    --------
    
+   Polish
+   
    ------
+   - prototype to individual callbacks
+   - FuncMain refactor
+   - overall polish
+   - Add errors
    - Unit tests? - check all states of vanilla components
    - Write mod description (reasonable, for a couple of days, for devs and not)
    - Comments for devs
@@ -24,19 +26,11 @@ Progress:
    - 0.1.2
    - Ask for looks
    ------
+
    
    ------
-   - Add errors
    - Rotation
-   ------
-  
-   ------
-   - Str builder APIs
-   - Simple memory with shit GUIs an graphics
-   - Switch combinator with shit GUIs an graphics
-   ------
-   
-   ------
+   - Redo strs
    - Copy settings
    - What is on_area_cloned, ctr+c, ctrl+v, ctrl+x
    - Controllinator compatibility
@@ -52,6 +46,11 @@ Progress:
    
    ------
    - Other unexpected work
+   ------
+   
+   ------
+   - Simple memory with shit GUIs an graphics
+   - Switch combinator with shit GUIs an graphics
    ------
   
    ------

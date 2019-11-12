@@ -44,7 +44,7 @@ const = {
 		}
 	},
 	filterCombinator = {
-		emptyString = "item#composite-combinator-io-marker#$1#2#1#0#0#0#1%1#2#1#0#0#0#2%$01#1#2#1#1#%00#1#2#1#1#%",
+		emptyString = "item#composite-combinator-io-marker#$1#2#1#0#0#0#1%1#2#1#0#0#0#2%$",
 		maxItems = 8,
 		emptyDisplaySign = '^'
 	},
@@ -116,7 +116,7 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 		end
 		return 1
 	end,
-	AddSlotsInfo = function(entity)
+	SaveStateInfoToSlots = function(entity)
 		if entity == nil then
 			return nil
 		end
@@ -124,19 +124,32 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 		local entityId = entity.unit_number
 		local entityName = entity.name
 		if entityName == "euc-distinct-constant-combinator" then
-		end
+		end		
 		if entityName == "euc-simple-delay-combinator" then
+			local combinatorState = global.state.delayCombinators[entityId]
 			-- add some information so we can identify combinator settings when it is built from blueprint
-			if global.state.delayCombinators[entityId] then
-				slots[1] = { signal = { type = 'item', name = 'wood' }, count = global.state.delayCombinators[entityId].currentDelayId, index = 1 }
+			if combinatorState then
+				slots[1] = { signal = { type = 'item', name = 'wood' }, count = combinatorState.currentDelayId, index = 1 }
 			end
 		end
 		if entityName ==  "euc-inclusive-filter-combinator" then
-			-- global.state.filterCombinators[entityId]
+			local combinatorState = global.state.filterCombinators[entityId]
+			if combinatorState then
+				local sigCount = 0
+				for _,sig in pairs(combinatorState.filterSignals) do
+					sigCount = sigCount + 1
+				end
+				table.insert(slots, { signal = { type = 'virtual', name = combinatorState.mixWires and 'signal-A' or 'signal-B' }, count = sigCount })
+				for numId,sig in pairs(combinatorState.filterSignals) do
+					table.insert(slots, { signal = sig, count = numId })
+				end
+			end
 		end
 		return slots
 	end,
-	OnBuiltFromGhostWithSlotsInfo = function(entity, slots, nextSlot)
+	-- Combinator layout is preserved on blueprinting, here we should gain knowledge about what is current layout
+	-- It is much easier to use SaveStateToSlots / RestoreStateInfoFromSlots for this than to lookup current components setup
+	RestoreStateInfoFromSlots = function(entity, slots, nextSlot)
 		if entity == nil then
 			return nil
 		end
@@ -145,17 +158,32 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 		if entityName == "euc-distinct-constant-combinator" then
 		end
 		if entityName == "euc-simple-delay-combinator" then
-			-- Combinator layout is preserved on blueprinting, here we should gain knowledge about what is current layout
-			-- It is much easier to use AddSlotsInfo / OnBuiltFromGhostWithSlotsInfo for this than to lookup current components setup
-			if global.state.delayCombinators[entityId] then
-				global.state.delayCombinators[entityId].currentDelayId = slots[nextSlot].count
+			local combinatorState = global.state.delayCombinators[entityId]
+			if combinatorState then
+				combinatorState.currentDelayId = slots[nextSlot].count
 			else
 				-- We reached this place before OnCombinatorBuilt
+				-- meh, it is always like this -- TODO
 				global.state.delayCombinators[entityId] = { currentDelayId = slots[nextSlot].count }
 			end
 		end
 		if entityName ==  "euc-inclusive-filter-combinator" then
-			-- global.state.filterCombinators[entityId]
+			local combinatorState = global.state.filterCombinators[entityId]
+			if combinatorState then
+			else
+				combinatorState = { }
+				global.state.filterCombinators[entityId] = combinatorState
+			end
+			combinatorState.mixWires = slots[nextSlot].signal.name == 'signal-A'
+			combinatorState.filterSignals = { }
+			local sigCount = slots[nextSlot].count 
+			nextSlot = nextSlot + 1
+			local numId = 1
+			while numId <= sigCount do
+				combinatorState.filterSignals[slots[nextSlot].count] = slots[nextSlot].signal
+				numId = numId + 1
+				nextSlot = nextSlot + 1
+			end
 		end
 		return nextSlot + 1
 	end
@@ -267,7 +295,7 @@ function UpdateFilterCombinator(entityId)
 	end
 	
 	nextUnitId = 1
-	-- Connect wires, unit ids 1 and 2 are io markers
+	-- Connect wires
 	for _,sig in pairs(entityState.filterSignals) do
 		-- connect zero entity each decider component, corresponding inputs and outputs
 		-- zero is composite combinator
@@ -406,7 +434,12 @@ function OnCombinatorBuilt(entity)
 		global.state.delayCombinators[entityId] = { entity = entity, currentDelayId = applyDelay }
 	end
 	if entityName ==  "euc-inclusive-filter-combinator" then
-		global.state.filterCombinators[entityId] = { entity = entity, filterSignals = { }, mixWires = false }
+		if global.state.filterCombinators[entityId] then
+			global.state.filterCombinators[entityId].entity = entity
+			UpdateFilterCombinator(entityId)
+		else
+			global.state.filterCombinators[entityId] = { entity = entity, filterSignals = { }, mixWires = false }
+		end
 		SetCommonArithmeticCombinatorDisplay(entity, const.filterCombinator.emptyDisplaySign)
 	end
 end
@@ -564,15 +597,9 @@ function ShowFilterCombinatorMenu(entity, playerIndex)
 		direction = "vertical"
 	}
 	flow.add {
-		type = "label",
-		name = "label",
-		style = "subheader_caption_label",
-		caption = { "misc.FilterCombinator_MixWires" }
-	}
-	flow.add {
 		type = "checkbox",
 		name = "checkbox_mixwires",
-		style = "euc_checkbox",
+		style = "caption_checkbox",
 		caption = { "misc.FilterCombinator_MixWires" },
 		state = combinatorState.mixWires
 	}

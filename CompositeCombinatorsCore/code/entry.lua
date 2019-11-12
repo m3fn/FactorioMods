@@ -111,8 +111,8 @@ remote.add_interface("Composite-Combinators-Core", {
 		
 		-- Say hello
 		remote.call(callbacksRemote, "GetBuildString", nil)
-		remote.call(callbacksRemote, "AddSlotsInfo", nil, nil)
-		remote.call(callbacksRemote, "OnBuiltFromGhostWithSlotsInfo", nil, nil, -1)
+		remote.call(callbacksRemote, "SaveStateInfoToSlots", nil, nil)
+		remote.call(callbacksRemote, "RestoreStateInfoFromSlots", nil, nil, -1)
 				
 		global.modCfg.combinatorPrototypes[entityName] = { 
 			name = entityName,
@@ -252,12 +252,12 @@ function Remote:GetBuildString(combinatorDataDesc, entity)
 	return remote.call(combinatorDataDesc.callbacksRemote, "GetBuildString", entity)
 end
 
-function Remote:AddSlotsInfo(combinatorDataDesc, combinator)
-	return remote.call(combinatorDataDesc.callbacksRemote, "AddSlotsInfo", combinator)
+function Remote:SaveStateInfoToSlots(combinatorDataDesc, combinator)
+	return remote.call(combinatorDataDesc.callbacksRemote, "SaveStateInfoToSlots", combinator)
 end
 
-function Remote:OnBuiltFromGhostWithSlotsInfo(combinatorDataDesc, combinator, slots, nextSlot)
-	return remote.call(combinatorDataDesc.callbacksRemote, "OnBuiltFromGhostWithSlotsInfo", combinator, slots, nextSlot)
+function Remote:RestoreStateInfoFromSlots(combinatorDataDesc, combinator, slots, nextSlot)
+	return remote.call(combinatorDataDesc.callbacksRemote, "RestoreStateInfoFromSlots", combinator, slots, nextSlot)
 end
 
 --- #endregion

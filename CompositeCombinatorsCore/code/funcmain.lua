@@ -652,9 +652,11 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	local combinatorInfoBlockLen = bit32.band(bit32.rshift(initDataSlot.count, 16), 0xFFFF)
 
 	if combinatorInfoBlockLen ~= 0 then
-		Remote:OnBuiltFromGhostWithSlotsInfo(combinatorDataDesc, combinator, dataSlots, nextSlot)
+		Remote:RestoreStateInfoFromSlots(combinatorDataDesc, combinator, dataSlots, nextSlot)
 		
-		nextSlot = nextSlot + combinatorInfoBlockLen + 1
+		nextSlot = nextSlot + combinatorInfoBlockLen
+	else
+		-- nextSlot = nextSlot + 1 -- IDK
 	end
 
 	-- place components
@@ -804,18 +806,7 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	
 	-- Spawn construction data constant combinator with dataSlots to have this build information for blueprinting, etc...
 	
-	local dataSlotsStorage = surface.create_entity({
-		name = "composite-combinator-construction-data",
-		position = combinator.position,
-		direction = defines.direction.north,
-		force = combinator.force,
-	})
-	combinatorEntityState.dataSlotsStorage = dataSlotsStorage
-	
-	local beh = dataSlotsStorage.get_control_behavior()
-	beh.enabled = true
-	
-	local infoSlots = Remote:AddSlotsInfo(combinatorDataDesc, combinator)
+	local infoSlots = Remote:SaveStateInfoToSlots(combinatorDataDesc, combinator)
 	local infoSlotsLen = 0
 	for _, slot in pairs(infoSlots) do
 		infoSlotsLen = infoSlotsLen + 1
@@ -835,12 +826,12 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	table.insert(params, initDataSlot)
 	nextSlot = nextSlot + 1
 	for _, slot in pairs(infoSlots) do
-		infoSlots[nextSlot - 1].index = nextSlot -- mehhh
-		table.insert(params, infoSlots[nextSlot - 1])
+		slot.index = nextSlot
+		table.insert(params, slot)
 		nextSlot = nextSlot + 1
 	end
 	
-	local nextSlotSub = 1
+	local nextSlotSub = 2 -- Avoid prev. data version
 	while true do 
 		if not dataSlots[nextSlotSub] then
 			break
@@ -850,9 +841,67 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 		nextSlot = nextSlot + 1
 		nextSlotSub = nextSlotSub + 1
 	end
-	beh.parameters = {parameters = params} 
+	
+	-- Create data storages on 4 sides to always catch them with blueprint tool
+
+	combinatorEntityState.dataSlotsStorageCopies = { }
+	local dataSlotsStorageCopiesPositions = FuncMain:GetPossibleDataSlotsPositions(combinator.position, combinator.direction, combinatorDataDesc)
+	for _,pos in pairs(dataSlotsStorageCopiesPositions) do
+		local dataSlotsStorage = surface.create_entity({
+			name = "composite-combinator-construction-data",
+			position = { x = pos.x , y = pos.y  },
+			direction = defines.direction.north,
+			force = combinator.force,
+		})
+		table.insert(combinatorEntityState.dataSlotsStorageCopies, dataSlotsStorage)
+		local beh = dataSlotsStorage.get_control_behavior()
+		beh.enabled = true
+		beh.parameters = { parameters = params } 
+	end
 
 	global.state.combinatorEntities[combinator.unit_number] = combinatorEntityState
 
 	-- Done!
+end
+
+function FuncMain:GetPossibleDataSlotsPositions(combinatorPosition, combinatorDirection, combinatorDataDesc)
+	-- TODO: deflate positions a bit
+	local switchDim = combinatorDirection == 4 or combinatorDirection == 0
+	local hcw
+	local hch
+	local cw
+	local ch
+	
+	if switchDim then
+		hch = combinatorDataDesc.combinatorWidth/2.0
+		hcw = combinatorDataDesc.combinatorHeight/2.0
+		ch = combinatorDataDesc.combinatorWidth
+		cw = combinatorDataDesc.combinatorHeight
+		
+	else
+		hcw = combinatorDataDesc.combinatorWidth/2.0
+		hch = combinatorDataDesc.combinatorHeight/2.0
+		cw = combinatorDataDesc.combinatorWidth
+		ch = combinatorDataDesc.combinatorHeight
+	end
+	
+	local dataSlotsStorageCopiesPositions = {
+		{ 
+			x = combinatorPosition.x - hcw, 
+			y = combinatorPosition.y - hch 
+		},
+		{ 
+			x = combinatorPosition.x - hcw + cw, 
+			y = combinatorPosition.y - hch
+		},
+		{ 
+			x = combinatorPosition.x - hcw, 
+			y = combinatorPosition.y - hch + ch
+		},
+		{ 
+			x = combinatorPosition.x - hcw + cw, 
+			y = combinatorPosition.y - hch + ch
+		}
+	}
+	return dataSlotsStorageCopiesPositions
 end

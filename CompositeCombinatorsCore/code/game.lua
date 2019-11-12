@@ -68,11 +68,17 @@ function OnTick(e)
 			
 			for _, subTask in pairs(task) do
 				if (subTask.state == 1 or subTask.state == 2) and subTask.age > 60 then
-					error("Something is wrong with blueprint creation. No 'combinator-data' pair built within 60 seconds.")
+					if subTask.state == 1 then
+						-- Either spare construction data was blueprinted (it happens often) or just blueprint with data but without entity (shit can happen)
+						subTask.constructionData.destroy()
+						task[_] = nil
+					else
+						error("Something is wrong with blueprint creation. No 'combinator-data' pair built within 60 seconds.")
+					end
 				end
 				if subTask.state == 3 then 
 					local dataSlots = { }
-					for _,signals in pairs(subTask.constructionData.get_control_behavior().parameters) do -- Good thing with forks for ghosts
+					for _,signals in pairs(subTask.constructionData.get_control_behavior().parameters) do -- Good thing this works for ghosts
 						for _,signal in pairs(signals) do
 							if signal.signal.name then
 								table.insert(dataSlots, signal)
@@ -358,6 +364,8 @@ Then when built by robot - usual OnBuilt, but we use data from cosntructionData,
 
 ]]--
 
+
+
 function OnPlayerBuiltEntity(e)
 	local entity = e.created_entity
 	if entity.name == "entity-ghost" then
@@ -367,32 +375,54 @@ function OnPlayerBuiltEntity(e)
 		if ghostName == "composite-combinator-construction-data" or combinatorDataDesc ~= nil then
 			local unboundEntsTask = global.state.tickTasks["UCDoCC"]
 			local addTask = false
-			local entityPos = entity.position
 			if unboundEntsTask == nil then
 				addTask = true
 				unboundEntsTask = { }
 			end
 			local addSubTask = true
-				
+			
 			if ghostName == "composite-combinator-construction-data" then
+				local ghostPos = entity.position
 				for _, subTask in pairs(unboundEntsTask) do
-					if subTask.constructionData == nil and subTask.combinator ~= nil and subTask.combinator.position.x == entityPos.x and subTask.combinator.position.y == entityPos.y then
-						subTask.constructionData = entity
-						subTask.state = 3
-						addSubTask = false
-						break
+					if subTask.constructionData == nil and subTask.combinator ~= nil then
+						-- TODO: Can this be optimized?
+						local localCombinatorDataDesc = global.modCfg.combinatorPrototypes[subTask.combinator.ghost_name]
+						local possibleConstructionDataPositions = FuncMain:GetPossibleDataSlotsPositions(subTask.combinator.position, subTask.combinator.direction, localCombinatorDataDesc)
+						local picked = false
+						for _, pos in pairs(possibleConstructionDataPositions) do
+							if ghostPos.x == pos.x and ghostPos.y == pos.y then
+								picked = true
+								break
+							end
+						end
+						if picked then
+							subTask.constructionData = entity
+							subTask.state = 3
+							addSubTask = false
+							break
+						end
 					end
 				end
 				if addSubTask then
 					table.insert(unboundEntsTask, { constructionData = entity, combinator = nil, state = 1, age = 1 })
 				end
 			elseif combinatorDataDesc ~= nil then
+				local possibleConstructionDataPositions = FuncMain:GetPossibleDataSlotsPositions(entity.position, entity.direction, combinatorDataDesc)
 				for _, subTask in pairs(unboundEntsTask) do
-					if subTask.constructionData ~= nil and subTask.combinator == nil and subTask.constructionData.position.x == entityPos.x and subTask.constructionData.position.y == entityPos.y then
-						subTask.combinator = entity
-						subTask.state = 3
-						addSubTask = false
-						break
+					if subTask.constructionData ~= nil and subTask.combinator == nil then
+						local picked = false
+						for _, pos in pairs(possibleConstructionDataPositions) do
+							if subTask.constructionData.position.x == pos.x and subTask.constructionData.position.y == pos.y then
+								picked = true
+								break
+							end
+						end
+						if picked then
+							subTask.combinator = entity
+							subTask.state = 3
+							addSubTask = false
+							break
+						end
 					end
 				end
 				if addSubTask then

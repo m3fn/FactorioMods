@@ -81,8 +81,10 @@ local function DeleteComponents_Int(combinator, combinatorState)
 		componentData.componentEntity.destroy() -- ({raise_destroy = true})
 	end
 	combinatorState.components = { }
-	combinatorState.dataSlotsStorage.destroy()
-	combinatorState.dataSlotsStorage = nil
+	for _, dataSlotsStorage in pairs(combinatorState.dataSlotsStorageCopies) do
+		dataSlotsStorage.destroy()
+	end
+	combinatorState.dataSlotsStorageCopies = nil
 	combinatorState.deletingComponents = false
 end
 
