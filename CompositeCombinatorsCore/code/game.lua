@@ -77,14 +77,7 @@ function OnTick(e)
 					end
 				end
 				if subTask.state == 3 then 
-					local dataSlots = { }
-					for _,signals in pairs(subTask.constructionData.get_control_behavior().parameters) do -- Good thing this works for ghosts
-						for _,signal in pairs(signals) do
-							if signal.signal.name then
-								table.insert(dataSlots, signal)
-							end
-						end
-					end
+					local dataSlots = getStorageDataSlotsCopy(subTask.constructionData)
 					table.insert(global.state.waitingForUnghosting, { 
 						dataSlots = dataSlots,
 						combinatorGhost = subTask.combinator,
@@ -390,12 +383,13 @@ function OnPlayerBuiltEntity(e)
 						local possibleConstructionDataPositions = FuncMain:GetPossibleDataSlotsPositions(subTask.combinator.position, subTask.combinator.direction, localCombinatorDataDesc)
 						local picked = false
 						for _, pos in pairs(possibleConstructionDataPositions) do
-							if ghostPos.x == pos.x and ghostPos.y == pos.y then
+							if positionsWithinRange_Square(ghostPos, pos, 0.01) then
 								picked = true
 								break
 							end
 						end
 						if picked then
+							-- msg(1, game.tick..' C 31')
 							subTask.constructionData = entity
 							subTask.state = 3
 							addSubTask = false
@@ -404,6 +398,7 @@ function OnPlayerBuiltEntity(e)
 					end
 				end
 				if addSubTask then
+					-- msg(1, game.tick..' C 1')
 					table.insert(unboundEntsTask, { constructionData = entity, combinator = nil, state = 1, age = 1 })
 				end
 			elseif combinatorDataDesc ~= nil then
@@ -412,12 +407,13 @@ function OnPlayerBuiltEntity(e)
 					if subTask.constructionData ~= nil and subTask.combinator == nil then
 						local picked = false
 						for _, pos in pairs(possibleConstructionDataPositions) do
-							if subTask.constructionData.position.x == pos.x and subTask.constructionData.position.y == pos.y then
+							if positionsWithinRange_Square(subTask.constructionData.position, pos, 0.01) then
 								picked = true
 								break
 							end
 						end
 						if picked then
+							-- msg(1, game.tick..' C 32')
 							subTask.combinator = entity
 							subTask.state = 3
 							addSubTask = false
@@ -426,6 +422,7 @@ function OnPlayerBuiltEntity(e)
 					end
 				end
 				if addSubTask then
+					-- msg(1, game.tick..' C 2')
 					table.insert(unboundEntsTask, { constructionData = nil, combinator = entity, state = 2, age = 1 })
 				end
 			end
@@ -439,6 +436,19 @@ function OnPlayerBuiltEntity(e)
 end
 
 function OnEntityMinedSimple(entity)
+	if entity.name == "composite-combinator-construction-data" then
+		-- TODO: optimize
+		for _, entityState in pairs(global.state.combinatorEntities) do
+			for __, dssc in pairs(entityState.dataSlotsStorageCopies) do
+				if dssc == entity then
+					Func:EnshureConstructionDataCopies(entityState)
+					return
+				end
+			end
+		end
+		
+	end
+
 	local combinatorDataDesc = global.modCfg.combinatorPrototypes[entity.prototype.name]
 	if combinatorDataDesc == nil then
 		return
@@ -523,7 +533,10 @@ function OnPlayerSetupBlueprint(e)
 end
 
 function OnPlayerDeconstructedArea(e)
-
+	local playerIndex = e.player_index
+	local player = game.get_player(playerIndex)
+	
+	
 end
 
 
@@ -542,8 +555,6 @@ end
 function OnAreaCloned(e)
 
 end
-
-
 
 
 

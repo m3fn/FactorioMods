@@ -1,14 +1,5 @@
 
 Progress:
-
-
-   -------
-   - Constant blueprinting, blueprint state return
-   - Test out Build and remove by hand and with robots
-   - Blueprinting: polish
-   
-   - Add str versions
-   --------
    
    Polish
    
@@ -42,6 +33,8 @@ Progress:
    - Slots checksum
    - String checksum
    - ChangeLayout does not reset entity
+   - Remove index assignments
+   - Test out Build and remove by hand and with robots
    ------
    
    ------
@@ -70,9 +63,10 @@ Progress:
 
 
 
-Some time later:
+Some time later (TODO LIST):
 - ? Specify component index
 
+- Electricity requirement
 - Selection tools and icons graphics
 - Draw small leds with components over the combinator
 - Good graphics
@@ -83,9 +77,9 @@ Some time later:
 - Check Corpses
 - Cross-surface configuring, compatibility with any rts-style mods out there (are there any?) -- both at least for distinct constant combinator gui
 - Define custom connectors
-- Cleanup
 - Polish eveything with grumpy look
 - Test build performance a bit to know limitations
 - Check component's bounds is buggy
+
 
   .......

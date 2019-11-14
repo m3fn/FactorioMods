@@ -70,6 +70,11 @@ function Func:SpawnCompositeCombinatorComponentsBySlots(combinator, dataSlots)
 	return SpawnCompositeCombinatorComponentsBySlots(combinator, dataSlots)
 end
 
+local EnshureConstructionDataCopies
+function Func:EnshureConstructionDataCopies(combinatorState)
+	return EnshureConstructionDataCopies(combinatorState)
+end
+
 --- #endregion
 
 
@@ -192,3 +197,23 @@ RefreshDataStorageSlots = function(combinatorId)
 	DeleteComponents_Int(combinatorEntity, combinatorEntityState)
 	SpawnCompositeCombinatorComponents(combinatorEntity, combinatorDataDesc, str)
 end
+
+EnshureConstructionDataCopies = function(combinatorEntityState)
+	local dataSlots = nil
+	for __, dssc in pairs(combinatorEntityState.dataSlotsStorageCopies) do
+		if dssc.valid then
+			dataSlots = getStorageDataSlotsCopy(dssc)
+			break
+		end
+	end
+	if not dataSlots then
+		-- TODO? recreate?
+		error('0')
+	end
+	for _, dataSlotsStorage in pairs(combinatorEntityState.dataSlotsStorageCopies) do
+		dataSlotsStorage.destroy()
+	end
+	local combinatorDataDesc = global.modCfg.combinatorPrototypes[combinatorEntityState.entity.name]
+	FuncMain:SpawnDataSlotStorages(combinatorDataDesc, combinatorEntityState, dataSlots)
+end
+

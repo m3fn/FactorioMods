@@ -173,3 +173,25 @@ end
 function msg(playerIndex, msgg)
     game.players[playerIndex].print(msgg)
 end
+
+function positionsWithinRange_Square(pos1, pos2, eps_range)
+	if pos1.x > pos2.x then
+		if math.abs(pos1.x - pos2.x) > eps_range then
+			return false
+		end
+	else
+		if math.abs(pos2.x - pos1.x) > eps_range then
+			return false
+		end
+	end
+	if pos1.y > pos2.y then
+		if math.abs(pos1.y - pos2.y) > eps_range then
+			return false
+		end
+	else
+		if math.abs(pos2.y - pos1.y) > eps_range then
+			return false
+		end
+	end
+	return true
+end

@@ -1,5 +1,5 @@
 
-local bebak = false -- bibok
+local debug = false -- bibok
 
 local genericComponentActivityLedSprites = 
   {
@@ -49,8 +49,8 @@ function generate_decider_component(combinator)
   local sprite = 
   {
     north = spriteSide,
-  east = spriteSide,
-  south = spriteSide,
+    east = spriteSide,
+    south = spriteSide,
     west = spriteSide
   }
 
@@ -58,7 +58,7 @@ function generate_decider_component(combinator)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = "__CompositeCombinatorsCore__/graphics/components/decider-component.png",
+          filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/decider-component.png",
           width = 2,
           height = 2,
           frame_count = 1,
@@ -66,7 +66,7 @@ function generate_decider_component(combinator)
           hr_version =
           {
             scale = 1,
-            filename = "__CompositeCombinatorsCore__/graphics/components/decider-component.png",
+            filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/decider-component.png",
             width = 2,
             height = 2,
             frame_count = 1,
@@ -130,7 +130,7 @@ function generate_decider_component(combinator)
       wire = constantComponentWireConnectionOffset
     }
   }
-  if not bebak then
+  if not debug then
     combinator.draw_circuit_wires = false
     combinator.draw_copper_wires = false
   end
@@ -163,8 +163,8 @@ local function generate_arithmetic_component(combinator)
   local sprite = 
   {
     north = spriteSide,
-  east = spriteSide,
-  south = spriteSide,
+    east = spriteSide,
+    south = spriteSide,
     west = spriteSide
   }
   
@@ -172,7 +172,7 @@ local function generate_arithmetic_component(combinator)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = "__CompositeCombinatorsCore__/graphics/components/arithmetic-component.png",
+          filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/arithmetic-component.png",
           width = 2,
           height = 2,
           frame_count = 1,
@@ -180,7 +180,7 @@ local function generate_arithmetic_component(combinator)
           hr_version =
           {
             scale = 1,
-            filename = "__CompositeCombinatorsCore__/graphics/components/arithmetic-component.png",
+            filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/arithmetic-component.png",
             width = 2,
             height = 2,
             frame_count = 1,
@@ -248,7 +248,7 @@ local function generate_arithmetic_component(combinator)
       wire = constantComponentWireConnectionOffset
     }
   }
-  if not bebak then
+  if not debug then
     combinator.draw_circuit_wires = false
     combinator.draw_copper_wires = false
   end
@@ -262,7 +262,7 @@ function generate_component_constant_combinator(combinator, isConstructionData)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = "__CompositeCombinatorsCore__/graphics/components/construction-data.png",
+          filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/construction-data.png",
           width = 2,
           height = 2,
           frame_count = 1,
@@ -270,7 +270,7 @@ function generate_component_constant_combinator(combinator, isConstructionData)
           hr_version =
           {
             scale = 1,
-            filename = "__CompositeCombinatorsCore__/graphics/components/construction-data.png",
+            filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/construction-data.png",
             width = 2,
             height = 2,
             frame_count = 1,
@@ -284,7 +284,7 @@ function generate_component_constant_combinator(combinator, isConstructionData)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = "__CompositeCombinatorsCore__/graphics/components/constant-component.png",
+          filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/constant-component.png",
           width = 2,
           height = 2,
           frame_count = 1,
@@ -292,7 +292,7 @@ function generate_component_constant_combinator(combinator, isConstructionData)
           hr_version =
           {
             scale = 1,
-            filename = "__CompositeCombinatorsCore__/graphics/components/constant-component.png",
+            filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/constant-component.png",
             width = 2,
             height = 2,
             frame_count = 1,
@@ -342,7 +342,7 @@ function generate_component_constant_combinator(combinator, isConstructionData)
     }
   }
   
-  if not bebak then
+  if not debug then
     combinator.draw_circuit_wires = false
     combinator.draw_copper_wires = false
   end
@@ -575,12 +575,12 @@ data:extend(
     name = "composite-combinator-construction-data",
     icon = "__CompositeCombinatorsCore__/graphics/icons/construction-data.png",
     icon_size = 32,
-    flags = { "not-deconstructable", "placeable-neutral", "player-creation", "placeable-off-grid", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hide-alt-info", "not-upgradable" },
+    flags = { "placeable-neutral", "player-creation", "placeable-off-grid", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hide-alt-info", "not-upgradable" },
     max_health = 120,
     corpse = "small-remnants",
 
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = {{0.5, 0.5}, {0.5, 0.5}},
+    selection_box = {{0.0, 0.0}, {0, 0}},
 
     item_slot_count = 8192,
 
@@ -601,17 +601,17 @@ data:extend(
     name = "composite-combinator-constant-component",
     icon = "__base__/graphics/icons/constant-combinator.png",
     icon_size = 32,
-    flags = { "not-deconstructable", "placeable-neutral", "placeable-off-grid", "not-blueprintable", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hidden", "hide-alt-info", "not-upgradable" },
+    flags = { "placeable-neutral", "placeable-off-grid", "not-blueprintable", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hidden", "hide-alt-info", "not-upgradable" },
     minable = {hardness = 0.2, mining_time = 0.5, result = "composite-combinator-constant-component"},
     max_health = 120,
     corpse = "small-remnants",
 
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = {{0.5, 0.5}, {0.5, 0.5}},
+    selection_box = {{0.0, 0.0}, {0.0, 0.0}},
 
     item_slot_count = 64,
   
-  selectable_in_game = bebak,
+    selectable_in_game = debug,
 
     vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
   }, false),
@@ -622,12 +622,12 @@ data:extend(
     name = "composite-combinator-arithmetic-component",
     icon = "__base__/graphics/icons/arithmetic-combinator.png",
     icon_size = 32,
-    flags = { "not-deconstructable", "placeable-neutral", "placeable-off-grid", "not-blueprintable", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hidden", "hide-alt-info", "not-upgradable" },
+    flags = { "placeable-neutral", "placeable-off-grid", "not-blueprintable", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hidden", "hide-alt-info", "not-upgradable" },
     minable = {hardness = 0.2, mining_time = 0.5, result = "arithmetic-combinator"},
     max_health = 150,
     corpse = "small-remnants",
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = bebak and {{-1, -1}, {2, 2}} or {{0.5, 0.5}, {0.5, 0.5}},
+    selection_box = debug and {{-1, -1}, {2, 2}} or {{0.0, 0.0}, {0.0, 0.0}},
 
     energy_source =
     {
@@ -653,10 +653,10 @@ data:extend(
     screen_light = { intensity = 0, size = 0, color = { r = 1, g = 1, b = 1 } },
     screen_light_offsets = { {0, 0}, {0, 0}, {0, 0}, {0, 0} },
 
-    input_connection_bounding_box = {{-0.5, 0}, {0.5, 1}},
-    output_connection_bounding_box = {{-0.5, -1}, {0.5, 0}},
+    input_connection_bounding_box = {{-0.0, 0}, {0.0, 0}},
+    output_connection_bounding_box = {{-0.0, -0}, {0.0, 0}},
   
-  selectable_in_game = bebak,
+    selectable_in_game = debug,
 
     circuit_wire_max_distance = 9
   },
@@ -667,12 +667,12 @@ data:extend(
     name = "composite-combinator-decider-component",
     icon = "__base__/graphics/icons/decider-combinator.png",
     icon_size = 32,
-    flags = { "not-deconstructable", "placeable-neutral", "placeable-off-grid", "not-blueprintable", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hidden", "hide-alt-info", "not-upgradable" },
+    flags = { "placeable-neutral", "placeable-off-grid", "not-blueprintable", "not-flammable", "not-selectable-in-game", "not-rotatable", "not-repairable", "not-on-map", "hidden", "hide-alt-info", "not-upgradable" },
     minable = {hardness = 0.2, mining_time = 0.5, result = "composite-combinator-decider-component" },
     max_health = 150,
     corpse = "small-remnants",
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = bebak and {{-1, -1}, {2, 2}}  or {{0.5, 0.5}, {0.5, 0.5}},
+    selection_box = debug and {{-1, -1}, {2, 2}}  or {{0.0, 0.0}, {0.0, 0.0}},
 
     energy_source =
     {
@@ -683,13 +683,13 @@ data:extend(
 
     working_sound =
     {
-    sound =
-    {
-      filename = "__base__/sound/combinator.ogg",
-      volume = 0.35,
-    },
-    max_sounds_per_type = 2,
-    match_speed_to_activity = true,
+      sound =
+      {
+        filename = "__base__/sound/combinator.ogg",
+        volume = 0.35,
+      },
+      max_sounds_per_type = 2,
+      match_speed_to_activity = true,
     },
 
     activity_led_light = { intensity = 0, size = 0, color = { r = 1, g = 1, b = 1 } },
@@ -698,10 +698,10 @@ data:extend(
     screen_light_offsets = { {0, 0}, {0, 0}, {0, 0}, {0, 0} },
 
 
-    input_connection_bounding_box = {{-0.5, 0}, {0.5, 1}},
-    output_connection_bounding_box = {{-0.5, -1}, {0.5, 0}},
+    input_connection_bounding_box = {{-0.0, 0}, {0, 0}},
+    output_connection_bounding_box = {{-0.0, -0}, {0, 0}},
   
-  selectable_in_game = bebak,
+    selectable_in_game = debug,
 
     input_connection_points =
     {

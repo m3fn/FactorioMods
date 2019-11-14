@@ -23,3 +23,16 @@ function removeTickTask(taskName)
 	end
 	global.hasTasks = global.tasksCount == 0
 end
+
+
+function getStorageDataSlotsCopy(entity)
+	local dataSlots = { }
+	for _,signals in pairs(entity.get_control_behavior().parameters) do -- Good thing this works for ghosts
+		for _,signal in pairs(signals) do
+			if signal.signal.name then
+				table.insert(dataSlots, signal)
+			end
+		end
+	end
+	return dataSlots
+end

@@ -106,7 +106,7 @@ end
 		2: Components - fromComponents == true, combinator is composite combinator 		- get string from composite combinator and it's components
 		
 	TODO: strings taken each way should be 100% equal, currently different in connections block
-	Length should be always equal
+	Lengths should always be equal
 --]]
 
 
@@ -285,7 +285,7 @@ end
 
 function StrBuilder:Build()
 	local signal
-	local str = ''
+	local str = ''..coreConst.dataVersion..(coreConst.strBoundary1)..(coreConst.strBoundary3)
 	
 	-- get topLeft pos, geather strings
 	
@@ -428,9 +428,16 @@ function FuncMain:StringToDataSlots_Int(str)
 	local nextEntId = 1
 	
 	local spl = split3(str, coreConst.strBoundary3)
-	local dictSrc = spl[1]
-	local components = spl[2]
-	local connections = spl[3]
+	local verAndOtherInfo = spl[1]
+	local dictSrc = spl[2]
+	local components = spl[3]
+	local connections = spl[4]
+	
+	spl = split3(verAndOtherInfo, coreConst.strBoundary1)
+	
+	if spl[1] ~= ''..coreConst.dataVersion then
+		error("Unsupported data version, please reinstall mod, all progress will be lost unfortunately")
+	end
 	
 	spl = split3(dictSrc, coreConst.strBoundary1)
 	
@@ -649,6 +656,11 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	nextSlot = nextSlot + 1
 	
 	local dataVersion = bit32.band(initDataSlot.count, 0xFFFF)
+	
+	if dataVersion ~= coreConst.dataVersion then
+		error("Unsupported data version, please reinstall mod, all progress will be lost unfortunately")
+	end
+	
 	local combinatorInfoBlockLen = bit32.band(bit32.rshift(initDataSlot.count, 16), 0xFFFF)
 
 	if combinatorInfoBlockLen ~= 0 then
@@ -658,7 +670,13 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	else
 		-- nextSlot = nextSlot + 1 -- IDK
 	end
-
+	
+	-- msg(1, '1B: '..dataSlots[1].count)
+	-- msg(1, '2B: '..dataSlots[2].count)
+	-- msg(1, '3B: '..dataSlots[3].count)
+	-- msg(1, '4B: '..dataSlots[4].count)
+	-- msg(1, 'BP: '..nextSlot)
+	
 	-- place components
 	while true do
 		local dataSlot = dataSlots[nextSlot]
@@ -706,12 +724,12 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 				srcY = t
 			end
 			
-			--if not coreConst.debugMode and combinatorDataDesc.combinatorWidth < srcX or srcX < 0 then
-			--	error("Component is out of bounds (X)")
-			--end
-			--if not coreConst.debugMode and combinatorDataDesc.combinatorHeight < srcY or srcY < 0 then
-			--	error("Component is out of bounds (Y)")
-			--end
+			if not coreConst.debugMode and combinatorDataDesc.combinatorWidth < srcX or srcX < 0 then
+				error("Component is out of bounds (X)")
+			end
+			if not coreConst.debugMode and combinatorDataDesc.combinatorHeight < srcY or srcY < 0 then
+				error("Component is out of bounds (Y)")
+			end
 			
 			if isForwardDir then
 				if not isSwitchingDim then
@@ -831,7 +849,7 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 		nextSlot = nextSlot + 1
 	end
 	
-	local nextSlotSub = 2 -- Avoid prev. data version
+	local nextSlotSub = 2 + combinatorInfoBlockLen -- Avoid prev. data version and info block
 	while true do 
 		if not dataSlots[nextSlotSub] then
 			break
@@ -844,6 +862,16 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 	
 	-- Create data storages on 4 sides to always catch them with blueprint tool
 
+	FuncMain:SpawnDataSlotStorages(combinatorDataDesc, combinatorEntityState, params)
+
+	global.state.combinatorEntities[combinator.unit_number] = combinatorEntityState
+
+	-- Done!
+end
+
+function FuncMain:SpawnDataSlotStorages(combinatorDataDesc, combinatorEntityState, params)
+	local combinator = combinatorEntityState.entity
+	local surface = combinator.surface
 	combinatorEntityState.dataSlotsStorageCopies = { }
 	local dataSlotsStorageCopiesPositions = FuncMain:GetPossibleDataSlotsPositions(combinator.position, combinator.direction, combinatorDataDesc)
 	for _,pos in pairs(dataSlotsStorageCopiesPositions) do
@@ -858,14 +886,9 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 		beh.enabled = true
 		beh.parameters = { parameters = params } 
 	end
-
-	global.state.combinatorEntities[combinator.unit_number] = combinatorEntityState
-
-	-- Done!
 end
 
 function FuncMain:GetPossibleDataSlotsPositions(combinatorPosition, combinatorDirection, combinatorDataDesc)
-	-- TODO: deflate positions a bit
 	local switchDim = combinatorDirection == 4 or combinatorDirection == 0
 	local hcw
 	local hch
@@ -885,22 +908,26 @@ function FuncMain:GetPossibleDataSlotsPositions(combinatorPosition, combinatorDi
 		ch = combinatorDataDesc.combinatorHeight
 	end
 	
+	-- Data storages should not stand out but still be selectable with selection tools before combinator itself
+	-- Ideally selection of combinator should perfectly align with selection of data storage (TODO?)
+	local infl = 0.14
+	
 	local dataSlotsStorageCopiesPositions = {
 		{ 
-			x = combinatorPosition.x - hcw, 
-			y = combinatorPosition.y - hch 
+			x = combinatorPosition.x - hcw + infl, 
+			y = combinatorPosition.y - hch + infl
 		},
 		{ 
-			x = combinatorPosition.x - hcw + cw, 
-			y = combinatorPosition.y - hch
+			x = combinatorPosition.x - hcw + cw - infl, 
+			y = combinatorPosition.y - hch + infl
 		},
 		{ 
-			x = combinatorPosition.x - hcw, 
-			y = combinatorPosition.y - hch + ch
+			x = combinatorPosition.x - hcw + infl, 
+			y = combinatorPosition.y - hch + ch - infl
 		},
 		{ 
-			x = combinatorPosition.x - hcw + cw, 
-			y = combinatorPosition.y - hch + ch
+			x = combinatorPosition.x - hcw + cw - infl, 
+			y = combinatorPosition.y - hch + ch - infl
 		}
 	}
 	return dataSlotsStorageCopiesPositions
