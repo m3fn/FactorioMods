@@ -1,7 +1,7 @@
 
 ## Composite Combinators Core
 
-For the reference see ExtremelyUsefulCombiantors/code/euc.lua
+For the reference see ExtremelyUsefulCompositeCombinators/code/euc.lua
 
 # MAIN API
 
