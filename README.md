@@ -1,6 +1,8 @@
 
 ## Composite Combinators Core
 
+For the reference see ExtremelyUsefulCombiantors/code/euc.lua
+
 # MAIN API
 
 * Composite-Combinators-Core->registerCompositeCombinatorPrototype (entityName, compressionRatio, componentsTopLeftOffset, callbacksRemote)
