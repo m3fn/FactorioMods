@@ -4,13 +4,17 @@ Progress:
    Polish
    
    ------
+   - Write mod description (reasonable, for a couple of days, for devs and not)
+   - ArithmeticCombinatorBuildString, ConstantCombinatorBuildString
    - prototype to individual callbacks
-   - FuncMain refactor
+   ------
+   
+   ------
    - overall polish
    - Add errors
    - Unit tests? - check all states of vanilla components
-   - Write mod description (reasonable, for a couple of days, for devs and not)
    - Comments for devs
+   - Github readme
    ------
    
    ------

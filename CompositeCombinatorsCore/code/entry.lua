@@ -11,10 +11,10 @@
 	Tab is 4 spaces, prototypes use 2 spaces without tabs
 	
 	Glossary:
-		combinator - composite combinator, refer to them as compositeCombiantor in code is a bit redundant
-		combinatorPrototype, compositeCombinatorPrototype, combinatorDataDesc - self explanatory, they are added via remote calls
-		componentPrototype, componentDataDesc - self explanatory, they are added via remote calls
-		component - small entity inside of composite combinator
+		combinator - composite combinator, referring to them as compositeCombiantor in code is a bit redundant
+		combinatorPrototype, combinatorDataDesc - prototype and entity, they are added via remote calls
+		componentPrototype, componentDataDesc - prototype and entity, they are added via remote calls
+		component - a small entity inside of composite combinator
 		componentArchetype - big component entity
 		
 		For example for decider combinator componentArchetype is 'decider-combinator', component 'composite-combinator-decider-component', one componentPrototype links them
