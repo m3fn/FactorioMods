@@ -1,5 +1,5 @@
 
-local debug = false -- bibok
+local isDebug = false
 
 local genericComponentActivityLedSprites = 
   {
@@ -58,7 +58,7 @@ function generate_decider_component(combinator)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/decider-component.png",
+          filename = isDebug and "__CompositeCombinatorsCore__/graphics/components/decider-component.png" or "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png",
           width = 2,
           height = 2,
           frame_count = 1,
@@ -66,7 +66,7 @@ function generate_decider_component(combinator)
           hr_version =
           {
             scale = 1,
-            filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/decider-component.png",
+            filename = isDebug and "__CompositeCombinatorsCore__/graphics/components/decider-component.png" or "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png",
             width = 2,
             height = 2,
             frame_count = 1,
@@ -130,7 +130,7 @@ function generate_decider_component(combinator)
       wire = constantComponentWireConnectionOffset
     }
   }
-  if not debug then
+  if not isDebug then
     combinator.draw_circuit_wires = false
     combinator.draw_copper_wires = false
   end
@@ -172,7 +172,7 @@ local function generate_arithmetic_component(combinator)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/arithmetic-component.png",
+          filename = isDebug and "__CompositeCombinatorsCore__/graphics/components/arithmetic-component.png" or "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png",
           width = 2,
           height = 2,
           frame_count = 1,
@@ -180,7 +180,7 @@ local function generate_arithmetic_component(combinator)
           hr_version =
           {
             scale = 1,
-            filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/arithmetic-component.png",
+            filename = isDebug and "__CompositeCombinatorsCore__/graphics/components/arithmetic-component.png" or "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png",
             width = 2,
             height = 2,
             frame_count = 1,
@@ -248,7 +248,7 @@ local function generate_arithmetic_component(combinator)
       wire = constantComponentWireConnectionOffset
     }
   }
-  if not debug then
+  if not isDebug then
     combinator.draw_circuit_wires = false
     combinator.draw_copper_wires = false
   end
@@ -262,29 +262,29 @@ function generate_component_constant_combinator(combinator, isConstructionData)
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/construction-data.png",
-          width = 2,
-          height = 2,
+          filename = isDebug and "__CompositeCombinatorsCore__/graphics/components/debug_construction-data.png" or "__CompositeCombinatorsCore__/graphics/components/construction-data.png",
+          width = 58,
+          height = 52,
           frame_count = 1,
-          shift = util.by_pixel(0, 0),
+          shift = util.by_pixel(0, 5),
           hr_version =
           {
             scale = 1,
-            filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/construction-data.png",
-            width = 2,
-            height = 2,
+            filename = isDebug and "__CompositeCombinatorsCore__/graphics/components/debug_construction-data.png" or "__CompositeCombinatorsCore__/graphics/components/construction-data.png",
+            width = 58,
+            height = 52,
             frame_count = 1,
-            shift = util.by_pixel(0, 0),
-          },
+            shift = util.by_pixel(0, 5)
+          }
         }
-      },
+      }
     })
   else
     combinator.sprites =
     make_4way_animation_from_spritesheet({ layers =
       {
         {
-          filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/constant-component.png",
+          filename = isDebug and "__CompositeCombinatorsCore__/graphics/components/constant-component.png" or "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png",
           width = 2,
           height = 2,
           frame_count = 1,
@@ -292,7 +292,7 @@ function generate_component_constant_combinator(combinator, isConstructionData)
           hr_version =
           {
             scale = 1,
-            filename = not debug and "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png" or "__CompositeCombinatorsCore__/graphics/components/constant-component.png",
+            filename = isDebug and "__CompositeCombinatorsCore__/graphics/components/constant-component.png" or "__CompositeCombinatorsCore__/graphics/components/not-debug-component.png",
             width = 2,
             height = 2,
             frame_count = 1,
@@ -342,7 +342,7 @@ function generate_component_constant_combinator(combinator, isConstructionData)
     }
   }
   
-  if not debug then
+  if not isDebug then
     combinator.draw_circuit_wires = false
     combinator.draw_copper_wires = false
   end
@@ -579,8 +579,8 @@ data:extend(
     max_health = 120,
     corpse = "small-remnants",
 
-    collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = {{0.0, 0.0}, {0, 0}},
+	collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
+    selection_box = {{-0.25, -0.25}, {0.25, 0.25}},
 
     item_slot_count = 8192,
 
@@ -611,7 +611,7 @@ data:extend(
 
     item_slot_count = 64,
   
-    selectable_in_game = debug,
+    selectable_in_game = isDebug,
 
     vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
   }, false),
@@ -627,7 +627,7 @@ data:extend(
     max_health = 150,
     corpse = "small-remnants",
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = debug and {{-1, -1}, {2, 2}} or {{0.0, 0.0}, {0.0, 0.0}},
+    selection_box = isDebug and {{-1, -1}, {2, 2}} or {{0.0, 0.0}, {0.0, 0.0}},
 
     energy_source =
     {
@@ -656,7 +656,7 @@ data:extend(
     input_connection_bounding_box = {{-0.0, 0}, {0.0, 0}},
     output_connection_bounding_box = {{-0.0, -0}, {0.0, 0}},
   
-    selectable_in_game = debug,
+    selectable_in_game = isDebug,
 
     circuit_wire_max_distance = 9
   },
@@ -672,7 +672,7 @@ data:extend(
     max_health = 150,
     corpse = "small-remnants",
     collision_box = {{0.0, -0.0}, {0.0, 0.0}},
-    selection_box = debug and {{-1, -1}, {2, 2}}  or {{0.0, 0.0}, {0.0, 0.0}},
+    selection_box = isDebug and {{-1, -1}, {2, 2}}  or {{0.0, 0.0}, {0.0, 0.0}},
 
     energy_source =
     {
@@ -701,7 +701,7 @@ data:extend(
     input_connection_bounding_box = {{-0.0, 0}, {0, 0}},
     output_connection_bounding_box = {{-0.0, -0}, {0, 0}},
   
-    selectable_in_game = debug,
+    selectable_in_game = isDebug,
 
     input_connection_points =
     {

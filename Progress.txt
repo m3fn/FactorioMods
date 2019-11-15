@@ -1,20 +1,11 @@
 
 Progress:
    
-   Polish
-   
    ------
-   - Write mod description (reasonable, for a couple of days, for devs and not)
-   - ArithmeticCombinatorBuildString, ConstantCombinatorBuildString
-   - prototype to individual callbacks
-   ------
-   
-   ------
-   - overall polish
-   - Add errors
-   - Unit tests? - check all states of vanilla components
    - Comments for devs
-   - Github readme
+   - Core Github readme
+   - Write mod description for core
+   - Write mod description for euc
    ------
    
    ------
@@ -22,6 +13,11 @@ Progress:
    - Ask for looks
    ------
 
+   ------
+   - overall polish
+   - Add errors
+   - Unit tests? - check all states of vanilla components
+   ------
    
    ------
    - Rotation
@@ -37,8 +33,8 @@ Progress:
    - Slots checksum
    - String checksum
    - ChangeLayout does not reset entity
-   - Remove index assignments
    - Test out Build and remove by hand and with robots
+   - Recursive blueprints compatibility
    ------
    
    ------
@@ -54,6 +50,10 @@ Progress:
    - Publish Pre-alpha 0.2 (mod portal) ?
    ------
    
+   -------
+   - Performance optimizations all around
+   -------
+   
     -------
     - Find bugs, edge cases
     ------- 
@@ -67,7 +67,7 @@ Progress:
 
 
 
-Some time later (TODO LIST):
+Some time later (IDEAS AND TODO LIST):
 - ? Specify component index
 
 - Electricity requirement
@@ -75,7 +75,7 @@ Some time later (TODO LIST):
 - Draw small leds with components over the combinator
 - Good graphics
 - Complex Distinct combinator GUI
-- Add components substrings to dict
+- Add components substrings to substr dict
 - Check out unsanctioned components settings change?
 - Inteference from other mod, like with script_raised_destroy, script_raised_revive, script_raised_built, on_trigger_created_entity, look for other undesired way of disrupting setup
 - Check Corpses
@@ -84,6 +84,12 @@ Some time later (TODO LIST):
 - Polish eveything with grumpy look
 - Test build performance a bit to know limitations
 - Check component's bounds is buggy
-
+- Data storage: Combinators with asymmetric collision_box, combinators with collision_box not divisible by data storage collision_box
+- Data storage: periemeter only
+- Data storage: Bigger sizes data storages
 
   .......
+
+
+	-- Combinator layout is preserved on blueprinting, here we should gain knowledge about what is current layout
+	-- It is much easier to use SaveStateToSlots / RestoreStateInfoFromSlots for this than to lookup current components setup

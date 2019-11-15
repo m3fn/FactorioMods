@@ -380,7 +380,7 @@ function OnPlayerBuiltEntity(e)
 					if subTask.constructionData == nil and subTask.combinator ~= nil then
 						-- TODO: Can this be optimized?
 						local localCombinatorDataDesc = global.modCfg.combinatorPrototypes[subTask.combinator.ghost_name]
-						local possibleConstructionDataPositions = FuncMain:GetPossibleDataSlotsPositions(subTask.combinator.position, subTask.combinator.direction, localCombinatorDataDesc)
+						local possibleConstructionDataPositions = FuncMain:GetDataSlotsPositions(subTask.combinator.position, subTask.combinator.direction, localCombinatorDataDesc)
 						local picked = false
 						for _, pos in pairs(possibleConstructionDataPositions) do
 							if positionsWithinRange_Square(ghostPos, pos, 0.01) then
@@ -402,7 +402,7 @@ function OnPlayerBuiltEntity(e)
 					table.insert(unboundEntsTask, { constructionData = entity, combinator = nil, state = 1, age = 1 })
 				end
 			elseif combinatorDataDesc ~= nil then
-				local possibleConstructionDataPositions = FuncMain:GetPossibleDataSlotsPositions(entity.position, entity.direction, combinatorDataDesc)
+				local possibleConstructionDataPositions = FuncMain:GetDataSlotsPositions(entity.position, entity.direction, combinatorDataDesc)
 				for _, subTask in pairs(unboundEntsTask) do
 					if subTask.constructionData ~= nil and subTask.combinator == nil then
 						local picked = false

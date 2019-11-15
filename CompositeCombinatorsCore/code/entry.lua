@@ -95,7 +95,7 @@ remote.add_interface("Composite-Combinators-Core", {
 
 	-- Register composite combinator entity itself.
 
-	registerCompositeCombinatorPrototype = function(entityName, compressionRatio, componentsTopLeftOffset, callbacksRemote)
+	registerCompositeCombinatorPrototype = function(entityName, compressionRatio, componentsTopLeftOffset, callbacksRemote, callbacksRemotePrefix)
 	
 		if compressionRatio > limits.maxCompressionRatio or compressionRatio < limits.minCompressionRatio then
 			error("Remote call to Composite-Combinators-Core::registerCompositeCombinatorPrototype failed: compression ratio exceeds limitations")
@@ -110,17 +110,18 @@ remote.add_interface("Composite-Combinators-Core", {
 		end
 		
 		-- Say hello
-		remote.call(callbacksRemote, "GetBuildString", nil)
-		remote.call(callbacksRemote, "SaveStateInfoToSlots", nil, nil)
-		remote.call(callbacksRemote, "RestoreStateInfoFromSlots", nil, nil, -1)
-				
+		remote.call(callbacksRemote, callbacksRemotePrefix.."GetBuildString", nil)
+		remote.call(callbacksRemote, callbacksRemotePrefix.."SaveStateInfoToSlots", nil, nil)
+		remote.call(callbacksRemote, callbacksRemotePrefix.."RestoreStateInfoFromSlots", nil, nil, -1)
+		
 		global.modCfg.combinatorPrototypes[entityName] = { 
 			name = entityName,
 			compressionRatio = compressionRatio,
 			combinatorWidth = width,
 			combinatorHeight = height,
 			componentsTopLeftOffset = componentsTopLeftOffset,
-			callbacksRemote = callbacksRemote
+			callbacksRemote = callbacksRemote,
+			callbacksRemotePrefix = callbacksRemotePrefix
 		}
 
 	end,
@@ -249,15 +250,15 @@ function Remote:OnCombinatorSpawned(entityDataDesc, entity, dataSlots, nextSlot)
 end
 
 function Remote:GetBuildString(combinatorDataDesc, entity)
-	return remote.call(combinatorDataDesc.callbacksRemote, "GetBuildString", entity)
+	return remote.call(combinatorDataDesc.callbacksRemote, combinatorDataDesc.callbacksRemotePrefix.."GetBuildString", entity)
 end
 
 function Remote:SaveStateInfoToSlots(combinatorDataDesc, combinator)
-	return remote.call(combinatorDataDesc.callbacksRemote, "SaveStateInfoToSlots", combinator)
+	return remote.call(combinatorDataDesc.callbacksRemote, combinatorDataDesc.callbacksRemotePrefix.."SaveStateInfoToSlots", combinator)
 end
 
 function Remote:RestoreStateInfoFromSlots(combinatorDataDesc, combinator, slots, nextSlot)
-	return remote.call(combinatorDataDesc.callbacksRemote, "RestoreStateInfoFromSlots", combinator, slots, nextSlot)
+	return remote.call(combinatorDataDesc.callbacksRemote, combinatorDataDesc.callbacksRemotePrefix.."RestoreStateInfoFromSlots", combinator, slots, nextSlot)
 end
 
 --- #endregion
@@ -281,9 +282,10 @@ remote.add_interface("Composite-Combinators-Base", {
 	DeciderCombinatorSpawned 		= function (...) return ComponentsRegistration:DeciderCombinatorSpawned					(...) end,
 	
 	-- Additional but necessary, if any other combinator will be implemented by any other mod - it is up to them
-	ioMarkerBuildString				= function (...) return ComponentsRegistration:IOCombinatorBuildString					(...) end,
-	deciderCombinatorBuildString	= function (...) return ComponentsRegistration:DeciderCombinatorBuildString				(...) end,
-	
+	IOMarkerBuildString				= function (...) return ComponentsRegistration:IOCombinatorBuildString					(...) end,
+	DeciderCombinatorBuildString	= function (...) return ComponentsRegistration:DeciderCombinatorBuildString				(...) end,
+	ArithmeticCombinatorBuildString = function (...) return ComponentsRegistration:ArithmeticCombinatorBuildString			(...) end,
+	ConstantCombinatorBuildString	= function (...) return ComponentsRegistration:ConstantCombinatorBuildString			(...) end,
 })
 
 RegisterServiceComponents = function()

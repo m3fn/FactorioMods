@@ -44,7 +44,7 @@ const = {
 		}
 	},
 	filterCombinator = {
-		emptyString = "item#composite-combinator-io-marker#$1#2#1#0#0#0#1%1#2#1#0#0#0#2%$",
+		emptyString = "2#$item#composite-combinator-io-marker#$1#2#1#0#0#0#1%1#2#1#0#0#0#2%$",
 		maxItems = 8,
 		emptyDisplaySign = '^'
 	},
@@ -83,125 +83,142 @@ end
 
 -- callbacks from core
 remote.add_interface("ExtremelyUsefulCombinators", {
-	GetBuildString = function(entity)
+
+	-- Distinct constant combinator
+	dcc_GetBuildString = function(entity)
 		if entity == nil then
 			return nil
 		end
-		local entityName = entity.name
-		local entityId = entity.unit_number
-		if entityName == "euc-distinct-constant-combinator" then
-			return const.distinctConstantCombinator.defaultBuildString
-		end
-		if entityName == "euc-simple-delay-combinator" then
-			local delayId
-			if global.state.delayCombinators[entityId] then
-				-- GetBuildString is called when changing delay
-				delayId = global.state.delayCombinators[entityId].currentDelayId
-			else
-				-- Although it is set on on_built_entity in OnCombinatorBuilt function, on_built_entity order is not defined
-				-- This is for the case when core mod on_built_entity is called second
-				delayId = const.simpleDelayCombinator.defaultDelayId
-			end
-			SetDelayCombinatorDisplay(entity, delayId)
-			return const.simpleDelayCombinator.buildStrings[delayId]
-		end
-		if entityName == "euc-inclusive-filter-combinator" then
-			if global.state.filterCombinators[entityId] then
-			end
-			if global.state.filterCombinators[entityId] and global.state.filterCombinators[entityId].currentStr then
-				return global.state.filterCombinators[entityId].currentStr
-			else
-				return const.filterCombinator.emptyString
-			end
-		end
-		return 1
+		return const.distinctConstantCombinator.defaultBuildString
 	end,
-	SaveStateInfoToSlots = function(entity)
+	
+	dcc_SaveStateInfoToSlots = function(entity) 
+		return { }
+	end,
+	
+	dcc_RestoreStateInfoFromSlots = function(entity, slots, nextSlot)
+	end,
+	
+	-- Simple delay combinator
+	sdc_GetBuildString = function(entity)
+		if entity == nil then
+			return nil
+		end
+		local entityId = entity.unit_number
+		local delayId
+		if global.state.delayCombinators[entityId] then
+			-- GetBuildString is called when changing delay
+			delayId = global.state.delayCombinators[entityId].currentDelayId
+		else
+			-- Although it is set on on_built_entity in OnCombinatorBuilt function, on_built_entity order is not defined
+			-- This is for the case when core mod on_built_entity is called second
+			delayId = const.simpleDelayCombinator.defaultDelayId
+		end
+		SetDelayCombinatorDisplay(entity, delayId)
+		return const.simpleDelayCombinator.buildStrings[delayId]
+	end,
+	
+	sdc_SaveStateInfoToSlots = function(entity) 
 		if entity == nil then
 			return nil
 		end
 		local slots = { }
 		local entityId = entity.unit_number
-		local entityName = entity.name
-		if entityName == "euc-distinct-constant-combinator" then
-		end		
-		if entityName == "euc-simple-delay-combinator" then
-			local combinatorState = global.state.delayCombinators[entityId]
-			-- add some information so we can identify combinator settings when it is built from blueprint
-			if combinatorState then
-				slots[1] = { signal = { type = 'item', name = 'wood' }, count = combinatorState.currentDelayId, index = 1 }
-			end
+		local combinatorState = global.state.delayCombinators[entityId]
+		-- add some information so we can identify combinator settings when it is built from blueprint
+		if combinatorState then
+			slots[1] = { signal = { type = 'item', name = 'wood' }, count = combinatorState.currentDelayId, index = 1 }
 		end
-		if entityName ==  "euc-inclusive-filter-combinator" then
-			local combinatorState = global.state.filterCombinators[entityId]
-			if combinatorState then
-				local sigCount = 0
-				for _,sig in pairs(combinatorState.filterSignals) do
-					sigCount = sigCount + 1
-				end
-				table.insert(slots, { signal = { type = 'virtual', name = combinatorState.mixWires and 'signal-A' or 'signal-B' }, count = sigCount })
-				for numId,sig in pairs(combinatorState.filterSignals) do
-					table.insert(slots, { signal = sig, count = numId })
-				end
+		return slots
+	end,
+	
+	sdc_RestoreStateInfoFromSlots = function(entity, slots, nextSlot)
+		if entity == nil then
+			return nil
+		end
+		local entityId = entity.unit_number
+		local combinatorState = global.state.delayCombinators[entityId]
+		if combinatorState then
+			combinatorState.currentDelayId = slots[nextSlot].count
+		else
+			-- We reached this place before OnCombinatorBuilt
+			-- meh, it is always like this -- TODO
+			global.state.delayCombinators[entityId] = { currentDelayId = slots[nextSlot].count }
+		end
+	end,
+	
+	-- Inclusive filter combinator
+	ifc_GetBuildString = function(entity)
+		if entity == nil then
+			return nil
+		end
+		local entityId = entity.unit_number
+		if global.state.filterCombinators[entityId] then
+		end
+		if global.state.filterCombinators[entityId] and global.state.filterCombinators[entityId].currentStr then
+			return global.state.filterCombinators[entityId].currentStr
+		else
+			return const.filterCombinator.emptyString
+		end
+	end,
+	
+	ifc_SaveStateInfoToSlots = function(entity) 
+		if entity == nil then
+			return nil
+		end
+		local entityId = entity.unit_number
+		local slots = { }
+		local combinatorState = global.state.filterCombinators[entityId]
+		if combinatorState then
+			local sigCount = 0
+			for _,sig in pairs(combinatorState.filterSignals) do
+				sigCount = sigCount + 1
+			end
+			table.insert(slots, { signal = { type = 'virtual', name = combinatorState.mixWires and 'signal-A' or 'signal-B' }, count = sigCount })
+			for numId,sig in pairs(combinatorState.filterSignals) do
+				table.insert(slots, { signal = sig, count = numId })
 			end
 		end
 		return slots
 	end,
-	-- Combinator layout is preserved on blueprinting, here we should gain knowledge about what is current layout
-	-- It is much easier to use SaveStateToSlots / RestoreStateInfoFromSlots for this than to lookup current components setup
-	RestoreStateInfoFromSlots = function(entity, slots, nextSlot)
+	
+	ifc_RestoreStateInfoFromSlots = function(entity, slots, nextSlot)
 		if entity == nil then
 			return nil
 		end
-		local entityName = entity.name
 		local entityId = entity.unit_number
-		if entityName == "euc-distinct-constant-combinator" then
+		local combinatorState = global.state.filterCombinators[entityId]
+		if combinatorState then
+		else
+			combinatorState = { }
+			global.state.filterCombinators[entityId] = combinatorState
 		end
-		if entityName == "euc-simple-delay-combinator" then
-			local combinatorState = global.state.delayCombinators[entityId]
-			if combinatorState then
-				combinatorState.currentDelayId = slots[nextSlot].count
-			else
-				-- We reached this place before OnCombinatorBuilt
-				-- meh, it is always like this -- TODO
-				global.state.delayCombinators[entityId] = { currentDelayId = slots[nextSlot].count }
-			end
-		end
-		if entityName ==  "euc-inclusive-filter-combinator" then
-			local combinatorState = global.state.filterCombinators[entityId]
-			if combinatorState then
-			else
-				combinatorState = { }
-				global.state.filterCombinators[entityId] = combinatorState
-			end
-			combinatorState.mixWires = slots[nextSlot].signal.name == 'signal-A'
-			combinatorState.filterSignals = { }
-			local sigCount = slots[nextSlot].count 
+		combinatorState.mixWires = slots[nextSlot].signal.name == 'signal-A'
+		combinatorState.filterSignals = { }
+		local sigCount = slots[nextSlot].count 
+		nextSlot = nextSlot + 1
+		local numId = 1
+		while numId <= sigCount do
+			combinatorState.filterSignals[slots[nextSlot].count] = slots[nextSlot].signal
+			numId = numId + 1
 			nextSlot = nextSlot + 1
-			local numId = 1
-			while numId <= sigCount do
-				combinatorState.filterSignals[slots[nextSlot].count] = slots[nextSlot].signal
-				numId = numId + 1
-				nextSlot = nextSlot + 1
-			end
 		end
-		return nextSlot + 1
-	end
+	end,
 })
 
-local function RegisterEntity(name, offs, cpos)
+local function RegisterEntity(name, prefix, offs, cpos)
 	remote.call(
 		"Composite-Combinators-Core", "registerCompositeCombinatorPrototype", 
 		name, offs, cpos,
-		"ExtremelyUsefulCombinators"
+		"ExtremelyUsefulCombinators", prefix
 	)
 end
 
 function RegisterEntities()
 	-- Register our entities, other info is gained through callbacks
-	RegisterEntity("euc-distinct-constant-combinator", 			2, { x = 0.5, y = 0.5 })
-	RegisterEntity("euc-simple-delay-combinator", 				6, { x = 0.66, y = 0.33 })
-	RegisterEntity("euc-inclusive-filter-combinator", 			6, { x = 0.66, y = 0.33 })
+	RegisterEntity("euc-distinct-constant-combinator", 		"dcc_", 	2, { x = 0.5, y = 0.5 })
+	RegisterEntity("euc-simple-delay-combinator", 			"sdc_",		6, { x = 0.66, y = 0.33 })
+	RegisterEntity("euc-inclusive-filter-combinator",		"ifc_",		6, { x = 0.66, y = 0.33 })
 end
 
 function OnTick(e)
@@ -263,7 +280,7 @@ function UpdateFilterCombinator_CreateDeciderForWire(x, y, nextUnitId, sig)
 	}
 	
 	-- damn this feels good; just build this component there, coorinates are as of uncompressed, archetype build
-	componentStr = callBase("deciderCombinatorBuildString", deciderComponentParams)
+	componentStr = callBase("DeciderCombinatorBuildString", deciderComponentParams)
 	
 	callCore("strBuilderAddComponent", const.strBuilderName, "decider-combinator", { x = x, y = y }, defines.direction.east, componentStr, nextUnitId)
 end

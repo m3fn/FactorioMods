@@ -460,8 +460,7 @@ function FuncMain:StringToDataSlots_Int(str)
 			type = "item", 
 			name = "wood"
 		}, 
-		count = (coreConst.dataVersion),
-		index = nextSlot
+		count = (coreConst.dataVersion)
 	}
 	dataSlots[nextSlot] = initDataSlot
 	nextSlot = nextSlot + 1
@@ -477,13 +476,12 @@ function FuncMain:StringToDataSlots_Int(str)
 		local entDir = tonumber(entitySpl[6])
 		local componentDataStr = entitySpl[7]
 		
-		dataSlots[nextSlot] = { signal = { type = signalType, name = signalName }, count = 37, index = nextSlot }
+		dataSlots[nextSlot] = { signal = { type = signalType, name = signalName }, count = 37 }
 		nextSlot = nextSlot + 1
 			
 		dataSlots[nextSlot] = { 
 			signal = coreConst.specialSignal, 
-			count = math.floor(entPosX) + bit32.lshift(math.floor(entPosY), 8) + bit32.lshift(entDir, 16), 
-			index = nextSlot
+			count = math.floor(entPosX) + bit32.lshift(math.floor(entPosY), 8) + bit32.lshift(entDir, 16)
 		}
 		nextSlot = nextSlot + 1
 		
@@ -496,7 +494,7 @@ function FuncMain:StringToDataSlots_Int(str)
 			if slot.signal.type == coreConst.specialSignal.type and slot.signal.name == coreConst.specialSignal.name then
 				error("Composite-Combinators-Core::StringToDataSlots failed: dataSlots cannot contain "..coreConst.specialSignal.name)
 			end
-			if not slot.signal.type or not slot.signal.name or not slot.count or not slot.index then
+			if not slot.signal.type or not slot.signal.name or not slot.count then
 				error("Composite-Combinators-Core::StringToDataSlots failed: invalid dataSlots from "..signalName)
 			end
 			nextSlot = nextSlot + 1
@@ -515,7 +513,7 @@ function FuncMain:StringToDataSlots_Int(str)
 	end
 	
 	-- boundary
-	dataSlots[nextSlot] = { signal = coreConst.specialSignal, count = -9, index = nextSlot }
+	dataSlots[nextSlot] = { signal = coreConst.specialSignal, count = -9 }
 	nextSlot = nextSlot + 1
 	
 	-- convert connections
@@ -544,8 +542,7 @@ function FuncMain:StringToDataSlots_Int(str)
 				type = "item", 
 				name = wireType == "01" and "red-wire" or "green-wire"
 			}, 
-			count = (ent1Id + bit32.lshift(ent2Id, 16)),
-			index = nextSlot
+			count = (ent1Id + bit32.lshift(ent2Id, 16))
 		}
 		nextSlot = nextSlot + 1
 	
@@ -554,8 +551,7 @@ function FuncMain:StringToDataSlots_Int(str)
 				type = "item", 
 				name = "wood"
 			}, 
-			count = (connection1Id + bit32.lshift(connection2Id, 16)),
-			index = nextSlot
+			count = (connection1Id + bit32.lshift(connection2Id, 16))
 		}
 
 		nextSlot = nextSlot + 1
@@ -568,7 +564,7 @@ function FuncMain:StringToDataSlots_Int(str)
 	end
 	
 	-- boundary
-	dataSlots[nextSlot] = { signal = coreConst.specialSignal, count = -10, index = nextSlot }
+	dataSlots[nextSlot] = { signal = coreConst.specialSignal, count = -10 }
 	nextSlot = nextSlot + 1
 	
 	if nextSlot >= limits.maxDataSlotsInCompositeCombinator then
@@ -839,7 +835,7 @@ function FuncMain:SpawnCompositeCombinatorComponents_Int(combinator, dataSlots2)
 			name = "wood"
 		}, 
 		count = (coreConst.dataVersion + bit32.lshift(infoSlotsLen, 16)),
-		index = nextSlot
+		index = 1
 	}
 	table.insert(params, initDataSlot)
 	nextSlot = nextSlot + 1
@@ -873,7 +869,7 @@ function FuncMain:SpawnDataSlotStorages(combinatorDataDesc, combinatorEntityStat
 	local combinator = combinatorEntityState.entity
 	local surface = combinator.surface
 	combinatorEntityState.dataSlotsStorageCopies = { }
-	local dataSlotsStorageCopiesPositions = FuncMain:GetPossibleDataSlotsPositions(combinator.position, combinator.direction, combinatorDataDesc)
+	local dataSlotsStorageCopiesPositions = FuncMain:GetDataSlotsPositions(combinator.position, combinator.direction, combinatorDataDesc)
 	for _,pos in pairs(dataSlotsStorageCopiesPositions) do
 		local dataSlotsStorage = surface.create_entity({
 			name = "composite-combinator-construction-data",
@@ -888,47 +884,50 @@ function FuncMain:SpawnDataSlotStorages(combinatorDataDesc, combinatorEntityStat
 	end
 end
 
-function FuncMain:GetPossibleDataSlotsPositions(combinatorPosition, combinatorDirection, combinatorDataDesc)
+function FuncMain:GetDataSlotsPositions(combinatorPosition, combinatorDirection, combinatorDataDesc)
 	local switchDim = combinatorDirection == 4 or combinatorDirection == 0
-	local hcw
-	local hch
-	local cw
-	local ch
 	
-	if switchDim then
-		hch = combinatorDataDesc.combinatorWidth/2.0
-		hcw = combinatorDataDesc.combinatorHeight/2.0
-		ch = combinatorDataDesc.combinatorWidth
-		cw = combinatorDataDesc.combinatorHeight
-		
-	else
-		hcw = combinatorDataDesc.combinatorWidth/2.0
-		hch = combinatorDataDesc.combinatorHeight/2.0
-		cw = combinatorDataDesc.combinatorWidth
-		ch = combinatorDataDesc.combinatorHeight
+	local fillArea_Box = game.entity_prototypes[combinatorDataDesc.name].collision_box -- selection with selection tool is counted by collision box for some reason
+	
+	if not switchDim then
+		fillArea_Box = { 
+			left_top = { x = fillArea_Box.left_top.y, y = fillArea_Box.left_top.x }, 
+			right_bottom = { x = fillArea_Box.right_bottom.y, y = fillArea_Box.right_bottom.x } 
+		}
 	end
 	
-	-- Data storages should not stand out but still be selectable with selection tools before combinator itself
-	-- Ideally selection of combinator should perfectly align with selection of data storage (TODO?)
-	local infl = 0.14
-	
-	local dataSlotsStorageCopiesPositions = {
-		{ 
-			x = combinatorPosition.x - hcw + infl, 
-			y = combinatorPosition.y - hch + infl
-		},
-		{ 
-			x = combinatorPosition.x - hcw + cw - infl, 
-			y = combinatorPosition.y - hch + infl
-		},
-		{ 
-			x = combinatorPosition.x - hcw + infl, 
-			y = combinatorPosition.y - hch + ch - infl
-		},
-		{ 
-			x = combinatorPosition.x - hcw + cw - infl, 
-			y = combinatorPosition.y - hch + ch - infl
-		}
+	local fillArea = { 
+		x = fillArea_Box.right_bottom.x - fillArea_Box.left_top.x, 
+		y = fillArea_Box.right_bottom.y - fillArea_Box.left_top.y 
 	}
+	
+	local fillAreaWith_Box = game.entity_prototypes["composite-combinator-construction-data"].collision_box
+	local fillAreaWith = { 
+		x = fillAreaWith_Box.right_bottom.x - fillAreaWith_Box.left_top.x, 
+		y = fillAreaWith_Box.right_bottom.y - fillAreaWith_Box.left_top.y 
+	}
+	
+	-- msg(1, 'combpos: '..combinatorPosition.x..' '..combinatorPosition.y)
+	-- msg(1, 'fa_with: '..fillAreaWith.x..' '..fillAreaWith.y)
+	
+	local topLeftCoord = { x = combinatorPosition.x - (fillArea.x/2.0), y = combinatorPosition.y - (fillArea.y/2.0) }
+	local targetCoord = { x = combinatorPosition.x + (fillArea.x/2.0), y = combinatorPosition.y + (fillArea.y/2.0) }
+	
+	local dataSlotsStorageCopiesPositions = { }
+	local curCoord = { y = topLeftCoord.y }
+	while curCoord.y < targetCoord.y do
+		curCoord.x = topLeftCoord.x
+		while curCoord.x < targetCoord.x do
+			-- msg(1, ' ===== ')
+			table.insert(dataSlotsStorageCopiesPositions, {
+				x = curCoord.x + (fillAreaWith.x/2.0),
+				y = curCoord.y + (fillAreaWith.y/2.0)
+			})
+			curCoord.x = curCoord.x + fillAreaWith.x
+		end
+		curCoord.y = curCoord.y + fillAreaWith.y
+		-- msg(1, 'CCY: '..curCoord.y..' FAWY: '..fillAreaWith.y..' TARGY: '..targetCoord.y)
+	end
+	
 	return dataSlotsStorageCopiesPositions
 end

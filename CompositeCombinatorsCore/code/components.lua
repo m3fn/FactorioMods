@@ -53,11 +53,15 @@ function ComponentsRegistration:ConstantCombinatorSerialize(entity)
 		return nil
 	end
 	
-	local beh = entity.get_control_behavior()
+	local behavior = entity.get_control_behavior()
 	
-	local str = ((beh.enabled and 1) or 0)..(baseConst.strBoundary2)
+	return ComponentsRegistration:ConstantCombinatorBuildString(behavior)
+end
+
+function ComponentsRegistration:ConstantCombinatorBuildString(behavior)
+	local str = ((behavior.enabled and 1) or 0)..(baseConst.strBoundary2)
 	
-	for _,signals in pairs(beh.parameters) do
+	for _,signals in pairs(behavior.parameters) do
 		for _,signal in pairs(signals) do
 			if signal.signal.name then
 				str = str..serializeSignal2B(signal)..(baseConst.strBoundary2)
@@ -75,7 +79,6 @@ function ComponentsRegistration:ConstantCombinatorConvert(str, slots)
 	end
 
 	local count = 0
-	-- convertArithmeticDeciderCommon(str, slots)
 
 	local spl = split3(str, baseConst.strBoundary2)
 	local enabled = tonumber(spl[1])
@@ -93,7 +96,7 @@ function ComponentsRegistration:ConstantCombinatorConvert(str, slots)
 	count = bit32.lshift(count, 16) + enabled
 
 	local nextSlot = 1
-	slots[nextSlot] = { signal = baseConst.specialSignal, count = count, index = nextSlot }
+	slots[nextSlot] = { signal = baseConst.specialSignal, count = count }
 	nextSlot = nextSlot + 1
 
 	for _,node in pairs(spl) do 
@@ -107,7 +110,7 @@ function ComponentsRegistration:ConstantCombinatorConvert(str, slots)
 				break
 			end
 			signalCount = subnodes[3]
-			slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = signalCount, index = nextSlot }
+			slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = signalCount }
 			nextSlot = nextSlot + 1
 		end
 	end
@@ -210,13 +213,13 @@ local function convertArithmeticDeciderCommon(str, slots)
 		if signalType == baseConst.strSpecial then
 			signalCount = 0+tonumber(spl[index])
 			index = index + 1
-			slots[nextSlot] = { signal = { type = baseConst.specialSignal.type, name = baseConst.specialSignal.name }, count = signalCount, index = nextSlot }
+			slots[nextSlot] = { signal = { type = baseConst.specialSignal.type, name = baseConst.specialSignal.name }, count = signalCount }
 			nextSlot = nextSlot + 1
 		else
 			signalName = substituteVerySpecialSignal(spl[index])
 			index = index + 1
 			
-			slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = 0, index = nextSlot }
+			slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = 0 }
 			nextSlot = nextSlot + 1
 		end
 	
@@ -236,7 +239,7 @@ local function convertArithmeticDeciderCommon(str, slots)
 	signalCount = spl[index]
 	index = index + 1
 
-	slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = signalCount, index = nextSlot }
+	slots[nextSlot] = { signal = { type = signalType, name = signalName }, count = signalCount }
 	nextSlot = nextSlot + 1
 	
 	return nextSlot
@@ -252,6 +255,10 @@ function ComponentsRegistration:ArithmeticCombinatorSerialize(entity)
 	end
 	local params = entity.get_control_behavior().parameters
 	
+	return ComponentsRegistration:ArithmeticCombinatorBuildString(params)
+end
+
+function ComponentsRegistration:ArithmeticCombinatorBuildString(params)
 	local str = serializeArithmeticDeciderCommon(params)
 
 	if params.parameters.output_signal then
@@ -403,7 +410,7 @@ function ComponentsRegistration:IOMarkerConvert(str, slots)
 	local num = tonumber(str)
 	
 	local nextSlot = 1
-	slots[nextSlot] = { signal = { type = 'item', name = 'composite-combinator-io-marker' }, count = num, index = nextSlot }
+	slots[nextSlot] = { signal = { type = 'item', name = 'composite-combinator-io-marker' }, count = num }
 end
 
 function ComponentsRegistration:IOMarkerSpawn(entity, slots, nextSlot)
