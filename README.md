@@ -1,8 +1,10 @@
-## Factorio-mods
-Factorio mods smth
 
+## Composite Combinators Core
 
-Composite Combinators Core
+# API
 
-API
+	Composite-Combinators-Core :: registerCompositeCombinatorPrototype(entityName, compressionRatio, componentsTopLeftOffset, callbacksRemote)
 
+		Register composite combinator prototype
+			**Parameters:**
+				1 - entityName
