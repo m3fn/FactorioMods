@@ -33,5 +33,16 @@ data:extend(
     },
     result = "euc-inclusive-filter-combinator"
   },
+  --[[{
+    type = "recipe",
+    name = "euc-demo",
+    enabled = true,
+    ingredients =
+    {
+      {"arithmetic-combinator", 2},
+      {"electronic-circuit", 1}
+    },
+    result = "euc-demo"
+  },]]--
 }
 )

@@ -30,6 +30,17 @@ data:extend(
     order = "c[combinators]-e[euc-inclusive-filter-combinator]",
     stack_size= 50,
   },
+  --[[{
+    type = "item",
+    name = "euc-demo",
+    icon = "__base__/graphics/icons/arithmetic-combinator.png",
+    icon_size = 32,
+    subgroup = "circuit-network",
+    place_result="euc-demo",
+    order = "c[combinators]-e[euc-demo]",
+    stack_size= 50
+  },]]--
+  
   
   
   

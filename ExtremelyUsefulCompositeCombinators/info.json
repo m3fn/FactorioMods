@@ -1,11 +1,11 @@
 {
     "name": "ExtremelyUsefulCompositeCombinators",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "title": "Extremely Useful Composite Combinators",
     "author": "m3f(DRE,DRE2)",
     "contact": "",
     "homepage": "",
     "factorio_version": "0.17",
-    "dependencies": ["base >= 0.17.54", "CompositeCombinatorsCore >= 0.1.1", "?Controllinator >= 0.4.2"],
+    "dependencies": ["base >= 0.17.54", "CompositeCombinatorsCore >= 0.1.2", "?Controllinator >= 0.4.2"],
     "description": ""
 }

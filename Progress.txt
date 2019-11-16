@@ -1,24 +1,7 @@
 
 Progress:
    
-   ------
-   - Comments for devs
-   - Core Github readme
-   - Write mod description for core
-   - Write mod description for euc
-   ------
-   
-   ------
-   - 0.1.2
-   - Ask for looks
-   ------
 
-   ------
-   - overall polish
-   - Add errors
-   - Unit tests? - check all states of vanilla components
-   ------
-   
    ------
    - Rotation
    - Redo strs
@@ -27,6 +10,7 @@ Progress:
    - Controllinator compatibility
    - Pass any damage to the composite combinator, test biters
    - On died, change component icons - can be checked with .destroy()
+   - Check Corpses
    - on_player_*
    - Restrict composite combinator flags (e.g. "building-direction-8-way")
    - Restrict component flags
@@ -35,6 +19,12 @@ Progress:
    - ChangeLayout does not reset entity
    - Test out Build and remove by hand and with robots
    - Recursive blueprints compatibility
+   - Check component's bounds is buggy
+   ------
+   
+   ------
+   - Simple memory with shit GUIs an graphics
+   - Switch combinator with shit GUIs an graphics
    ------
    
    ------
@@ -42,8 +32,9 @@ Progress:
    ------
    
    ------
-   - Simple memory with shit GUIs an graphics
-   - Switch combinator with shit GUIs an graphics
+   - overall polish
+   - Add errors
+   - Unit tests? - check all states of vanilla components
    ------
   
    ------
@@ -73,17 +64,16 @@ Some time later (IDEAS AND TODO LIST):
 - Electricity requirement
 - Selection tools and icons graphics
 - Draw small leds with components over the combinator
+- Working component LEDS
+- Working combinator LEDS
 - Good graphics
 - Complex Distinct combinator GUI
 - Add components substrings to substr dict
 - Check out unsanctioned components settings change?
 - Inteference from other mod, like with script_raised_destroy, script_raised_revive, script_raised_built, on_trigger_created_entity, look for other undesired way of disrupting setup
-- Check Corpses
 - Cross-surface configuring, compatibility with any rts-style mods out there (are there any?) -- both at least for distinct constant combinator gui
 - Define custom connectors
-- Polish eveything with grumpy look
 - Test build performance a bit to know limitations
-- Check component's bounds is buggy
 - Data storage: Combinators with asymmetric collision_box, combinators with collision_box not divisible by data storage collision_box
 - Data storage: periemeter only
 - Data storage: Bigger sizes data storages

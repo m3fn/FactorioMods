@@ -10,23 +10,23 @@ const = {
 	managedEnts = {
 		"euc-distinct-constant-combinator",
 		"euc-simple-delay-combinator",
-		"euc-inclusive-filter-combinator"
+		"euc-inclusive-filter-combinator",
 	},
 	distinctConstantCombinator = {
-		defaultBuildString = "item$composite-combinator-io-marker$item$constant-combinator$)1$2$1$262144$1(3$4$2$131584$1[(3$4$2$393472$1[()01$131073$65537(00$196609$65537("
+		defaultBuildString = "2#$item#composite-combinator-io-marker#constant-combinator#$1#3#2#0#0#2#1*%1#2#1#0#0#0#1%1#3#2#0#1#2#1*%$01#1#2#1#1#%00#2#3#1#1#%"
 	},
 	simpleDelayCombinator = {
 		buildStrings = {
 			-- 1 tick
-			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#2.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%00#1#2#1#1#%01#2#3#2#1#%00#2#3#2#1#%01#3#4#2#1#%00#3#4#2#1#%",
+			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#5.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%00#1#3#1#1#%01#2#4#2#1#%00#3#4#2#1#%",
 			-- 2 ticks
-			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#2.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%00#1#2#1#1#%01#2#3#2#1#%00#2#3#2#1#%01#3#4#2#1#%00#3#4#2#1#%",
+			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#4.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#3#1#1#%00#1#2#1#1#%00#2#4#2#1#%01#3#5#2#1#%00#4#6#2#1#%01#5#6#2#1#%",
 			-- 3 ticks
-			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#2.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%00#1#2#1#1#%01#2#3#2#1#%00#2#3#2#1#%01#3#4#2#1#%00#3#4#2#1#%",
+			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#3.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#3.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#5#1#1#%00#1#2#1#1#%00#2#3#2#1#%00#3#4#2#1#%00#4#8#2#1#%01#5#6#2#1#%01#6#7#2#1#%01#7#8#2#1#%",
 			-- 5 ticks
-			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#2.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%00#1#2#1#1#%01#2#3#2#1#%00#2#3#2#1#%01#3#4#2#1#%00#3#4#2#1#%",
+			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#3.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#8.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#8.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#3.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#5#1#1#%00#1#6#1#1#%00#2#6#1#2#%00#2#3#2#1#%00#3#4#2#1#%00#4#8#2#1#%01#5#9#2#1#%01#7#11#1#2#%01#7#12#2#1#%00#8#12#2#1#%01#9#10#2#1#%01#10#11#2#1#%",
 			-- 7 ticks
-			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#2.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#2#1#1#%00#1#2#1#1#%01#2#3#2#1#%00#2#3#2#1#%01#3#4#2#1#%00#3#4#2#1#%",
+			"2#$item#composite-combinator-io-marker#arithmetic-combinator#$1#2#1#0#0#0#1%1#3#45#3.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#0#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#2.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#4.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#6.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#8.5#2#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#8.5#1#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#3.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#5.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#3#45#7.5#3#2#virtual!signal-each!^!1!virtual!signal-each!1%1#2#1#0#0#0#2%$01#1#5#1#1#%00#1#6#1#1#%00#2#6#1#2#%00#2#8#2#1#%00#3#8#1#2#%00#3#10#2#1#%00#4#10#1#2#%00#4#12#2#1#%01#5#13#2#1#%01#7#13#1#2#%01#7#14#2#1#%01#9#14#1#2#%01#9#15#2#1#%01#11#15#1#2#%01#11#16#2#1#%00#12#16#2#1#%",
 		},
 		defaultDelayId = 3,
 		thresholds = {
@@ -48,9 +48,7 @@ const = {
 		maxItems = 8,
 		emptyDisplaySign = '^'
 	},
-	strBuilderName = "euc",
-	
-	
+	strBuilderName = "euc"
 }
 
 function OnInit()
@@ -69,6 +67,8 @@ function OnInit()
 	
 	RegisterEntities()
 	EnsurePlayerStates()
+	
+	-- remote.call("Composite-Combinators-Core", "registerCompositeCombinatorPrototype", "euc-demo", 2, { x = 0, y = 0 }, "ExtremelyUsefulCombinators", "demoEntity_")
 end
 
 function CreatePlayerDesc()
@@ -204,6 +204,28 @@ remote.add_interface("ExtremelyUsefulCombinators", {
 			nextSlot = nextSlot + 1
 		end
 	end,
+	
+  --[[
+  demoEntity_GetBuildString = function(entity)
+    if entity == nil then
+      return nil
+    end
+    return "%#!^XYZ*$"
+  end,
+
+  demoEntity_SaveStateInfoToSlots = function(entity) 
+    if entity == nil then
+      return nil
+    end
+    return { }
+  end,
+  
+  demoEntity_RestoreStateInfoFromSlots = function(entity, slots, nextSlot)
+    if entity == nil then
+      return
+    end
+  end
+  ]]--
 })
 
 local function RegisterEntity(name, prefix, offs, cpos)
@@ -306,8 +328,10 @@ function UpdateFilterCombinator(entityId)
 		end
 	end
 	
-	if nextUnitId == 1 then -- nothing here
+	if nextUnitId == 1 then -- no signals
 		callCore("strBuilderClose", const.strBuilderName)
+		entityState.currentStr = const.filterCombinator.emptyString
+		callCore("changeLayout", entityId)
 		return
 	end
 	
