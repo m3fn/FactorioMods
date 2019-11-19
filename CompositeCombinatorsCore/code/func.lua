@@ -208,7 +208,7 @@ EnshureConstructionDataCopies = function(combinatorEntityState)
 	end
 	if not dataSlots then
 		-- TODO? recreate?
-		error('0')
+		error('EnshureConstructionDataCopies not datSlots error')
 	end
 	for _, dataSlotsStorage in pairs(combinatorEntityState.dataSlotsStorageCopies) do
 		dataSlotsStorage.destroy()

@@ -13,7 +13,7 @@ const = {
 		"euc-inclusive-filter-combinator",
 	},
 	distinctConstantCombinator = {
-		defaultBuildString = "2#$item#composite-combinator-io-marker#constant-combinator#$1#3#2#0#0#2#1*%1#2#1#0#0#0#1%1#3#2#0#1#2#1*%$01#1#2#1#1#%00#2#3#1#1#%"
+		defaultBuildString = "2#$item#composite-combinator-io-marker#constant-combinator#$1#3#2#0#0#2#1*%1#3#2#0#1#2#1*%1#2#1#0#0#0#1%$01#1#3#1#1#%00#2#3#1#1#%"
 	},
 	simpleDelayCombinator = {
 		buildStrings = {
@@ -379,7 +379,7 @@ function DistinctConstantCombinatorClick_ForWire(combinator, player, wireId)
 			table.insert(
 				global.state.nextGuiCloseHandlers, 
 				function(e) 
-					callCore( "refreshDataStorageSlots", combinatorId)
+					callCore("refreshDataStorageSlots", combinatorId)
 				end
 			)
 			return

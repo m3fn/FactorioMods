@@ -20,7 +20,7 @@ FuncMain = {}
 FuncMain.__index = FuncMain
 
 local function GetComponentDataDesc(entityName, fromComponents)
-	if fromComponents then
+	if fromComponents and entityName ~= "composite-combinator-io-marker" then
 		return global.modCfg.componentPrototypesByComponentName[entityName]
 	else
 		return global.modCfg.componentPrototypes[entityName]
@@ -28,15 +28,15 @@ local function GetComponentDataDesc(entityName, fromComponents)
 end
 
 local function EntityOrComponentToSignal_Int(entity, fromComponents)
-	if fromComponents then
-		local entityName = entity.name
+	local entityName = entity.name
+	if fromComponents and entityName ~= "composite-combinator-io-marker" then
 		for _,dd in pairs(global.modCfg.componentPrototypes) do
 			if dd.componentEntityName == entityName then
 				return EntityNameToSignal(dd.archetypeEntityName)
 			end
 		end
 	else
-		return EntityNameToSignal(entity.name)
+		return EntityNameToSignal(entityName)
 	end
 end
 
@@ -200,7 +200,7 @@ function StrBuilder:Fill(combinator, components, fromComponents)
 				)
 				
 				redirectConnectionsConnectorIdToIOMarker[ccDef.target_circuit_id] = nextVirtualEntId
-				entIdToVirtualEntId[entity.unit_number] = nextVirtualEntId
+				-- entIdToVirtualEntId[combinator.unit_number] = nextVirtualEntId
 				nextVirtualEntId = nextVirtualEntId + 1
 			end
 		end
@@ -356,9 +356,9 @@ function StrBuilder:Build()
 	
 	-- serialize components entities
 	for _,entity in pairs(orderedComponents) do 
-		entityDataDesc = GetComponentDataDesc(entity.name, fromComponents)
+		entityDataDesc = GetComponentDataDesc(entity.name, self.fromComponents)
 		
-		signal = EntityOrComponentToSignal(entity, fromComponents)
+		signal = EntityOrComponentToSignal(entity, self.fromComponents)
 		
 		if entity.position.x >= limits.maxComponentsArchetypesAreaSize or entity.position.y >= limits.maxComponentsArchetypesAreaSize or 
 			(entity.position.x-xmin) >= limits.maxComponentsArchetypesAreaSize or (entity.position.y-ymin) >= limits.maxComponentsArchetypesAreaSize then
