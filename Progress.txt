@@ -1,27 +1,44 @@
 
 Progress:
+
+   ------
+   - Attach info to blueprints, spawn from str
+   - Remove dataslots
+   - Test out Build and remove by hand and with robots
+   
+   - Slots checksum
+   - String checksum
+   - Add components substrings to substr dict
+   
+   - Check component's bounds is buggy
+   - Redo strs
+   ------
    
    ------
    - Copy settings
    - What is on_area_cloned, ctr+c, ctrl+v, ctrl+x
    - Restrict composite combinator flags (e.g. "building-direction-8-way")
    - Restrict component flags
-   - Slots checksum
-   - String checksum
-   ------
-   
-   ------
    - Rotation
-   - Redo strs
    - Controllinator compatibility
    - Pass any damage to the composite combinator, test biters
    - On died, change component icons - can be checked with .destroy()
    - Check Corpses
    - on_player_*
-   - ChangeLayout does not reset entity
-   - Test out Build and remove by hand and with robots
+   - Draw small leds with components over the combinator
+   - Working component LEDS
+   - Working combinator LEDS
+   ------
+   
+   ------
+   - 0.2.0
+   - Publish on mod portal
+   ------
+   
+   ------
    - Recursive blueprints compatibility
-   - Check component's bounds is buggy
+   - ChangeLayout does not reset entity
+   - Define custom connectors
    ------
    
    ------
@@ -31,35 +48,6 @@ Progress:
    - Switch combinator with shit GUIs an graphics
    - Index Filter with shit GUIs an graphics
    ------
-   
-   ------
-   - Other unexpected work
-   ------
-   
-   ------
-   - overall polish
-   - Add errors
-   - Unit tests? - check all states of vanilla components
-   ------
-  
-   ------
-   - Publish Pre-alpha 0.2 (mod portal) ?
-   ------
-   
-   -------
-   - Performance optimizations all around
-   -------
-   
-    -------
-    - Find bugs, edge cases
-    ------- 
-   
-   ------
-   - Other unexpected work
-   - Wait and get feedback from community
-   ------
-	
-
 
 
 Some time later (IDEAS AND TODO LIST):
@@ -67,22 +55,18 @@ Some time later (IDEAS AND TODO LIST):
 
 - Electricity requirement
 - Selection tools and icons graphics
-- Draw small leds with components over the combinator
-- Working component LEDS
-- Working combinator LEDS
 - Good graphics
-- Complex Distinct combinator GUI
-- Add components substrings to substr dict
 - Check out unsanctioned components settings change?
 - Inteference from other mod, like with script_raised_destroy, script_raised_revive, script_raised_built, on_trigger_created_entity, look for other undesired way of disrupting setup
 - Cross-surface configuring, compatibility with any rts-style mods out there (are there any?) -- both at least for distinct constant combinator gui
-- Define custom connectors
 - Test build performance a bit to know limitations
 - Data storage: Combinators with asymmetric collision_box, combinators with collision_box not divisible by data storage collision_box
 - Data storage: periemeter only
 - Data storage: Bigger sizes data storages
-
-  .......
+- Add errors
+- Unit tests? - check all states of vanilla components
+- Performance optimizations all around
+- Find bugs, edge cases
 
 
 	-- Combinator layout is preserved on blueprinting, here we should gain knowledge about what is current layout

@@ -556,8 +556,26 @@ function OnAreaCloned(e)
 
 end
 
+function OnPreEntitySettingsPasted(e)
+	Func:TryCopySettings(e.source, e.destination)
 
+end
 
+function OnEntitySettingsPasted(e)
+	local srcCombinatorDataDesc = global.modCfg.combinatorPrototypes[e.source.prototype.name]
+	local destCombinatorDataDesc = global.modCfg.combinatorPrototypes[e.destination.prototype.name]
+	if destCombinatorDataDesc then
+		if srcCombinatorDataDesc.name ~= destCombinatorDataDesc.name then
+			-- revert
+			if destCombinatorDataDesc.isManagedByString then
+			
+			else 
+				Func:RefreshDataStorageSlots(e.destination.unit_number)
+			end
+		end
+	end
+	
+end
 
 local de = defines.events
 
@@ -592,5 +610,7 @@ script.on_event(de.on_area_cloned, OnAreaCloned)
 script.on_event(de.on_robot_built_entity, OnRobotBuiltEntity)
 script.on_event(de.on_robot_pre_mined, OnRobotPreMined)
 script.on_event(de.on_robot_mined_entity, OnRobotMinedEntity)
+script.on_event(de.on_pre_entity_settings_pasted, OnPreEntitySettingsPasted)
+script.on_event(de.on_entity_settings_pasted, OnEntitySettingsPasted)
 
 --- #endregion

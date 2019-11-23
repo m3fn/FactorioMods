@@ -75,6 +75,12 @@ function Func:EnshureConstructionDataCopies(combinatorState)
 	return EnshureConstructionDataCopies(combinatorState)
 end
 
+local TryCopySettings
+function Func:TryCopySettings(srcCombinator, destCombinator)
+	return TryCopySettings(srcCombinator, destCombinator)
+end
+
+
 --- #endregion
 
 
@@ -95,8 +101,8 @@ end
 
 local function GetCombinatorComponents(combinator)
 	local res = { }
-	local combinatorDataDesc = global.state.combinatorEntities[combinator.unit_number]
-	for _,component in pairs(combinatorDataDesc.components) do
+	local combinatorState = global.state.combinatorEntities[combinator.unit_number]
+	for _,component in pairs(combinatorState.components) do
 		table.insert(res, component.componentEntity)
 	end
 	return res
@@ -146,7 +152,7 @@ end
 
 GetComponentsStringFromComponents = function(combinator)
 	local components = GetCombinatorComponents(combinator)
-
+	
 	return FuncMain:GetComponentsStringFromEntities_Int(combinator, components, true)
 end
 
@@ -189,6 +195,10 @@ RefreshDataStorageSlots = function(combinatorId)
 	local combinatorEntity = combinatorEntityState.entity
 	local str = Func:GetComponentsStringFromComponents(combinatorEntity)
 	
+	-- if tonumber(str) then
+	-- 	return str
+	-- end
+	
 	-- We could just update data slots entity, but this breaks consistency that signals that are currently on wire are reset on entity settings change
 	-- this is inevitable case for ChangeLayout, so we do this here as well
 	-- reset wire signals only for some cases will look strange for user
@@ -217,3 +227,27 @@ EnshureConstructionDataCopies = function(combinatorEntityState)
 	FuncMain:SpawnDataSlotStorages(combinatorDataDesc, combinatorEntityState, dataSlots)
 end
 
+TryCopySettings = function(srcCombinator, destCombinator)
+	local srcCombinatorDataDesc = global.modCfg.combinatorPrototypes[srcCombinator.prototype.name]
+	local destCombinatorDataDesc = global.modCfg.combinatorPrototypes[destCombinator.prototype.name]
+	
+	if srcCombinatorDataDesc and srcCombinatorDataDesc.name == destCombinatorDataDesc.name then
+		if destCombinatorDataDesc.isManagedByString then
+			-- Copy str
+			local srcCombinatorEntityState = global.state.combinatorEntities[srcCombinator.unit_number]
+			local destCombinatorEntityState = global.state.combinatorEntities[destCombinator.unit_number]
+			
+			DeleteComponents_Int(destCombinator, destCombinatorEntityState)
+			
+			local str = Func:GetComponentsStringFromComponents(srcCombinator)
+			
+			msg(1, srcCombinator.unit_number..inspect(srcCombinatorEntityState.built))
+
+			SpawnCompositeCombinatorComponents(destCombinator, destCombinatorDataDesc, str)
+		else
+			-- Copy slots
+			Func:RefreshDataStorageSlots(destCombinator.unit_number)
+		end
+	end
+
+end
